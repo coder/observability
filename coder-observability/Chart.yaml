@@ -1,0 +1,40 @@
+apiVersion: v2
+name: coder-observability
+description: Gain insights into your Coder deployment
+
+type: application
+version: 0.1.0
+appVersion: "2.9.2"
+dependencies:
+  - name: grafana
+    alias: dashboards
+    condition: dashboards.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: v7.3.7
+  - name: prometheus
+    alias: metrics
+    condition: metrics.enabled
+    repository: https://prometheus-community.github.io/helm-charts
+    version: v25.18.0
+  - name: loki
+    alias: logs
+    condition: logs.enabled
+    repository: "@grafana"
+    version: v5.47.2
+  - name: grafana-agent
+    alias: collector
+    condition: collector.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: 0.37.0
+maintainers:
+  - name: Coder Technologies, Inc.
+    url: https://github.com/coder/observability/issues
+keywords:
+  - observability
+  - coder
+  - coder.com
+  - cloud development environment
+  - cde
+sources:
+  - https://github.com/coder/observability
+icon: https://helm.coder.com/coder_logo_black.png

@@ -1,0 +1,56 @@
+collector:
+  enabled: true
+  agent:
+    mode: 'flow'
+    configMap:
+      name: o11y-collector-config
+      key: river
+      create: false
+    clustering:
+      enabled: false
+    extraArgs:
+      - --disable-reporting=true
+    mounts:
+      varlog: true
+      dockercontainers: true
+  controller:
+    type: 'daemonset'
+  crds:
+    create: false
+dashboards:
+  enabled: true
+  testFramework:
+    enabled: false
+metrics:
+  enabled: true
+  testFramework:
+    enabled: false
+
+  # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
+  serverFiles:
+    prometheus.yml:
+        scrape_configs:
+logs:
+  enabled: true
+  test:
+    enabled: false
+  nameOverride: o11y-logs
+  loki:
+    enterprise:
+      enabled: false
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+
+  # disabled scraping of logs by the Loki helm chart since this is managed by the collector
+  monitoring:
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+  write:
+    replicas: 1
+  read:
+    replicas: 1
+  backend:
+    replicas: 1
