@@ -19,8 +19,8 @@ dependencies:
   - name: loki
     alias: logs
     condition: logs.enabled
-    repository: "@grafana"
-    version: v5.47.2
+    repository: http://localhost:8080
+    version: v6.2.1
   - name: grafana-agent
     alias: collector
     condition: collector.enabled

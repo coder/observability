@@ -1,10 +1,16 @@
+fullnameOverride: null
+global:
+  zone: svc.cluster.local
+  metricsName: metrics
+
 collector:
   enabled: true
+  fullnameOverride: collector
   agent:
-    mode: 'flow'
+    mode: flow
     configMap:
-      name: o11y-collector-config
-      key: river
+      name: collector-config
+      key: config.river
       create: false
     clustering:
       enabled: false
@@ -14,15 +20,42 @@ collector:
       varlog: true
       dockercontainers: true
   controller:
-    type: 'daemonset'
+    type: daemonset
   crds:
     create: false
+
 dashboards:
   enabled: true
+  fullnameOverride: dashboards
   testFramework:
     enabled: false
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: metrics
+          type: prometheus
+          url: http://metrics.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
+          access: proxy
+          isDefault: true
+          editable: false
+        - name: logs
+          type: loki
+          url: http://logs-gateway.{{ .Release.Namespace }}.svc.cluster.local
+          access: proxy
+          isDefault: false
+          editable: false
+
 metrics:
   enabled: true
+  kube-state-metrics:
+    fullnameOverride: kube-state-metrics
+  server:
+    fullnameOverride: metrics
+  alertmanager:
+    fullnameOverride: alertmanager
+  prometheus-node-exporter:
+    fullnameOverride: node-exporter
   testFramework:
     enabled: false
 
@@ -32,15 +65,31 @@ metrics:
         scrape_configs:
 logs:
   enabled: true
+  nameOverride: logs
   test:
     enabled: false
-  nameOverride: o11y-logs
+  fullnameOverride: logs
+  minio:
+    fullnameOverride: logs-storage
+    address: logs-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000
+
   loki:
+    useTestSchema: true # TODO: fix
     enterprise:
       enabled: false
     auth_enabled: false
     commonConfig:
       replication_factor: 1
+
+  lokiCanary:
+    enabled: false # TODO: re-enable
+    annotations:
+      prometheus.io/scrape: "true"
+
+  chunksCache:
+    allocatedMemory: 1024
+  resultsCache:
+    allocatedMemory: 1024
 
   # disabled scraping of logs by the Loki helm chart since this is managed by the collector
   monitoring:
@@ -48,8 +97,13 @@ logs:
       enabled: false
       grafanaAgent:
         installOperator: false
+
+  gateway:
+    replicas: 1
   write:
     replicas: 1
+    extraArgs:
+      - -log.level=debug
   read:
     replicas: 1
   backend:
