@@ -63,26 +63,42 @@ metrics:
   serverFiles:
     prometheus.yml:
         scrape_configs:
+
 logs:
   enabled: true
   nameOverride: logs
+
   test:
-    enabled: false
+    canaryServiceAddress: "http://logs-canary:3500/metrics"
+    enabled: true
   fullnameOverride: logs
+
   minio:
+    enabled: true
     fullnameOverride: logs-storage
     address: logs-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/minio/v2/metrics/cluster"
 
   loki:
-    useTestSchema: true # TODO: fix
     enterprise:
       enabled: false
     auth_enabled: false
     commonConfig:
       replication_factor: 1
+    schemaConfig:
+      configs:
+      - from: 2024-04-01
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
 
   lokiCanary:
-    enabled: false # TODO: re-enable
+    enabled: true
     annotations:
       prometheus.io/scrape: "true"
 
