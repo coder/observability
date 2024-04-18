@@ -57,8 +57,6 @@ dashboards:
           access: proxy
           isDefault: false
           editable: false
-  serviceAccount:
-    name: grafana
   admin:
     existingSecret: grafana-admin
     userKey: username
