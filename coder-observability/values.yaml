@@ -29,6 +29,14 @@ collector:
 dashboards:
   enabled: true
   fullnameOverride: dashboards
+  replicas: 1
+  deploymentStrategy:
+    type: Recreate  # avoid MultiAttachError for standard-rwo sc
+  service:
+    enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
   testFramework:
     enabled: false
   annotations:
@@ -49,6 +57,24 @@ dashboards:
           access: proxy
           isDefault: false
           editable: false
+  serviceAccount:
+    name: grafana
+  admin:
+    existingSecret: grafana-admin
+    userKey: username
+    passwordKey: password
+  grafana.ini:
+    analytics:
+      reporting_enabled: false
+    users:
+      allow_sign_up: false
+  sidecar:
+    dashboards:
+      provider:
+        disableDelete: true
+        allowUiUpdates: true
+      enabled: true
+      labelValue: "1"
 
 metrics:
   enabled: true
