@@ -78,23 +78,53 @@ dashboards:
 
 metrics:
   enabled: true
-  kube-state-metrics:
-    fullnameOverride: kube-state-metrics
-    podAnnotations:
-      prometheus.io/scrape: "true"
   server:
     fullnameOverride: metrics
     podAnnotations:
       prometheus.io/scrape: "true"
+
+    global:
+      scrape_interval: 15s
+    extraArgs:
+      log.level: debug
+    replicaCount: 1
+    statefulSet:
+      enabled: true
+
+    retentionSize: 10GB
+    persistentVolume:
+      enabled: true
+      # Note: allowing +2GB breathing room above storage.tsdb.retention.size
+      size: 12Gi
+    service:
+      type: ClusterIP
+    extraFlags:
+      - web.enable-lifecycle
+      - enable-feature=remote-write-receiver
+
+  testFramework:
+    enabled: false
+
   alertmanager:
     fullnameOverride: alertmanager
+    enabled: true
+    service:
+      port: 80
+    podAnnotations:
+      prometheus.io/scrape: "true"
+  kube-state-metrics:
+    fullnameOverride: kube-state-metrics
+    enabled: true
     podAnnotations:
       prometheus.io/scrape: "true"
   prometheus-node-exporter:
     fullnameOverride: node-exporter
+    enabled: true
     podAnnotations:
       prometheus.io/scrape: "true"
-  testFramework:
+
+  # Disable push gateway
+  prometheus-pushgateway:
     enabled: false
 
   # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
