@@ -1,6 +1,6 @@
 fullnameOverride: null
 global:
-  zone: svc.cluster.local
+  zone: svc
   metricsName: metrics
 
 collector:
@@ -21,6 +21,8 @@ collector:
       dockercontainers: true
   controller:
     type: daemonset
+    podAnnotations:
+      prometheus.io/scrape: "true"
   crds:
     create: false
 
@@ -29,6 +31,8 @@ dashboards:
   fullnameOverride: dashboards
   testFramework:
     enabled: false
+  annotations:
+    prometheus.io/scrape: "true" # TODO: this adds annotations to _all_ resources; can we be more specific?
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -41,7 +45,7 @@ dashboards:
           editable: false
         - name: logs
           type: loki
-          url: http://logs-gateway.{{ .Release.Namespace }}.svc.cluster.local
+          url: http://logs-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
           isDefault: false
           editable: false
@@ -50,12 +54,20 @@ metrics:
   enabled: true
   kube-state-metrics:
     fullnameOverride: kube-state-metrics
+    podAnnotations:
+      prometheus.io/scrape: "true"
   server:
     fullnameOverride: metrics
+    podAnnotations:
+      prometheus.io/scrape: "true"
   alertmanager:
     fullnameOverride: alertmanager
+    podAnnotations:
+      prometheus.io/scrape: "true"
   prometheus-node-exporter:
     fullnameOverride: node-exporter
+    podAnnotations:
+      prometheus.io/scrape: "true"
   testFramework:
     enabled: false
 
