@@ -19,8 +19,8 @@ dependencies:
   - name: loki
     alias: logs
     condition: logs.enabled
-    repository: http://localhost:8080
-    version: v6.2.1
+    repository: https://grafana.github.io/helm-charts
+    version: v6.3.4
   - name: grafana-agent
     alias: collector
     condition: collector.enabled

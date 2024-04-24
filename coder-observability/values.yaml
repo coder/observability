@@ -133,6 +133,7 @@ metrics:
 logs:
   enabled: true
   nameOverride: logs
+  fullnameOverride: logs
 
   enterprise:
     enabled: false
@@ -143,7 +144,6 @@ logs:
   test:
     canaryServiceAddress: "http://logs-canary:3500/metrics"
     enabled: true
-  fullnameOverride: logs
 
   minio:
     enabled: true
