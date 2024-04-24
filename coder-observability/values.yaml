@@ -1,7 +1,17 @@
 fullnameOverride: null
+
 global:
   zone: svc
-  metricsName: metrics
+
+postgres:
+  exporter:
+    # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
+    hostname: localhost
+    port: 5432
+    username: coder
+    password: secret42
+    database: coder
+    sslmode: disable
 
 collector:
   enabled: true

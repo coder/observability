@@ -81,3 +81,10 @@ datasources:
     editable: false
 {{- end }}
 
+{{/*
+Postgres connector string
+*/}}
+{{- define "postgres-connector-string" -}}
+postgresql://{{ .Values.postgres.exporter.username }}:{{ .Values.postgres.exporter.password }}@{{ .Values.postgres.exporter.hostname }}:{{ .Values.postgres.exporter.port }}/postgres?sslmode={{ .Values.postgres.exporter.sslmode }}
+{{- end }}
+
