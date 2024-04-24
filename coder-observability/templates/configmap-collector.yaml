@@ -19,7 +19,6 @@ data:
 
     discovery.kubernetes "pods" {
       role = "pod"
-      // limit to pods on this node to reduce the amount you need to filter
       selectors {
        role  = "pod"
       }
@@ -58,6 +57,103 @@ data:
          replacement = "$1"
          target_label = "tmp_container_runtime"
        }
+    }
+
+    // TODO: share common relabelings
+    discovery.relabel "pod_metrics" {
+      targets = discovery.kubernetes.pods.targets
+
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+        separator     = "/"
+        target_label  = "job"
+        action = "replace"
+      }
+
+      // adapted from the Prometheus helm chart
+      // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+        action = "keep"
+        regex = "true"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
+        action = "replace"
+        regex = "(https?)"
+        target_label = "__scheme__"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+        action = "replace"
+        target_label = "__metrics_path__"
+        regex = "(.+)"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+        action = "replace"
+        regex = "(\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})"
+        replacement = "[$2]:$1"
+        target_label = "__address__"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+        action = "replace"
+        regex = "(\\d+);((([0-9]+?)(\\.|$)){4})"
+        replacement = "$2:$1"
+        target_label = "__address__"
+      }
+
+      rule {
+        action = "labelmap"
+        regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
+        replacement = "__param_$1"
+      }
+
+      rule {
+        action = "labelmap"
+        regex = "__meta_kubernetes_pod_label_(.+)"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        action = "replace"
+        target_label = "namespace"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        action = "replace"
+        target_label = "pod"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_phase"]
+        regex = "Pending|Succeeded|Failed|Completed"
+        action = "drop"
+      }
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_node_name"]
+        action = "replace"
+        target_label = "node"
+      }
     }
 
     local.file_match "pod_logs" {
@@ -115,5 +211,16 @@ data:
         //   username = nonsensitive(remote.kubernetes.secret.credentials.data["username"])
         //   password = remote.kubernetes.secret.credentials.data["password"]
         // }
+      }
+    }
+
+    prometheus.scrape "pods" {
+      targets = discovery.relabel.pod_metrics.output
+      forward_to = [prometheus.remote_write.default.receiver]
+    }
+
+    prometheus.remote_write "default" {
+      endpoint {
+        url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.svc.cluster.local/api/v1/write"
       }
     }

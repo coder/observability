@@ -1,6 +1,6 @@
 fullnameOverride: null
 global:
-  zone: svc.cluster.local
+  zone: svc
   metricsName: metrics
 
 collector:
@@ -21,14 +21,26 @@ collector:
       dockercontainers: true
   controller:
     type: daemonset
+    podAnnotations:
+      prometheus.io/scrape: "true"
   crds:
     create: false
 
 dashboards:
   enabled: true
   fullnameOverride: dashboards
+  replicas: 1
+  deploymentStrategy:
+    type: Recreate  # avoid MultiAttachError for standard-rwo sc
+  service:
+    enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
   testFramework:
     enabled: false
+  annotations:
+    prometheus.io/scrape: "true" # TODO: this adds annotations to _all_ resources; can we be more specific?
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -41,48 +53,149 @@ dashboards:
           editable: false
         - name: logs
           type: loki
-          url: http://logs-gateway.{{ .Release.Namespace }}.svc.cluster.local
+          url: http://logs-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
           isDefault: false
           editable: false
+  admin:
+    existingSecret: grafana-admin
+    userKey: username
+    passwordKey: password
+  grafana.ini:
+    analytics:
+      reporting_enabled: false
+    users:
+      allow_sign_up: false
+  sidecar:
+    dashboards:
+      provider:
+        disableDelete: true
+        allowUiUpdates: true
+      enabled: true
+      labelValue: "1"
 
 metrics:
   enabled: true
-  kube-state-metrics:
-    fullnameOverride: kube-state-metrics
   server:
     fullnameOverride: metrics
+    podAnnotations:
+      prometheus.io/scrape: "true"
+
+    global:
+      scrape_interval: 15s
+    extraArgs:
+      log.level: debug
+    replicaCount: 1
+    statefulSet:
+      enabled: true
+
+    retentionSize: 10GB
+    persistentVolume:
+      enabled: true
+      # Note: allowing +2GB breathing room above storage.tsdb.retention.size
+      size: 12Gi
+    service:
+      type: ClusterIP
+    extraFlags:
+      - web.enable-lifecycle
+      - enable-feature=remote-write-receiver
+
+  testFramework:
+    enabled: false
+
   alertmanager:
     fullnameOverride: alertmanager
+    enabled: true
+    service:
+      port: 80
+    podAnnotations:
+      prometheus.io/scrape: "true"
+  kube-state-metrics:
+    fullnameOverride: kube-state-metrics
+    enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "true"
   prometheus-node-exporter:
     fullnameOverride: node-exporter
-  testFramework:
+    enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "true"
+
+  # Disable push gateway
+  prometheus-pushgateway:
     enabled: false
 
   # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
   serverFiles:
     prometheus.yml:
         scrape_configs:
+
 logs:
   enabled: true
   nameOverride: logs
-  test:
-    enabled: false
   fullnameOverride: logs
+
+  enterprise:
+    enabled: false
+    adminApi:
+      enabled: false
+    useExternalLicense: false
+
+  test:
+    canaryServiceAddress: "http://logs-canary:3500/metrics"
+    enabled: true
+
   minio:
+    enabled: true
     fullnameOverride: logs-storage
     address: logs-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/minio/v2/metrics/cluster"
 
   loki:
-    useTestSchema: true # TODO: fix
-    enterprise:
-      enabled: false
+    podAnnotations:
+      prometheus.io/scrape: "true"
     auth_enabled: false
     commonConfig:
+      path_prefix: /var/loki
       replication_factor: 1
+    schemaConfig:
+      configs:
+      - from: 2024-04-01
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+    rulerConfig:
+      remote_write:
+        enabled: true
+        clients:
+          # "fake" is the default username when auth is disabled (unfortunate, I know)
+          fake:
+            url: http://metrics.{{ .Release.Namespace }}.{{ .Values.global.zone}}/api/v1/write
+            headers:
+              Source: Loki
+            remote_timeout: 30s
+      wal:
+        dir: /var/loki-ruler-wal
+      alertmanager_url: http://alertmanager.{{ .Release.Namespace }}.{{ .Values.global.zone}}
+      enable_api: true
+      ring:
+        kvstore:
+          store: inmemory
+      enable_alertmanager_v2: true
+      storage:
+        type: local
+        local:
+          directory: /rules
+      rule_path: /rules
 
   lokiCanary:
-    enabled: false # TODO: re-enable
+    enabled: true
     annotations:
       prometheus.io/scrape: "true"
 
@@ -97,6 +210,14 @@ logs:
       enabled: false
       grafanaAgent:
         installOperator: false
+    # creates ConfigMaps of dashboards which are discovered via labels
+    dashboards:
+      enabled: true
+
+  sidecar:
+    rules:
+      logLevel: DEBUG
+      folder: /rules/fake
 
   gateway:
     replicas: 1
@@ -108,3 +229,11 @@ logs:
     replicas: 1
   backend:
     replicas: 1
+    extraVolumes:
+      - name: ruler-wal
+        emptyDir: { }
+    extraVolumeMounts:
+      - name: ruler-wal
+        mountPath: /var/loki-ruler-wal
+    extraArgs:
+      - -log.level=debug
