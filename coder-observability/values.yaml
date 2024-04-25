@@ -76,6 +76,10 @@ dashboards:
       reporting_enabled: false
     users:
       allow_sign_up: false
+    feature_toggles:
+      # migrate Angular panels to React
+      # see https://grafana.com/docs/grafana/latest/developers/angular_deprecation/angular-plugins/#automatic-migration-of-plugins
+      autoMigrateOldPanels: true
   sidecar:
     dashboards:
       provider:
