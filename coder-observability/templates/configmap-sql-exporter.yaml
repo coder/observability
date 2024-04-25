@@ -17,8 +17,8 @@ data:
             type: gauge
             help: 'TODO.'
             static_labels:
-              hostname: {{ .Values.postgres.exporter.hostname }}
-              database: {{ .Values.postgres.exporter.database }}
+              hostname: {{ .Values.global.postgres.hostname }}
+              database: {{ .Values.global.postgres.database }}
             values: [ usage ]
             query: |
               SELECT pg_notification_queue_usage() AS usage;

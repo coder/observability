@@ -20,7 +20,7 @@ spec:
         - name: exporter
           image: quay.io/prometheuscommunity/postgres-exporter
           args:
-            - --collector.long_running_transactions=enabled
+            - --collector.long_running_transactions
           ports:
             - containerPort: 9187
               name: exporter

@@ -3,13 +3,13 @@ fullnameOverride: null
 global:
   zone: svc
 
-postgres:
-  exporter:
+  # TODO: do we have to have these in global in order to use in templates?
+  postgres:
     # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
     hostname: localhost
     port: 5432
     username: coder
-    password: secret42
+    password: secret42 # TODO make secret
     database: coder
     sslmode: disable
 
@@ -50,7 +50,8 @@ dashboards:
   testFramework:
     enabled: false
   annotations:
-    prometheus.io/scrape: "true" # TODO: this adds annotations to _all_ resources; can we be more specific?
+    # TODO: this adds annotations to _all_ resources; can we be more specific?
+    prometheus.io/scrape: "true"
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -65,6 +66,16 @@ dashboards:
           type: loki
           url: http://logs-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
+          isDefault: false
+          editable: false
+        - name: postgres
+          type: postgres
+          url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
+          user: '{{ .Values.global.postgres.username }}'
+          secureJsonData:
+            password: '{{ .Values.global.postgres.password }}'
+          jsonData:
+            sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false
           editable: false
   admin:

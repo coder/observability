@@ -85,6 +85,6 @@ datasources:
 Postgres connector string
 */}}
 {{- define "postgres-connector-string" -}}
-postgresql://{{ .Values.postgres.exporter.username }}:{{ .Values.postgres.exporter.password }}@{{ .Values.postgres.exporter.hostname }}:{{ .Values.postgres.exporter.port }}/postgres?sslmode={{ .Values.postgres.exporter.sslmode }}
+postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
 {{- end }}
 
