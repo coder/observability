@@ -13,6 +13,16 @@ global:
     database: coder
     sslmode: disable
 
+    alerts:
+      groups:
+        Notifications:
+          enabled: true
+          delay: 15m
+          thresholds:
+            notify: 0.5
+            warning: 0.8
+            critical: 0.9
+
 collector:
   enabled: true
   fullnameOverride: collector
@@ -124,6 +134,19 @@ metrics:
     extraFlags:
       - web.enable-lifecycle
       - enable-feature=remote-write-receiver
+    extraConfigmapMounts:
+      - name: alerts
+        mountPath: /etc/config/alerts
+        configMap: metrics-alerts
+        readonly: true
+
+  serverFiles:
+    prometheus.yml:
+      # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
+      scrape_configs:
+      # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
+      rule_files:
+        - /etc/config/alerts/postgres.yaml
 
   testFramework:
     enabled: false
@@ -149,12 +172,6 @@ metrics:
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
-
-  # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
-  serverFiles:
-    prometheus.yml:
-        scrape_configs:
-
 logs:
   enabled: true
   nameOverride: logs

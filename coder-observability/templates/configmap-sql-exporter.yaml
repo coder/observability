@@ -13,7 +13,8 @@ data:
     collectors:
       - collector_name: notify
         metrics:
-          - metric_name: pg_pubsub_usage
+          # Add a metric to show the current usage of the Postgres "pub/sub" mechanism
+          - metric_name: {{ include "postgres-pubsub-queue-usage-metric-name" . }}
             type: gauge
             help: 'TODO.'
             static_labels:

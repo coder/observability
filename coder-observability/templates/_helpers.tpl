@@ -88,3 +88,6 @@ Postgres connector string
 postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
 {{- end }}
 
+{{/* Postgres Exporter does not export a pubsub usage metric by default, so we add one */}}
+{{- define "postgres-pubsub-queue-usage-metric-name" -}}pg_pubsub_usage{{- end }}
+
