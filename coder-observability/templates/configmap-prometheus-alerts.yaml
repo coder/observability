@@ -18,6 +18,19 @@ data:
         labels:
           severity: {{ $severity }}
       {{- end }}
-  {{ end }}
+  {{- end -}}
+  {{- end -}}
+  {{- with .alerts.groups.Basic }}
+  {{ $group := . -}}
+  {{- if .enabled }}
+    groups:
+    - name: Basic
+      rules:
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: {{ $group.delay }}
+        labels:
+          severity: critical
+      {{- end }}
   {{ end }}
   {{ end }}

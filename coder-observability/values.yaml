@@ -3,7 +3,7 @@ fullnameOverride: null
 global:
   zone: svc
 
-  # TODO: do we have to have these in global in order to use in templates?
+  # these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:
     # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
     hostname: localhost
@@ -15,6 +15,9 @@ global:
 
     alerts:
       groups:
+        Basic:
+          enabled: true
+          delay: 1m
         Notifications:
           enabled: true
           delay: 15m
