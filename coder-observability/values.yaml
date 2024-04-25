@@ -49,6 +49,7 @@ collector:
 dashboards:
   enabled: true
   fullnameOverride: dashboards
+  useStatefulSet: true
   replicas: 1
   deploymentStrategy:
     type: Recreate  # avoid MultiAttachError for standard-rwo sc
@@ -62,6 +63,36 @@ dashboards:
   annotations:
     # TODO: this adds annotations to _all_ resources; can we be more specific?
     prometheus.io/scrape: "true"
+  dashboardProviders:
+    node_exporter.yaml:
+      apiVersion: 1
+      providers:
+        - name: infra
+          orgId: 1
+          folder: 'Infrastructure'
+          type: file
+          disableDeletion: false
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/infra
+        - name: sidecar
+          orgId: 1
+          type: file
+          disableDeletion: false
+          editable: false
+          options:
+            path: /tmp/dashboards
+  dashboards:
+    # TODO: import dashboards from coder/coder
+    infra:
+      node-exporter-full:
+        gnetId: 1860
+        revision: 36
+        datasource: metrics
+      postgres-database:
+        gnetId: 9628
+        revision: 7
+        datasource: metrics
   datasources:
     datasources.yaml:
       apiVersion: 1
