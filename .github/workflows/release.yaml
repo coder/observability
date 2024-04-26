@@ -2,8 +2,8 @@
 name: publish-helm
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
 
 permissions:
   # Required to publish a release
@@ -18,7 +18,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release:
     name: Build and publish
-    runs-on: ${{ github.repository_owner == 'coder' && 'buildjet-8vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -43,6 +43,11 @@ jobs:
 
       - name: Setup GCloud SDK
         uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: Install helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.9.2
 
       - name: Publish Helm Chart
         if: ${{ !inputs.dry_run }}
