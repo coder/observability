@@ -81,3 +81,21 @@ datasources:
     editable: false
 {{- end }}
 
+{{/*
+Postgres connector string
+*/}}
+{{- define "postgres-connector-string" -}}
+postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+{{- end }}
+
+{{/* Postgres Exporter does not export a pubsub usage metric by default, so we add one */}}
+{{- define "postgres-pubsub-queue-usage-metric-name" -}}pg_pubsub_usage{{- end }}
+
+{{/* Build a runbook URL */}}
+{{- define "runbook-url" -}}
+{{ $outer := . }}
+{{- with .Values.global -}}
+  {{- .external_scheme }}://runbook-viewer.{{ $outer.Release.Namespace }}.{{ .external_zone }}/{{- $outer.service }}#{{- $outer.alert | lower }}
+{{- end }}
+{{- end }}
+

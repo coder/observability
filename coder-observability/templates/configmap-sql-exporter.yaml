@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sql-exporter-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |-
+    global:
+    target:
+      name: postgres
+      data_source_name: '{{ include "postgres-connector-string" . }}'
+      collectors:
+        - notify
+    collectors:
+      - collector_name: notify
+        metrics:
+          # Add a metric to show the current usage of the Postgres "pub/sub" mechanism
+          - metric_name: {{ include "postgres-pubsub-queue-usage-metric-name" . }}
+            type: gauge
+            help: 'TODO.'
+            static_labels:
+              hostname: {{ .Values.global.postgres.hostname }}
+              database: {{ .Values.global.postgres.database }}
+            values: [ usage ]
+            query: |
+              SELECT pg_notification_queue_usage() AS usage;

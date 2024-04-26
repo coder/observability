@@ -1,7 +1,37 @@
 fullnameOverride: null
+
 global:
   zone: svc
-  metricsName: metrics
+
+  external_scheme: http
+  # The external hostname from which k8s services can be accessed in the form of:
+  # <external_scheme>:<svc>.<external_zone>
+  # e.g.
+  # http://dashboards.coder-observability.svc.cluster.local
+  external_zone: svc.cluster.local
+
+  # these settings are global so we can parameterise some values which get rendered by subcharts
+  postgres:
+    # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
+    hostname: localhost
+    port: 5432
+    username: coder
+    password: secret42 # TODO make secret
+    database: coder
+    sslmode: disable
+
+    alerts:
+      groups:
+        Basic:
+          enabled: true
+          delay: 1m
+        Notifications:
+          enabled: true
+          delay: 15m
+          thresholds:
+            notify: 0.5
+            warning: 0.8
+            critical: 0.9
 
 collector:
   enabled: true
@@ -29,6 +59,7 @@ collector:
 dashboards:
   enabled: true
   fullnameOverride: dashboards
+  useStatefulSet: true
   replicas: 1
   deploymentStrategy:
     type: Recreate  # avoid MultiAttachError for standard-rwo sc
@@ -40,7 +71,38 @@ dashboards:
   testFramework:
     enabled: false
   annotations:
-    prometheus.io/scrape: "true" # TODO: this adds annotations to _all_ resources; can we be more specific?
+    # TODO: this adds annotations to _all_ resources; can we be more specific?
+    prometheus.io/scrape: "true"
+  dashboardProviders:
+    node_exporter.yaml:
+      apiVersion: 1
+      providers:
+        - name: infra
+          orgId: 1
+          folder: 'Infrastructure'
+          type: file
+          disableDeletion: false
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/infra
+        - name: sidecar
+          orgId: 1
+          type: file
+          disableDeletion: false
+          editable: false
+          options:
+            path: /tmp/dashboards
+  dashboards:
+    # TODO: import dashboards from coder/coder
+    infra:
+      node-exporter-full:
+        gnetId: 1860
+        revision: 36
+        datasource: metrics
+      postgres-database:
+        gnetId: 9628
+        revision: 7
+        datasource: metrics
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -57,6 +119,16 @@ dashboards:
           access: proxy
           isDefault: false
           editable: false
+        - name: postgres
+          type: postgres
+          url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
+          user: '{{ .Values.global.postgres.username }}'
+          secureJsonData:
+            password: '{{ .Values.global.postgres.password }}'
+          jsonData:
+            sslmode: '{{ .Values.global.postgres.sslmode }}'
+          isDefault: false
+          editable: false
   admin:
     existingSecret: grafana-admin
     userKey: username
@@ -66,6 +138,10 @@ dashboards:
       reporting_enabled: false
     users:
       allow_sign_up: false
+    feature_toggles:
+      # migrate Angular panels to React
+      # see https://grafana.com/docs/grafana/latest/developers/angular_deprecation/angular-plugins/#automatic-migration-of-plugins
+      autoMigrateOldPanels: true
   sidecar:
     dashboards:
       provider:
@@ -99,12 +175,39 @@ metrics:
     extraFlags:
       - web.enable-lifecycle
       - enable-feature=remote-write-receiver
+    extraConfigmapMounts:
+      - name: alerts
+        mountPath: /etc/config/alerts
+        configMap: metrics-alerts
+        readonly: true
+
+  serverFiles:
+    prometheus.yml:
+      # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
+      scrape_configs:
+      # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
+      rule_files:
+        - /etc/config/alerts/postgres.yaml
 
   testFramework:
     enabled: false
 
+  # enable metric collection from configmap reloader
+  configmapReload:
+    prometheus:
+      extraArgs:
+        log-level: all
+        listen-address: 0.0.0.0:9091
+        watch-interval: 15s
+      containerPort: 9091
+      extraConfigmapMounts:
+        - name: alerts
+          mountPath: /etc/config/alerts
+          configMap: metrics-alerts
+          readonly: true
+
   alertmanager:
-    fullnameOverride: alertmanager
+    fullnameOverride: alerts
     enabled: true
     service:
       port: 80
@@ -124,12 +227,6 @@ metrics:
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
-
-  # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
-  serverFiles:
-    prometheus.yml:
-        scrape_configs:
-
 logs:
   enabled: true
   nameOverride: logs
@@ -182,7 +279,7 @@ logs:
             remote_timeout: 30s
       wal:
         dir: /var/loki-ruler-wal
-      alertmanager_url: http://alertmanager.{{ .Release.Namespace }}.{{ .Values.global.zone}}
+      alertmanager_url: http://alerts.{{ .Release.Namespace }}.{{ .Values.global.zone}}
       enable_api: true
       ring:
         kvstore:

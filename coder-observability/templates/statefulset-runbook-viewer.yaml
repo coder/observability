@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: runbook-viewer
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: runbook-viewer
+  serviceName: runbook-viewer
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ (.Files.Glob "runbooks/**").AsConfig | indent 2 | sha256sum }}
+      labels:
+        app: runbook-viewer
+    spec:
+      containers:
+        - name: madness
+          image: dannyben/madness
+          ports:
+            - containerPort: 3000
+              name: madness
+          args:
+            - server
+          volumeMounts:
+            - mountPath: /docs/
+              name: runbooks
+      volumes:
+        - name: runbooks
+          configMap:
+            name: runbooks

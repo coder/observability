@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-exporter
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: postgres-exporter
+  serviceName: postgres-exporter
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+      labels:
+        app: postgres-exporter
+    spec:
+      containers:
+        - name: exporter
+          image: quay.io/prometheuscommunity/postgres-exporter
+          args:
+            - --collector.long_running_transactions
+          ports:
+            - containerPort: 9187
+              name: exporter
+          env:
+            - name: DATA_SOURCE_NAME
+              value: '{{ include "postgres-connector-string" . }}'
