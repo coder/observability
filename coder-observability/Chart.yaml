@@ -4,7 +4,6 @@ description: Gain insights into your Coder deployment
 
 type: application
 version: 0.1.0
-appVersion: "2.9.2"
 dependencies:
   - name: grafana
     alias: dashboards
@@ -38,3 +37,5 @@ keywords:
 sources:
   - https://github.com/coder/observability
 icon: https://helm.coder.com/coder_logo_black.png
+annotations:
+  artifacthub.io/category: monitoring-logging

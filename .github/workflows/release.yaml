@@ -1,0 +1,50 @@
+# GitHub release workflow.
+name: publish-helm
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # Required to publish a release
+  contents: write
+  # Necessary to push docker images to ghcr.io.
+  packages: write
+  # Necessary for GCP authentication (https://github.com/google-github-actions/setup-gcloud#usage)
+  id-token: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ${{ github.repository_owner == 'coder' && 'buildjet-8vcpu-ubuntu-2204' || 'ubuntu-latest' }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # If the event that triggered the build was an annotated tag (which our
+      # tags are supposed to be), actions/checkout has a bug where the tag in
+      # question is only a lightweight tag and not a full annotated tag. This
+      # command seems to fix it.
+      # https://github.com/actions/checkout/issues/290
+      - name: Fetch git tags
+        run: git fetch --tags --force
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/898976630798/locations/global/workloadIdentityPools/coder-ci
+          service_account: coder-observability@coder-customer-releases.iam.gserviceaccount.com
+
+      - name: Setup GCloud SDK
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: Publish Helm Chart
+        if: ${{ !inputs.dry_run }}
+        run: |
+          ./scripts/publish.sh
