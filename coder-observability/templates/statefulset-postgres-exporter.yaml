@@ -29,3 +29,8 @@ spec:
           env:
             - name: DATA_SOURCE_NAME
               value: '{{ include "postgres-connector-string" . }}'
+          {{ if .Values.global.postgres.mount_secret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.global.postgres.mount_secret }}
+          {{ end }}

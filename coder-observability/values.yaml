@@ -16,9 +16,10 @@ global:
     hostname: localhost
     port: 5432
     username: coder
-    password: secret42 # TODO make secret
+    password: secret42
     database: coder
     sslmode: disable
+    mount_secret:
 
     alerts:
       groups:
