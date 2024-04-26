@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: sql-exporter
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:

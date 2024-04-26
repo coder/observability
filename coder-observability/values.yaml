@@ -3,6 +3,13 @@ fullnameOverride: null
 global:
   zone: svc
 
+  external_scheme: http
+  # The external hostname from which k8s services can be accessed in the form of:
+  # <external_scheme>:<svc>.<external_zone>
+  # e.g.
+  # http://dashboards.coder-observability.svc.cluster.local
+  external_zone: svc.cluster.local
+
   # these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:
     # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
@@ -185,8 +192,22 @@ metrics:
   testFramework:
     enabled: false
 
+  # enable metric collection from configmap reloader
+  configmapReload:
+    prometheus:
+      extraArgs:
+        log-level: all
+        listen-address: 0.0.0.0:9091
+        watch-interval: 15s
+      containerPort: 9091
+      extraConfigmapMounts:
+        - name: alerts
+          mountPath: /etc/config/alerts
+          configMap: metrics-alerts
+          readonly: true
+
   alertmanager:
-    fullnameOverride: alertmanager
+    fullnameOverride: alerts
     enabled: true
     service:
       port: 80
@@ -258,7 +279,7 @@ logs:
             remote_timeout: 30s
       wal:
         dir: /var/loki-ruler-wal
-      alertmanager_url: http://alertmanager.{{ .Release.Namespace }}.{{ .Values.global.zone}}
+      alertmanager_url: http://alerts.{{ .Release.Namespace }}.{{ .Values.global.zone}}
       enable_api: true
       ring:
         kvstore:

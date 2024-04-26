@@ -2,35 +2,43 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metrics-alerts
+  namespace: {{ .Release.Namespace }}
 data:
-  {{ with .Values.global.postgres }}
+  {{- $ := (merge . (dict "service" "postgres")) -}}
+
+  {{- with .Values.global.postgres }}
   postgres.yaml: |-
+    groups:
   {{- with .alerts.groups.Notifications }}
   {{- $group := . -}}
   {{- if .enabled }}
-    groups:
     - name: Notifications
       rules:
+      {{ $alert := "PostgresNotificationQueueFillingUp" }}
       {{- range $severity, $threshold := .thresholds }}
-      - alert: PostgresNotificationQueueFillingUp
+      - alert: {{ $alert }}
         expr: {{ include "postgres-pubsub-queue-usage-metric-name" . }} > {{ $threshold }}
         for: {{ $group.delay }}
         labels:
+          summary: The postgres instance {{ `{{ $labels.instance }}` }} has a notification that is filling up, which may impact application performance.
           severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
       {{- end }}
   {{- end -}}
   {{- end -}}
   {{- with .alerts.groups.Basic }}
   {{ $group := . -}}
   {{- if .enabled }}
-    groups:
     - name: Basic
       rules:
+      {{ $alert := "PostgresDown" }}
       - alert: PostgresDown
         expr: pg_up == 0
         for: {{ $group.delay }}
         labels:
+          summary: The postgres instance {{ `{{ $labels.instance }}` }} is down!
           severity: critical
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
       {{- end }}
   {{ end }}
   {{ end }}

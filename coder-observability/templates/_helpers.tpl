@@ -91,3 +91,11 @@ postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.p
 {{/* Postgres Exporter does not export a pubsub usage metric by default, so we add one */}}
 {{- define "postgres-pubsub-queue-usage-metric-name" -}}pg_pubsub_usage{{- end }}
 
+{{/* Build a runbook URL */}}
+{{- define "runbook-url" -}}
+{{ $outer := . }}
+{{- with .Values.global -}}
+  {{- .external_scheme }}://runbook-viewer.{{ $outer.Release.Namespace }}.{{ .external_zone }}/{{- $outer.service }}#{{- $outer.alert | lower }}
+{{- end }}
+{{- end }}
+
