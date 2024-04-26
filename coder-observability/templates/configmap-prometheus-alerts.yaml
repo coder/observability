@@ -48,4 +48,21 @@ data:
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
       {{- end }}
   {{ end }}
+  {{- with .alerts.groups.Connections }}
+  {{ $group := . -}}
+  {{- if .enabled }}
+    - name: Connections
+      rules:
+      {{ $alert := "PostgresConnectionsRunningLow" }}
+      {{- range $severity, $threshold := .thresholds }}
+        - alert: {{ $alert }}
+          expr: sum by (datname) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * {{ $threshold }})
+          for: {{ $group.delay }}
+          labels:
+            summary: The postgres instance {{ `{{ $labels.instance }}` }} is running low on connections which may impact application performance.
+            severity: {{ $severity }}
+            runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      {{- end }}
+  {{- end -}}
+  {{- end -}}
   {{ end }}

@@ -32,6 +32,13 @@ global:
             notify: 0.5
             warning: 0.8
             critical: 0.9
+        Connections:
+          enabled: true
+          delay: 5m
+          thresholds:
+            notify: 0.5
+            warning: 0.8
+            critical: 0.9
 
 collector:
   enabled: true
