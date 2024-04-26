@@ -17,9 +17,10 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap-sql-exporter.yaml") . | sha256sum }}
       labels:
         app: sql-exporter
+        app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: exporter
+        - name: sql-exporter
           image: burningalchemist/sql_exporter
           args:
             - -config.file=/cfg/config.yaml

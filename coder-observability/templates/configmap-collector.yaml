@@ -26,37 +26,49 @@ data:
 
     discovery.relabel "pod_logs" {
       targets = discovery.kubernetes.pods.targets
-       rule {
-         source_labels = ["__meta_kubernetes_namespace"]
-         target_label  = "namespace"
-       }
-       rule {
-         source_labels = ["__meta_kubernetes_pod_name"]
-         target_label  = "pod"
-       }
-       rule {
-         source_labels = ["__meta_kubernetes_pod_container_name"]
-         target_label  = "container"
-       }
-       rule {
-         source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_kubernetes_pod_label_app_kubernetes_io_component"]
-         separator     = "/"
-         target_label  = "job"
-       }
-       rule {
-         source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
-         separator     = "/"
-         action        = "replace"
-         replacement   = "/var/log/pods/*$1/*.log"
-         target_label  = "__path__"
-       }
-       rule {
-         action = "replace"
-         source_labels = ["__meta_kubernetes_pod_container_id"]
-         regex = "^(\\w+):\\/\\/.+$"
-         replacement = "$1"
-         target_label = "tmp_container_runtime"
-       }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
+        action  = "labeldrop"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+      rule {
+        source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
+        separator      = "/"
+        target_label   = "__meta_app"
+        action         = "replace"
+        regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
+        replacement    = "${1}"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
+        separator     = "/"
+        target_label  = "job"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+        separator     = "/"
+        action        = "replace"
+        replacement   = "/var/log/pods/*$1/*.log"
+        target_label  = "__path__"
+      }
+      rule {
+        action = "replace"
+        source_labels = ["__meta_kubernetes_pod_container_id"]
+        regex = "^(\\w+):\\/\\/.+$"
+        replacement = "$1"
+        target_label = "tmp_container_runtime"
+      }
     }
 
     // TODO: share common relabelings
@@ -72,14 +84,25 @@ data:
         target_label  = "pod"
       }
       rule {
+        regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
+        action  = "labeldrop"
+      }
+      rule {
         source_labels = ["__meta_kubernetes_pod_container_name"]
         target_label  = "container"
       }
       rule {
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_kubernetes_pod_label_app_kubernetes_io_component"]
+        source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
+        separator      = "/"
+        target_label   = "__meta_app"
+        action         = "replace"
+        regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
+        replacement    = "${1}"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
         separator     = "/"
         target_label  = "job"
-        action = "replace"
       }
 
       // adapted from the Prometheus helm chart

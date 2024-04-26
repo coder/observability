@@ -39,6 +39,13 @@ data:
           summary: The postgres instance {{ `{{ $labels.instance }}` }} is down!
           severity: critical
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      - alert: PostgresDown
+        expr: absent(pg_up)
+        for: {{ $group.delay }}
+        labels:
+          summary: The postgres instance {{ `{{ $labels.instance }}` }} is down (metrics missing)!
+          severity: critical
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
       {{- end }}
   {{ end }}
   {{ end }}

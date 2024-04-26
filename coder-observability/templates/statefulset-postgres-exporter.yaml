@@ -16,9 +16,10 @@ spec:
         prometheus.io/scrape: 'true'
       labels:
         app: postgres-exporter
+        app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: exporter
+        - name: postgres-exporter
           image: quay.io/prometheuscommunity/postgres-exporter
           args:
             - --collector.long_running_transactions

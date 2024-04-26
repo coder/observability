@@ -249,6 +249,8 @@ logs:
     podAnnotations:
       prometheus.io/scrape: "true"
       prometheus.io/path: "/minio/v2/metrics/cluster"
+    podLabels:
+      app.kubernetes.io/name: "logs-storage"
 
   loki:
     podAnnotations:
