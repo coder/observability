@@ -64,6 +64,70 @@ collector:
   crds:
     create: false
 
+  # configuration blocks
+  logging: |-
+    logging {
+      level  = "debug"
+      format = "logfmt"
+    }
+  discovery: |-
+    discovery.kubernetes "pods" {
+      role = "pod"
+      selectors {
+       role  = "pod"
+      }
+    }
+  common_relabellings: |-
+    rule {
+      source_labels = ["__meta_kubernetes_namespace"]
+      target_label  = "namespace"
+    }
+    rule {
+      source_labels = ["__meta_kubernetes_pod_name"]
+      target_label  = "pod"
+    }
+    // coalesce the following labels and pick the first value; we'll use this to define the "job" label
+    rule {
+      source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
+      separator      = "/"
+      target_label   = "__meta_app"
+      action         = "replace"
+      regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
+      replacement    = "${1}"
+    }
+    rule {
+      source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
+      separator     = "/"
+      target_label  = "job"
+    }
+    rule {
+      source_labels = ["__meta_kubernetes_pod_container_name"]
+      target_label  = "container"
+    }
+    rule {
+      regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
+      action  = "labeldrop"
+    }
+    rule {
+      regex   = "pod_template_generation"
+      action  = "labeldrop"
+    }
+    rule {
+      source_labels = ["__meta_kubernetes_pod_phase"]
+      regex = "Pending|Succeeded|Failed|Completed"
+      action = "drop"
+    }
+    rule {
+      source_labels = ["__meta_kubernetes_pod_node_name"]
+      action = "replace"
+      target_label = "node"
+    }
+    rule {
+      action = "labelmap"
+      regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
+      replacement = "__param_$1"
+    }
+
 dashboards:
   enabled: true
   fullnameOverride: dashboards

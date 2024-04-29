@@ -6,55 +6,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.river: |
-    logging {
-      level  = "debug"
-      format = "logfmt"
-    }
-
-    // read the credentials secret for remote_write authorization
-    // remote.kubernetes.secret "credentials" {
-    //   namespace = "monitoring"
-    //   name      = "primary-credentials-logs"
-    // }
-
-    discovery.kubernetes "pods" {
-      role = "pod"
-      selectors {
-       role  = "pod"
-      }
-    }
+    {{ .Values.collector.logging | nindent 4 }}
+    {{ .Values.collector.discovery | nindent 4 }}
 
     discovery.relabel "pod_logs" {
       targets = discovery.kubernetes.pods.targets
-      rule {
-        source_labels = ["__meta_kubernetes_namespace"]
-        target_label  = "namespace"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label  = "pod"
-      }
-      rule {
-        regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
-        action  = "labeldrop"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label  = "container"
-      }
-      rule {
-        source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
-        separator      = "/"
-        target_label   = "__meta_app"
-        action         = "replace"
-        regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
-        replacement    = "${1}"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
-        separator     = "/"
-        target_label  = "job"
-      }
+      {{ .Values.collector.common_relabellings | nindent 6 }}
       rule {
         source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
         separator     = "/"
@@ -71,40 +28,9 @@ data:
       }
     }
 
-    // TODO: share common relabelings
     discovery.relabel "pod_metrics" {
       targets = discovery.kubernetes.pods.targets
-
-      rule {
-        source_labels = ["__meta_kubernetes_namespace"]
-        target_label  = "namespace"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label  = "pod"
-      }
-      rule {
-        regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
-        action  = "labeldrop"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label  = "container"
-      }
-      rule {
-        source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
-        separator      = "/"
-        target_label   = "__meta_app"
-        action         = "replace"
-        regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
-        replacement    = "${1}"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
-        separator     = "/"
-        target_label  = "job"
-      }
-
+      {{ .Values.collector.common_relabellings | nindent 6 }}
       // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*
       // exposes an HTTP port which exposes metrics
       rule {
@@ -112,7 +38,6 @@ data:
         regex         = "grpc|http-(memberlist|console)"
         action        = "drop"
       }
-
       // adapted from the Prometheus helm chart
       // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070
       rule {
@@ -120,21 +45,18 @@ data:
         action = "keep"
         regex = "true"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
         action = "replace"
         regex = "(https?)"
         target_label = "__scheme__"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
         action = "replace"
         target_label = "__metrics_path__"
         regex = "(.+)"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
         action = "replace"
@@ -142,48 +64,12 @@ data:
         replacement = "[$2]:$1"
         target_label = "__address__"
       }
-
       rule {
         source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
         action = "replace"
         regex = "(\\d+);((([0-9]+?)(\\.|$)){4})"
         replacement = "$2:$1"
         target_label = "__address__"
-      }
-
-      rule {
-        action = "labelmap"
-        regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
-        replacement = "__param_$1"
-      }
-
-      rule {
-        action = "labelmap"
-        regex = "__meta_kubernetes_pod_label_(.+)"
-      }
-
-      rule {
-        source_labels = ["__meta_kubernetes_namespace"]
-        action = "replace"
-        target_label = "namespace"
-      }
-
-      rule {
-        source_labels = ["__meta_kubernetes_pod_name"]
-        action = "replace"
-        target_label = "pod"
-      }
-
-      rule {
-        source_labels = ["__meta_kubernetes_pod_phase"]
-        regex = "Pending|Succeeded|Failed|Completed"
-        action = "drop"
-      }
-
-      rule {
-        source_labels = ["__meta_kubernetes_pod_node_name"]
-        action = "replace"
-        target_label = "node"
       }
     }
 
@@ -234,14 +120,9 @@ data:
       forward_to = [loki.write.loki.receiver]
     }
 
-    // TODO reference release name
     loki.write "loki" {
       endpoint {
-        url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.svc.cluster.local/loki/api/v1/push"
-        // basic_auth {
-        //   username = nonsensitive(remote.kubernetes.secret.credentials.data["username"])
-        //   password = remote.kubernetes.secret.credentials.data["password"]
-        // }
+        url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.svc/loki/api/v1/push"
       }
     }
 
@@ -252,6 +133,6 @@ data:
 
     prometheus.remote_write "default" {
       endpoint {
-        url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.svc.cluster.local/api/v1/write"
+        url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.svc/api/v1/write"
       }
     }
