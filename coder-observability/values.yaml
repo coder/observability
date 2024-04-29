@@ -151,7 +151,8 @@ dashboards:
       # see https://grafana.com/docs/grafana/latest/developers/angular_deprecation/angular-plugins/#automatic-migration-of-plugins
       autoMigrateOldPanels: true
     dashboards:
-      default_home_dashboard_path: /etc/grafana/default-dashboard/status-dashboard.json
+      # mounted configmap will be synced with sidecar
+      default_home_dashboard_path: /tmp/dashboards/status-dashboard.json
   sidecar:
     dashboards:
       provider:
@@ -159,11 +160,6 @@ dashboards:
         allowUiUpdates: true
       enabled: true
       labelValue: "1"
-  # mounting to a path explicitly so it can be used in default_home_dashboard_path
-  extraConfigmapMounts:
-    - name: status-dashboard
-      mountPath: /etc/grafana/default-dashboard
-      configMap: status-dashboard
 
 metrics:
   enabled: true
