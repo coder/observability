@@ -1339,39 +1339,7 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "thresholds": {
@@ -1387,7 +1355,7 @@
                             }
                         ]
                     },
-                    "unit": "bytes"
+                    "unit": "percentunit"
                 },
                 "overrides": [
                     {
@@ -1396,16 +1364,6 @@
                             "options": "Retention Limit"
                         },
                         "properties": [
-                            {
-                                "id": "custom.lineStyle",
-                                "value": {
-                                    "dash": [
-                                        10,
-                                        10
-                                    ],
-                                    "fill": "dash"
-                                }
-                            },
                             {
                                 "id": "color",
                                 "value": {
@@ -1448,24 +1406,29 @@
                 ]
             },
             "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 0,
-                "y": 17
+                "h": 5,
+                "w": 4,
+                "x": 12,
+                "y": 12
             },
             "id": 11,
             "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": true
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
                 },
-                "tooltip": {
-                    "mode": "single",
-                    "sort": "none"
-                }
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
             },
+            "pluginVersion": "10.4.0",
             "targets": [
                 {
                     "datasource": {
@@ -1473,41 +1436,15 @@
                         "uid": "P177A7EA3611FE6B1"
                     },
                     "editorMode": "code",
-                    "expr": "prometheus_tsdb_wal_storage_size_bytes{job=\"monitoring/metrics/server\"}",
+                    "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"monitoring/metrics/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"monitoring/metrics/server\"}",
                     "instant": false,
-                    "legendFormat": "Write-Ahead Log",
+                    "legendFormat": "Retention limit used",
                     "range": true,
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
-                    },
-                    "editorMode": "code",
-                    "expr": "prometheus_tsdb_retention_limit_bytes{job=\"monitoring/metrics/server\"}",
-                    "hide": false,
-                    "instant": false,
-                    "legendFormat": "Retention Limit",
-                    "range": true,
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
-                    },
-                    "editorMode": "code",
-                    "expr": "prometheus_tsdb_storage_blocks_bytes{job=\"monitoring/metrics/server\"} + prometheus_tsdb_symbol_table_size_bytes{job=\"monitoring/metrics/server\"}",
-                    "hide": false,
-                    "instant": false,
-                    "legendFormat": "Storage",
-                    "range": true,
-                    "refId": "D"
                 }
             ],
             "title": "Prometheus Storage",
-            "type": "timeseries"
+            "type": "stat"
         }
     ],
     "refresh": "30s",
