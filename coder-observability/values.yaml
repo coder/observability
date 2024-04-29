@@ -64,7 +64,7 @@ collector:
   crds:
     create: false
 
-  with_otlp_receiver: false
+  withOTLPReceiver: false
   # configuration blocks
   logging: |-
     logging {
@@ -78,7 +78,7 @@ collector:
        role  = "pod"
       }
     }
-  common_relabellings: |-
+  commonRelabellings: |-
     rule {
       source_labels = ["__meta_kubernetes_namespace"]
       target_label  = "namespace"
@@ -128,7 +128,7 @@ collector:
       regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
       replacement = "__param_$1"
     }
-  extra_blocks: ""
+  extraBlocks: ""
     # Examples:
     # loki.source.file "tmpfiles" {
     #   targets    = [

@@ -11,7 +11,7 @@ data:
 
     discovery.relabel "pod_logs" {
       targets = discovery.kubernetes.pods.targets
-      {{ .Values.collector.common_relabellings | nindent 6 }}
+      {{ .Values.collector.commonRelabellings | nindent 6 }}
       rule {
         source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
         separator     = "/"
@@ -30,7 +30,7 @@ data:
 
     discovery.relabel "pod_metrics" {
       targets = discovery.kubernetes.pods.targets
-      {{ .Values.collector.common_relabellings | nindent 6 }}
+      {{ .Values.collector.commonRelabellings | nindent 6 }}
       // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*
       // exposes an HTTP port which exposes metrics
       rule {
@@ -119,8 +119,8 @@ data:
 
       forward_to = [loki.write.loki.receiver]
     }
-    {{ if .Values.collector.extra_blocks -}}
-    {{ .Values.collector.extra_blocks | nindent 4 }}
+    {{ if .Values.collector.extraBlocks -}}
+    {{ .Values.collector.extraBlocks | nindent 4 }}
     {{- end }}
     loki.write "loki" {
       endpoint {
@@ -146,7 +146,7 @@ data:
       }
     }
 
-    {{- if .Values.collector.with_otlp_receiver -}}
+    {{- if .Values.collector.withOTLPReceiver -}}
     otelcol.receiver.otlp "otlp_receiver" {
       grpc {
         endpoint = "0.0.0.0:4317"
