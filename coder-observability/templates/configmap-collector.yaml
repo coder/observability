@@ -105,6 +105,14 @@ data:
         target_label  = "job"
       }
 
+      // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*
+      // exposes an HTTP port which exposes metrics
+      rule {
+        source_labels = ["__meta_kubernetes_pod_container_port_name"]
+        regex         = "grpc|http-(memberlist|console)"
+        action        = "drop"
+      }
+
       // adapted from the Prometheus helm chart
       // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070
       rule {

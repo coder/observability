@@ -268,8 +268,6 @@ logs:
       app.kubernetes.io/name: "logs-storage"
 
   loki:
-    podAnnotations:
-      prometheus.io/scrape: "true"
     auth_enabled: false
     commonConfig:
       path_prefix: /var/loki
@@ -336,12 +334,18 @@ logs:
   gateway:
     replicas: 1
   write:
+    podAnnotations:
+      prometheus.io/scrape: "true"
     replicas: 1
     extraArgs:
       - -log.level=debug
   read:
+    podAnnotations:
+      prometheus.io/scrape: "true"
     replicas: 1
   backend:
+    podAnnotations:
+      prometheus.io/scrape: "true"
     replicas: 1
     extraVolumes:
       - name: ruler-wal
