@@ -134,5 +134,12 @@ data:
     prometheus.remote_write "default" {
       endpoint {
         url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.svc/api/v1/write"
+
+        // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
+        // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>
+        write_relabel_config {
+          regex  = "instance"
+          action = "labeldrop"
+        }
       }
     }
