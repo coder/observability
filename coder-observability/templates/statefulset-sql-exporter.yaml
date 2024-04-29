@@ -30,6 +30,7 @@ spec:
           volumeMounts:
             - mountPath: /cfg/
               name: config
+          {{ include "postgres-secret-mount" . | nindent 10 }}
       volumes:
         - name: config
           configMap:

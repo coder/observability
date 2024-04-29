@@ -81,11 +81,18 @@ datasources:
     editable: false
 {{- end }}
 
-{{/*
-Postgres connector string
-*/}}
+{{/* Postgres connector string */}}
 {{- define "postgres-connector-string" -}}
 postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+{{- end }}
+
+{{/* Postgres connector string */}}
+{{- define "postgres-secret-mount" -}}
+{{ if .Values.global.postgres.mount_secret }}
+envFrom:
+  - secretRef:
+      name: {{ .Values.global.postgres.mount_secret }}
+{{ end }}
 {{- end }}
 
 {{/* Postgres Exporter does not export a pubsub usage metric by default, so we add one */}}
