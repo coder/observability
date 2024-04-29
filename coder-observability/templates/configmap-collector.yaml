@@ -119,7 +119,9 @@ data:
 
       forward_to = [loki.write.loki.receiver]
     }
-
+    {{ if .Values.collector.extra_blocks -}}
+    {{ .Values.collector.extra_blocks | nindent 4 }}
+    {{- end }}
     loki.write "loki" {
       endpoint {
         url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.svc/loki/api/v1/push"
@@ -143,3 +145,34 @@ data:
         }
       }
     }
+
+    {{- if .Values.collector.with_otlp_receiver -}}
+    otelcol.receiver.otlp "otlp_receiver" {
+      grpc {
+        endpoint = "0.0.0.0:4317"
+      }
+      http {
+        endpoint = "0.0.0.0:4318"
+      }
+      output {
+        metrics = [otelcol.processor.batch.default.input]
+        logs = [otelcol.processor.batch.default.input]
+      }
+    }
+    otelcol.exporter.prometheus "to_prometheus" {
+      forward_to = [
+        prometheus.remote_write.default.receiver,
+      ]
+    }
+    otelcol.exporter.loki "to_loki" {
+      forward_to = [
+        loki.write.loki.receiver,
+      ]
+    }
+    otelcol.processor.batch "default" {
+      output {
+        metrics = [otelcol.exporter.prometheus.to_prometheus.input]
+        logs    = [otelcol.exporter.loki.to_loki.input]
+      }
+    }
+    {{- end -}}

@@ -64,6 +64,7 @@ collector:
   crds:
     create: false
 
+  with_otlp_receiver: false
   # configuration blocks
   logging: |-
     logging {
@@ -127,6 +128,16 @@ collector:
       regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
       replacement = "__param_$1"
     }
+  extra_blocks: ""
+    # Examples:
+    # loki.source.file "tmpfiles" {
+    #   targets    = [
+    #     {__path__ = "/tmp/foo.txt", "color" = "pink"},
+    #     {__path__ = "/tmp/bar.txt", "color" = "blue"},
+    #     {__path__ = "/tmp/baz.txt", "color" = "grey"},
+    #   ]
+    #   forward_to = [loki.write.loki.receiver]
+    # }
 
 dashboards:
   enabled: true
