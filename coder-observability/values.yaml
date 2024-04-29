@@ -41,6 +41,14 @@ global:
             warning: 0.8
             critical: 0.9
 
+  coder:
+    metrics:
+      hostname: localhost
+      port: 2112
+      scrapeInterval: 15s
+      additionalLabels:
+        job: coder
+
 collector:
   enabled: true
   fullnameOverride: collector

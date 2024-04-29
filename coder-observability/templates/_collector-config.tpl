@@ -169,4 +169,23 @@ otelcol.processor.batch "default" {
   }
 }
 {{- end -}}
+
+{{ with .Values.global.coder }}
+{{ if .metrics }}
+prometheus.scrape "coder_metrics" {
+  targets = [
+    {"__address__" = "{{ .metrics.hostname }}:{{ .metrics.port }}", {{ include "collector-labels" .metrics.additionalLabels | trimSuffix "," }}},
+  ]
+
+  forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "{{ .metrics.scrapeInterval }}"
+}
 {{- end }}
+{{- end }}
+{{- end }}
+
+{{- define "collector-labels" -}}
+{{- range $key, $val := . -}}
+{{ $key }} = "{{ $val }}",
+{{- end -}}
+{{ end }}
