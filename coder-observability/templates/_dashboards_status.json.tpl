@@ -623,7 +623,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"{{$ns}}/logs/read\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$logs}}/read\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -740,7 +740,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"{{$ns}}/logs/backend\", container=\"loki\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$logs}}/backend\", container=\"loki\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -857,7 +857,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"{{$ns}}/logs/canary\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$logs}}/canary\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
