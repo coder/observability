@@ -170,17 +170,15 @@ otelcol.processor.batch "default" {
 }
 {{- end -}}
 
-{{ with .Values.global.coder }}
-{{ if .metrics }}
+{{ with .Values.global.coder.scrapeMetrics }}
 prometheus.scrape "coder_metrics" {
   targets = [
-    {"__address__" = "{{ .metrics.hostname }}:{{ .metrics.port }}", {{ include "collector-labels" .metrics.additionalLabels | trimSuffix "," }}},
+    {"__address__" = "{{ .hostname }}:{{ .port }}", {{ include "collector-labels" .additionalLabels | trimSuffix "," }}},
   ]
 
   forward_to = [prometheus.remote_write.default.receiver]
-  scrape_interval = "{{ .metrics.scrapeInterval }}"
+  scrape_interval = "{{ .scrapeInterval }}"
 }
-{{- end }}
 {{- end }}
 {{- end }}
 

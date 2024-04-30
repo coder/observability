@@ -144,7 +144,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{container=\"coder\",pod!~\".*provisioner.*\"})",
+                    "expr": "min by (pod) (up{{- .Values.global.coder.statusDashboard.coderSelector -}})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,

@@ -43,12 +43,18 @@ global:
             critical: 0.9
 
   coder:
-    metrics:
+    # use this to scrape metrics from a standalone (set of) coder deployment(s)
+    #
+    # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped,
+    # and set this value to null
+    scrapeMetrics:
       hostname: localhost
       port: 2112
       scrapeInterval: 15s
       additionalLabels:
         job: coder
+    statusDashboard:
+      coderSelector: '{job=`coder`}'
 
 collector:
   enabled: true
