@@ -205,12 +205,14 @@ dashboards:
           access: proxy
           isDefault: true
           editable: false
+          uid: prometheus
         - name: logs
           type: loki
           url: http://logs-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
           isDefault: false
           editable: false
+          uid: loki
         - name: postgres
           type: postgres
           url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
@@ -221,6 +223,7 @@ dashboards:
             sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false
           editable: false
+          uid: postgres
   admin:
     existingSecret: grafana-admin
     userKey: username

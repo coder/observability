@@ -35,7 +35,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -136,7 +136,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "up{job=\"coder\"}",
@@ -152,7 +152,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -253,7 +253,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(pg_up)",
@@ -280,7 +280,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -381,7 +381,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{container=\"metrics-server\"})",
@@ -397,7 +397,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -498,7 +498,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{job=\"monitoring/logs/write\"})",
@@ -514,7 +514,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -615,7 +615,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{job=\"monitoring/logs/read\"})",
@@ -631,7 +631,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -732,7 +732,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{job=\"monitoring/logs/backend\", container=\"loki\"})",
@@ -748,7 +748,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -849,7 +849,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{job=\"monitoring/logs/canary\"})",
@@ -865,7 +865,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -966,7 +966,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(up{job=\"monitoring/collector/grafana-agent\"})",
@@ -982,7 +982,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1083,7 +1083,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "prometheus_config_last_reload_successful{job=\"monitoring/metrics/server\"}",
@@ -1099,7 +1099,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1200,7 +1200,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "min(loki_runtime_config_last_reload_successful)",
@@ -1216,7 +1216,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "description": "",
             "fieldConfig": {
@@ -1317,7 +1317,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "exemplar": false,
@@ -1334,7 +1334,7 @@
         {
             "datasource": {
                 "type": "prometheus",
-                "uid": "P177A7EA3611FE6B1"
+                "uid": "prometheus"
             },
             "fieldConfig": {
                 "defaults": {
@@ -1433,7 +1433,7 @@
                 {
                     "datasource": {
                         "type": "prometheus",
-                        "uid": "P177A7EA3611FE6B1"
+                        "uid": "prometheus"
                     },
                     "editorMode": "code",
                     "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"monitoring/metrics/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"monitoring/metrics/server\"}",
