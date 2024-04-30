@@ -3,12 +3,13 @@ fullnameOverride: null
 global:
   zone: svc
 
-  external_scheme: http
+  # TODO: use these or drop them
+  externalScheme: http
   # The external hostname from which k8s services can be accessed in the form of:
-  # <external_scheme>:<svc>.<external_zone>
+  # <externalScheme>:<svc>.<>
   # e.g.
   # http://dashboards.coder-observability.svc.cluster.local
-  external_zone: svc.cluster.local
+  externalZone: svc.cluster.local
 
   # these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:

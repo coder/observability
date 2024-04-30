@@ -108,7 +108,7 @@ envFrom:
 {{- define "runbook-url" -}}
 {{ $outer := . }}
 {{- with .Values.global -}}
-  {{- .external_scheme }}://runbook-viewer.{{ $outer.Release.Namespace }}.{{ .external_zone }}/{{- $outer.service }}#{{- $outer.alert | lower }}
+  {{- .externalScheme }}://runbook-viewer.{{ $outer.Release.Namespace }}.{{ .externalZone }}/{{- $outer.service }}#{{- $outer.alert | lower }}
 {{- end }}
 {{- end }}
 
