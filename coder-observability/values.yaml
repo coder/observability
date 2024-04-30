@@ -12,11 +12,12 @@ global:
 
   # these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:
-    # Credentials suggested in https://coder.com/docs/v2/latest/install/database by default
     hostname: localhost
     port: 5432
     username: coder
-    password: secret42
+    password:
+    # ensure that your password is url-encoded
+    passwordFromEnv:
     database: coder
     sslmode: disable
     mount_secret:
@@ -215,7 +216,7 @@ dashboards:
           url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
           user: '{{ .Values.global.postgres.username }}'
           secureJsonData:
-            password: '{{ .Values.global.postgres.password }}'
+            password: '{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}{{ .Values.global.postgres.passwordFromEnv }}{{ end }}'
           jsonData:
             sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false
