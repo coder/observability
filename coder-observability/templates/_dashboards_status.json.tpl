@@ -1,3 +1,8 @@
+{{ define "status-dashboard.json" }}
+{{ $ns := .Release.Namespace }}
+{{ $metrics := .Values.metrics.server.fullnameOverride }}
+{{ $logs := .Values.logs.fullnameOverride }}
+{{ $collector := .Values.collector.fullnameOverride }}
 {
     "annotations": {
         "list": [
@@ -139,7 +144,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "up{job=\"coder\"}",
+                    "expr": "min(up{container=\"coder\",pod!~\".*provisioner.*\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -384,7 +389,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{container=\"metrics-server\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$metrics}}/server\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -501,7 +506,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"monitoring/logs/write\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$logs}}/write\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -618,7 +623,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"monitoring/logs/read\"})",
+                    "expr": "min(up{job=\"{{$ns}}/logs/read\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -735,7 +740,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"monitoring/logs/backend\", container=\"loki\"})",
+                    "expr": "min(up{job=\"{{$ns}}/logs/backend\", container=\"loki\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -852,7 +857,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"monitoring/logs/canary\"})",
+                    "expr": "min(up{job=\"{{$ns}}/logs/canary\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -969,7 +974,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "min(up{job=\"monitoring/collector/grafana-agent\"})",
+                    "expr": "min(up{job=\"{{$ns}}/{{$collector}}/grafana-agent\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -1086,7 +1091,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "prometheus_config_last_reload_successful{job=\"monitoring/metrics/server\"}",
+                    "expr": "prometheus_config_last_reload_successful{job=\"{{$ns}}/{{$metrics}}/server\"}",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -1321,7 +1326,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min(agent_config_last_load_successful{job=\"monitoring/collector/grafana-agent\"})",
+                    "expr": "min(agent_config_last_load_successful{job=\"{{$ns}}/{{$collector}}/grafana-agent\"})",
                     "instant": false,
                     "legendFormat": "__auto",
                     "range": true,
@@ -1436,7 +1441,7 @@
                         "uid": "prometheus"
                     },
                     "editorMode": "code",
-                    "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"monitoring/metrics/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"monitoring/metrics/server\"}",
+                    "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"{{$ns}}/{{$metrics}}/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"{{$ns}}/{{$metrics}}/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"{{$ns}}/{{$metrics}}/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"{{$ns}}/{{$metrics}}/server\"}",
                     "instant": false,
                     "legendFormat": "Retention limit used",
                     "range": true,
@@ -1464,3 +1469,4 @@
     "version": 1,
     "weekStart": ""
 }
+{{ end }}

@@ -6,4 +6,4 @@ metadata:
   labels:
     grafana_dashboard: "1"
 data:
-  status-dashboard.json: |- {{- .Files.Get "dashboards/status.json" | trim | nindent 4 }}
+  status-dashboard.json: |- {{- include "status-dashboard.json" . | trim | nindent 4 }}
