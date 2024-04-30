@@ -16,11 +16,10 @@ global:
     port: 5432
     username: coder
     password:
-    # ensure that your password is url-encoded
-    passwordFromEnv:
     database: coder
     sslmode: disable
-    mount_secret:
+    # ensure that your secret has a field named `PGPASSWORD`
+    mountSecret:
 
     alerts:
       groups:
@@ -216,7 +215,7 @@ dashboards:
           url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
           user: '{{ .Values.global.postgres.username }}'
           secureJsonData:
-            password: '{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}{{ .Values.global.postgres.passwordFromEnv }}{{ end }}'
+            password: '{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}'
           jsonData:
             sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false

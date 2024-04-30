@@ -85,17 +85,19 @@ datasources:
 {{- define "postgres-connector-string" -}}
 {{- if .Values.global.postgres.password -}}
 postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+{{- else if .Values.global.postgres.mountSecret -}}
+postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
 {{- else -}}
-postgresql://{{ .Values.global.postgres.username }}:{{ .Values.global.postgres.passwordFromEnv }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+{{ fail "either postgres.password or postgres.mountSecret must be defined" }}
 {{- end -}}
 {{- end }}
 
 {{/* Postgres connector string */}}
 {{- define "postgres-secret-mount" -}}
-{{ if .Values.global.postgres.mount_secret }}
+{{ if .Values.global.postgres.mountSecret }}
 envFrom:
   - secretRef:
-      name: {{ .Values.global.postgres.mount_secret }}
+      name: {{ .Values.global.postgres.mountSecret }}
 {{ end }}
 {{- end }}
 
