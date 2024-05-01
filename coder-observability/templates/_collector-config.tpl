@@ -19,6 +19,9 @@ discovery.relabel "pod_logs" {
     replacement = "$1"
     target_label = "tmp_container_runtime"
   }
+  {{- if .Values.collector.podLogsRelabelRules -}}
+  {{ .Values.collector.podLogsRelabelRules | trim | nindent 2 }}
+  {{- end }}
 }
 
 discovery.relabel "pod_metrics" {
@@ -64,6 +67,9 @@ discovery.relabel "pod_metrics" {
     replacement = "$2:$1"
     target_label = "__address__"
   }
+  {{- if .Values.collector.podMetricsRelabelRules -}}
+  {{ .Values.collector.podMetricsRelabelRules | trim | nindent 2 }}
+  {{- end }}
 }
 
 local.file_match "pod_logs" {

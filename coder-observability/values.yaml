@@ -155,6 +155,8 @@ collector:
     #   ]
     #   forward_to = [loki.write.loki.receiver]
     # }
+  podMetricsRelabelRules: ""
+  podLogsRelabelRules: ""
 
 dashboards:
   enabled: true
