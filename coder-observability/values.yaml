@@ -3,6 +3,8 @@ fullnameOverride: null
 global:
   zone: svc
 
+  queryTimeout: 900
+
   # TODO: use these or drop them
   externalScheme: http
   # The external hostname from which k8s services can be accessed in the form of:
@@ -211,6 +213,8 @@ dashboards:
           access: proxy
           isDefault: true
           editable: false
+          # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
+          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
           uid: prometheus
         - name: logs
           type: loki
@@ -218,6 +222,8 @@ dashboards:
           access: proxy
           isDefault: false
           editable: false
+          # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
+          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
           uid: loki
         - name: postgres
           type: postgres
@@ -229,6 +235,8 @@ dashboards:
             sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false
           editable: false
+          # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
+          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
           uid: postgres
   admin:
     existingSecret: grafana-admin
@@ -246,6 +254,8 @@ dashboards:
     dashboards:
       # mounted configmap will be synced with sidecar
       default_home_dashboard_path: /tmp/dashboards/status-dashboard.json
+    dataproxy:
+      timeout: '{{ $.Values.global.queryTimeout }}'
   sidecar:
     dashboards:
       provider:
