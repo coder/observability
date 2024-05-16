@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: status-dashboard
+  name: dashboards-status
   namespace: {{ .Release.Namespace }}
   labels:
     grafana_dashboard: "1"

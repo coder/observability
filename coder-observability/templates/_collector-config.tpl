@@ -130,6 +130,8 @@ loki.write "loki" {
 prometheus.scrape "pods" {
   targets = discovery.relabel.pod_metrics.output
   forward_to = [prometheus.remote_write.default.receiver]
+  scrape_interval = "{{ .Values.global.metrics.scrape_interval }}"
+  scrape_timeout = "{{ .Values.global.metrics.scrape_timeout }}"
 }
 
 prometheus.remote_write "default" {

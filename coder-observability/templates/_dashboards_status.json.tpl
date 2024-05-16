@@ -3,6 +3,8 @@
 {{ $metrics := .Values.metrics.server.fullnameOverride }}
 {{ $logs := .Values.logs.fullnameOverride }}
 {{ $collector := .Values.collector.fullnameOverride }}
+{{ $coderd := .Values.global.coder.coderdSelector }}
+{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -12,7 +14,7 @@
           "type": "grafana",
           "uid": "-- Grafana --"
         },
-        "enable": true,
+        "enable": false,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
@@ -127,7 +129,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{{- .Values.global.coder.statusDashboard.coderSelector }} == 1) or vector(0)",
+          "expr": "count(up{{- $coderd }} == 1) or vector(0)",
           "instant": true,
           "legendFormat": "Up",
           "range": false,
@@ -140,7 +142,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{{- .Values.global.coder.statusDashboard.coderSelector }} == 0) or vector(0)",
+          "expr": "count(up{{- $coderd }} == 0) or vector(0)",
           "instant": true,
           "legendFormat": "Down",
           "range": false,
@@ -151,6 +153,90 @@
       ],
       "title": "Coder Replicas",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "uid": "prometheus",
+        "type": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 17,
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "showPercentChange": false
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(coderd_provisionerd_num_daemons{{- $coderd -}})",
+          "instant": true,
+          "legendFormat": "Built-in",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(coderd_provisionerd_num_daemons{{- $provisionerd -}})",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "External",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Provisioners",
+      "type": "stat",
+      "description": ""
     },
     {
       "datasource": {
@@ -231,7 +317,7 @@
       "gridPos": {
         "h": 5,
         "w": 4,
-        "x": 4,
+        "x": 8,
         "y": 1
       },
       "id": 15,
@@ -329,7 +415,7 @@
       "gridPos": {
         "h": 5,
         "w": 8,
-        "x": 8,
+        "x": 12,
         "y": 1
       },
       "id": 16,
@@ -1581,13 +1667,13 @@
     "list": []
   },
   "time": {
-        "from": "now-1h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Status",
-  "uid": "bdk6eff8skqo0c",
+  "uid": "coder-status",
   "version": 1,
   "weekStart": ""
 }

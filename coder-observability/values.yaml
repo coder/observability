@@ -13,6 +13,10 @@ global:
   # http://dashboards.coder-observability.svc.cluster.local
   externalZone: svc.cluster.local
 
+  metrics:
+    scrape_interval: 20s
+    scrape_timeout: 15s
+
   # these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:
     hostname: localhost
@@ -47,16 +51,18 @@ global:
   coder:
     # use this to scrape metrics from a standalone (set of) coder deployment(s)
     #
-    # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped,
-    # and set this value to null
+    # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped;
+    # set this value to null and configured metricsSelector to target your coder pods
     scrapeMetrics:
       hostname: localhost
       port: 2112
       scrapeInterval: 15s
       additionalLabels:
         job: coder
-    statusDashboard:
-      coderSelector: '{job=`coder`}'
+    coderdSelector: '{job=`coder`}'
+    # this is set the same as coderd for built-in provisioners; change this if using external provisioners
+    # https://coder.com/docs/v2/latest/admin/provisioners
+    provisionerdSelector: '{job=`coder`}'
 
 collector:
   enabled: true
@@ -176,7 +182,7 @@ dashboards:
     # TODO: this adds annotations to _all_ resources; can we be more specific?
     prometheus.io/scrape: "true"
   dashboardProviders:
-    node_exporter.yaml:
+    infra.yaml:
       apiVersion: 1
       providers:
         - name: infra
@@ -187,9 +193,13 @@ dashboards:
           editable: false
           options:
             path: /var/lib/grafana/dashboards/infra
+    sidecar.yaml:
+      apiVersion: 1
+      providers:
         - name: sidecar
           orgId: 1
           type: file
+          folder: 'Other'
           disableDeletion: false
           editable: false
           options:
@@ -273,8 +283,6 @@ metrics:
     podAnnotations:
       prometheus.io/scrape: "true"
 
-    global:
-      scrape_interval: 15s
     extraArgs:
       log.level: debug
     replicaCount: 1
