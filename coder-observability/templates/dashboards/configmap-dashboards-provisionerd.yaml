@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards-provisionerd
+  namespace: {{ .Release.Namespace }}
+data:
+  provisionerd.json: |- {{- include "provisionerd-dashboard.json" . | trim | nindent 4 }}

@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dashboards-coderd
-  namespace: {{ .Release.Namespace }}
-  labels:
-    grafana_dashboard: "1"
-data:
-  coderd-dashboard.json: |- {{- include "coderd-dashboard.json" . | trim | nindent 4 }}

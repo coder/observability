@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dashboards-status
-  namespace: {{ .Release.Namespace }}
-  labels:
-    grafana_dashboard: "1"
-data:
-  status-dashboard.json: |- {{- include "status-dashboard.json" . | trim | nindent 4 }}

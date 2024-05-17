@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards-coderd
+  namespace: {{ .Release.Namespace }}
+data:
+  coderd.json: |- {{- include "coderd-dashboard.json" . | trim | nindent 4 }}

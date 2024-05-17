@@ -129,7 +129,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{{- $coderd }} == 1) or vector(0)",
+          "expr": "count(up{ {{- $coderd -}} } == 1) or vector(0)",
           "instant": true,
           "legendFormat": "Up",
           "range": false,
@@ -142,7 +142,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{{- $coderd }} == 0) or vector(0)",
+          "expr": "count(up{ {{- $coderd -}} } == 0) or vector(0)",
           "instant": true,
           "legendFormat": "Down",
           "range": false,
@@ -153,90 +153,6 @@
       ],
       "title": "Coder Replicas",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "color": {
-            "mode": "thresholds"
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "id": 17,
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "wideLayout": true,
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "showPercentChange": false
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(coderd_provisionerd_num_daemons{{- $coderd -}})",
-          "instant": true,
-          "legendFormat": "Built-in",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(coderd_provisionerd_num_daemons{{- $provisionerd -}})",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "External",
-          "range": false,
-          "refId": "B"
-        }
-      ],
-      "title": "Provisioners",
-      "type": "stat",
-      "description": ""
     },
     {
       "datasource": {
@@ -317,7 +233,7 @@
       "gridPos": {
         "h": 5,
         "w": 4,
-        "x": 8,
+        "x": 4,
         "y": 1
       },
       "id": 15,
@@ -353,130 +269,6 @@
         }
       ],
       "title": "Postgres",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Errors"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "short"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 1
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 12,
-        "y": 1
-      },
-      "id": 16,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(coder_pubsub_send_latency_seconds) / count(coder_pubsub_send_latency_seconds)",
-          "instant": false,
-          "legendFormat": "Send",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(coder_pubsub_receive_latency_seconds) / count(coder_pubsub_receive_latency_seconds)",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Receive",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(\nsum(increase(coder_pubsub_latency_measure_errs_total[$__range]))\n/ count(coder_pubsub_latency_measure_errs_total)\n) or vector(0)",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Errors",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Pubsub Latency (Mean)",
       "type": "stat"
     },
     {
