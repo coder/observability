@@ -59,10 +59,13 @@ global:
       scrapeInterval: 15s
       additionalLabels:
         job: coder
-    coderdSelector: '{job=`coder`}'
+    # Ensure this uses backticks for quotes
+    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
     # this is set the same as coderd for built-in provisioners; change this if using external provisioners
     # https://coder.com/docs/v2/latest/admin/provisioners
-    provisionerdSelector: '{job=`coder`}'
+    # TODO: rename container label in provisioner helm chart to be "provisioner" not "coder"
+    # Ensure this uses backticks for quotes
+    provisionerdSelector: 'pod=~`coder-provisioner.*`'
 
 collector:
   enabled: true
@@ -95,6 +98,10 @@ collector:
       format = "logfmt"
     }
   discovery: |-
+    discovery.kubernetes "nodes" {
+      role = "node"
+    }
+
     discovery.kubernetes "pods" {
       role = "pod"
       selectors {
@@ -193,6 +200,18 @@ dashboards:
           editable: false
           options:
             path: /var/lib/grafana/dashboards/infra
+    coder.yaml:
+      apiVersion: 1
+      providers:
+        - name: coder
+          orgId: 1
+          folder: 'Coder'
+          type: file
+          updateIntervalSeconds: 5
+          disableDeletion: false
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/coder
     sidecar.yaml:
       apiVersion: 1
       providers:
@@ -201,6 +220,7 @@ dashboards:
           type: file
           folder: 'Other'
           disableDeletion: false
+          updateIntervalSeconds: 30
           editable: false
           options:
             path: /tmp/dashboards
@@ -265,7 +285,7 @@ dashboards:
       autoMigrateOldPanels: true
     dashboards:
       # mounted configmap will be synced with sidecar
-      default_home_dashboard_path: /tmp/dashboards/status-dashboard.json
+      default_home_dashboard_path: /var/lib/grafana/dashboards/coder/0/status.json
     dataproxy:
       timeout: '{{ $.Values.global.queryTimeout }}'
   sidecar:
@@ -275,6 +295,21 @@ dashboards:
         allowUiUpdates: true
       enabled: true
       labelValue: "1"
+  extraConfigmapMounts:
+    # we can't combine configmaps because of the 1MiB size limit, but Grafana will scan
+    # the /var/lib/grafana/dashboards/coder directory deeply to find dashboards
+    - name: dashboards-status
+      mountPath: /var/lib/grafana/dashboards/coder/0
+      configMap: dashboards-status
+      readOnly: false
+    - name: dashboards-coderd
+      mountPath: /var/lib/grafana/dashboards/coder/1
+      configMap: dashboards-coderd
+      readOnly: false
+    - name: dashboards-provisionerd
+      mountPath: /var/lib/grafana/dashboards/coder/2
+      configMap: dashboards-provisionerd
+      readOnly: false
 
 metrics:
   enabled: true
