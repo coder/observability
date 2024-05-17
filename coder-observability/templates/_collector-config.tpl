@@ -129,9 +129,122 @@ loki.write "loki" {
 
 prometheus.scrape "pods" {
   targets = discovery.relabel.pod_metrics.output
-  forward_to = [prometheus.remote_write.default.receiver]
+  forward_to = [prometheus.relabel.pods.receiver]
+
   scrape_interval = "{{ .Values.global.metrics.scrape_interval }}"
   scrape_timeout = "{{ .Values.global.metrics.scrape_timeout }}"
+}
+
+// These are metric_relabel_configs while discovery.relabel are relabel_configs.
+// See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106
+prometheus.relabel "pods" {
+  forward_to = [prometheus.remote_write.default.receiver]
+
+  // Drop kube-state-metrics' labels which clash with ours
+  rule {
+    source_labels = ["__name__", "container"]
+    regex         = "kube_pod.+;(.+)"
+    target_label  = "container"
+    replacement   = ""
+  }
+  rule {
+    source_labels = ["__name__", "pod"]
+    regex         = "kube_pod.+;(.+)"
+    target_label  = "pod"
+    replacement   = ""
+  }
+  rule {
+    source_labels = ["__name__", "namespace"]
+    regex         = "kube_pod.+;(.+)"
+    target_label  = "namespace"
+    replacement   = ""
+  }
+  rule {
+    source_labels = ["__name__", "exported_container"]
+    // don't replace an empty label
+    regex         = "^kube_pod.+;(.+)$"
+    target_label  = "container"
+    replacement   = "$1"
+  }
+  rule {
+    source_labels = ["__name__", "exported_pod"]
+    // don't replace an empty label
+    regex         = "^kube_pod.+;(.+)$"
+    target_label  = "pod"
+    replacement   = "$1"
+  }
+  rule {
+    source_labels = ["__name__", "exported_namespace"]
+    // don't replace an empty label
+    regex         = "^kube_pod.+;(.+)$"
+    target_label  = "namespace"
+    replacement   = "$1"
+  }
+  rule {
+    regex         = "^(exported_.*|image_.*|container_id|id|uid)$"
+    action        = "labeldrop"
+  }
+}
+
+discovery.relabel "cadvisor" {
+  targets = discovery.kubernetes.nodes.targets
+  rule {
+    replacement   = "/metrics/cadvisor"
+    target_label  = "__metrics_path__"
+  }
+}
+
+prometheus.scrape "cadvisor" {
+  targets    = discovery.relabel.cadvisor.output
+  forward_to = [ prometheus.relabel.cadvisor.receiver ]
+  scheme     = "https"
+  tls_config {
+    insecure_skip_verify = true
+  }
+  bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  scrape_interval   = "{{ .Values.global.metrics.scrape_interval }}"
+  scrape_timeout    = "{{ .Values.global.metrics.scrape_timeout }}"
+}
+
+prometheus.relabel "cadvisor" {
+  forward_to = [ prometheus.remote_write.default.receiver ]
+
+  // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688
+  rule {
+    source_labels = ["__name__","container"]
+    separator = "@"
+    regex = "(container_cpu_.*|container_fs_.*|container_memory_.*)@"
+    action = "drop"
+  }
+  // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688
+  rule {
+    source_labels = ["__name__","image"]
+    separator = "@"
+    regex = "(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@"
+    action = "drop"
+  }
+  // Drop irrelevant series
+  rule {
+    source_labels = ["container"]
+    regex         = "^POD$"
+    action        = "drop"
+  }
+  // Drop unnecessary labels
+  rule {
+    source_labels = ["id"]
+    target_label  = "id"
+    replacement   = ""
+  }
+  rule {
+    source_labels = ["job"]
+    target_label  = "job"
+    replacement   = ""
+  }
+  rule {
+    source_labels = ["name"]
+    target_label  = "name"
+    replacement   = ""
+  }
 }
 
 prometheus.remote_write "default" {
