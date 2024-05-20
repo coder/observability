@@ -81,8 +81,6 @@ loki.source.file "pod_logs" {
   forward_to = [loki.process.pod_logs.receiver]
 }
 
-// basic processing to parse the container format. You can add additional processing stages
-// to match your application logs.
 loki.process "pod_logs" {
   stage.match {
     selector = "{tmp_container_runtime=\"containerd\"}"
@@ -114,6 +112,33 @@ loki.process "pod_logs" {
   // drop the temporary container runtime label as it is no longer needed
   stage.label_drop {
     values = ["tmp_container_runtime"]
+  }
+
+  // parse Coder logs and extract level & logger for efficient filtering
+  stage.match {
+    selector = "{pod=~\"coder.*\"}" // TODO: make configurable
+
+    stage.multiline {
+      firstline     = {{ printf `^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})` | quote }}
+      max_wait_time = "10s"
+    }
+
+    stage.regex {
+      expression = {{ printf `^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s\[(?P<level>\w+)\]\s\s(?P<logger>[^:]+):\s(?P<line>.+)` | quote }}
+    }
+
+    stage.timestamp {
+      source            = "ts"
+      format            = "2006-01-02 15:04:05.000"
+      action_on_failure = "fudge" // rather have inaccurate time than drop the log line
+    }
+
+    stage.labels {
+      values = {
+        level  = "",
+        logger = "",
+      }
+    }
   }
 
   forward_to = [loki.write.loki.receiver]
