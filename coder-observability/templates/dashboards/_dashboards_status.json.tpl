@@ -31,7 +31,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 28,
   "links": [],
   "panels": [
     {
@@ -47,12 +46,15 @@
     },
     {
       "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -66,9 +68,6 @@
                 "value": 1
               }
             ]
-          },
-          "color": {
-            "mode": "thresholds"
           }
         },
         "overrides": [
@@ -106,20 +105,20 @@
       },
       "id": 10,
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "wideLayout": true,
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "center",
-        "showPercentChange": false
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": false
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -129,12 +128,12 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{ {{- $coderd -}} } == 1) or vector(0)",
+          "exemplar": false,
+          "expr": "count(up{ {{- $coderd -}} } == 1) or vector(0) > 0",
           "instant": true,
           "legendFormat": "Up",
           "range": false,
-          "refId": "A",
-          "exemplar": false
+          "refId": "A"
         },
         {
           "datasource": {
@@ -142,13 +141,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{ {{- $coderd -}} } == 0) or vector(0)",
+          "exemplar": false,
+          "expr": "count(up{ {{- $coderd -}} } == 0) or vector(0) > 0",
+          "hide": false,
           "instant": true,
           "legendFormat": "Down",
           "range": false,
-          "refId": "B",
-          "exemplar": false,
-          "hide": false
+          "refId": "B"
         }
       ],
       "title": "Coder Replicas",

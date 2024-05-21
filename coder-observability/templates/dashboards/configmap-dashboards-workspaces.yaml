@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards-workspaces
+  namespace: {{ .Release.Namespace }}
+data:
+  provisionerd.json: |- {{- include "workspaces-dashboard.json" . | trim | nindent 4 }}
