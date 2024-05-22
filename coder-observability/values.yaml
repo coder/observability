@@ -73,8 +73,8 @@ global:
     # See https://coder.com/docs/v2/latest/cli/server#--log-human
     # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
     # with regex matchers.
-    # TODO: support "human" format
-    logFormat: json
+    # TODO: support "json" format
+    logFormat: human
     # global.coder.alerts -- alerts for Coder
     alerts:
       groups:
