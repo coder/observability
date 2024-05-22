@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards-workspace-detail
+  namespace: {{ .Release.Namespace }}
+data:
+  workspaces-detail.json: |- {{- include "workspace-detail-dashboard.json" . | trim | nindent 4 }}

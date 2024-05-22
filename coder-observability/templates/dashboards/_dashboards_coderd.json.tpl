@@ -350,8 +350,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -402,11 +402,19 @@
                 "id": "custom.lineStyle",
                 "value": {
                   "dash": [
-                    10,
+                    0,
                     10
                   ],
-                  "fill": "dash"
+                  "fill": "dot"
                 }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 5
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
               }
             ]
           },
@@ -434,7 +442,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "red",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -482,12 +490,12 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Requested",
+          "legendFormat": "Limit",
           "range": true,
-          "refId": "B"
+          "refId": "C"
         },
         {
           "datasource": {
@@ -495,12 +503,12 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Limit",
+          "legendFormat": "Requested",
           "range": true,
-          "refId": "C"
+          "refId": "B"
         }
       ],
       "title": "CPU Usage Seconds",
@@ -550,21 +558,33 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "fillOpacity": 80,
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineWidth": 0,
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -622,25 +642,16 @@
       },
       "id": 30,
       "options": {
-        "barRadius": 0,
-        "barWidth": 1,
-        "fullHighlight": false,
-        "groupWidth": 1,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
-        "orientation": "auto",
-        "showValue": "never",
-        "stacking": "none",
         "tooltip": {
-          "mode": "multi",
+          "mode": "single",
           "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 100
+        }
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -659,7 +670,7 @@
         }
       ],
       "title": "Terminations",
-      "type": "barchart"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -777,8 +788,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -829,11 +840,19 @@
                 "id": "custom.lineStyle",
                 "value": {
                   "dash": [
-                    10,
+                    0,
                     10
                   ],
-                  "fill": "dash"
+                  "fill": "dot"
                 }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 5
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
               }
             ]
           },
@@ -861,7 +880,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "red",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -898,23 +917,11 @@
           "editorMode": "code",
           "exemplar": false,
           "expr": "max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`})",
+          "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"memory\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "Requested",
-          "range": true,
-          "refId": "B"
         },
         {
           "datasource": {
@@ -928,6 +935,19 @@
           "legendFormat": "Limit",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"memory\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Requested",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "RAM Usage",
@@ -1324,8 +1344,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1334,7 +1354,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -1439,14 +1459,14 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Control Plane",
   "uid": "coderd",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
 {{ end }}

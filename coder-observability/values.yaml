@@ -66,11 +66,15 @@ global:
     # TODO: rename container label in provisioner helm chart to be "provisioner" not "coder"
     # Ensure this uses backticks for quotes
     provisionerdSelector: 'pod=~`coder-provisioner.*`'
+    # The namespace into which the control plane has been deployed.
+    controlPlaneNamespace: coder
+    # The namespace into which any external provisioners have been deployed.
+    externalProvisionersNamespace: coder
     # See https://coder.com/docs/v2/latest/cli/server#--log-human
     # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
     # with regex matchers.
-    # TODO: support "human" format
-    logFormat: json
+    # TODO: support "json" format
+    logFormat: human
 
 collector:
   enabled: true
@@ -106,10 +110,12 @@ collector:
   #    format = "logfmt"
   #  }
   discovery: |-
+    // Discover k8s nodes
     discovery.kubernetes "nodes" {
       role = "node"
     }
 
+    // Discover k8s pods
     discovery.kubernetes "pods" {
       role = "pod"
       selectors {
@@ -301,7 +307,7 @@ dashboards:
       provider:
         disableDelete: true
         allowUiUpdates: true
-      enabled: true
+      enabled: false
       labelValue: "1"
   extraConfigmapMounts:
     # we can't combine configmaps because of the 1MiB size limit, but Grafana will scan
@@ -322,7 +328,12 @@ dashboards:
       mountPath: /var/lib/grafana/dashboards/coder/3
       configMap: dashboards-workspaces
       readOnly: false
+    - name: dashboards-workspace-detail
+      mountPath: /var/lib/grafana/dashboards/coder/4
+      configMap: dashboards-workspace-detail
+      readOnly: false
 
+# Prometheus
 metrics:
   enabled: true
   server:
@@ -332,33 +343,6 @@ metrics:
 
     extraArgs:
       log.level: debug
-
-
-
-
-
-
-
-
-
-
-
-
-#      query.lookback-delta: 45s # TODO: remove
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     replicaCount: 1
     statefulSet:
@@ -426,6 +410,7 @@ metrics:
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
+
 logs:
   enabled: true
   nameOverride: logs

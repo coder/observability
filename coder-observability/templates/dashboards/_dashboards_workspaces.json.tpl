@@ -54,6 +54,470 @@
       "type": "text"
     },
     {
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1.2
+      },
+      "id": 31,
+      "title": "Resources",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 2.2
+      },
+      "id": 33,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "stdDev",
+            "min",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"coder-workspaces\"}[$__rate_interval]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 10,
+        "y": 2.2
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "stdDev",
+            "min",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max by (pod) (container_memory_working_set_bytes{namespace=\"coder-workspaces\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "RAM Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 2.2
+      },
+      "id": 36,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "The cumulative CPU used per core-second. If a workspace was using a full CPU core, that would be represented as 1 second.\n\nSee the Kubernetes [documentation](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#cpu-units) for more details.\n\nThe total memory used by each workspace container is represented; it is the same metric which the [OOM killer](https://www.kernel.org/doc/gorman/html/understand/understand016.html) uses.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 10.2
+      },
+      "id": 38,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (pod) (\n  round(increase(kube_pod_container_status_restarts_total{namespace=\"coder-workspaces\"}[$__interval]))\n) > 0",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Pod Restarts",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 10,
+        "y": 10.2
+      },
+      "id": 39,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (pod, reason) (kube_pod_container_status_terminated_reason{namespace=\"coder-workspaces\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": {{ printf "{{pod}}:{{reason}}" | quote }},
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Terminations",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18.2
+      },
+      "id": 30,
+      "panels": [],
+      "title": "Builds",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -136,7 +600,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "purple",
                   "mode": "fixed"
                 }
               }
@@ -151,7 +615,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "purple",
+                  "fixedColor": "blue",
                   "mode": "fixed"
                 }
               }
@@ -163,7 +627,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 1.2
+        "y": 19.2
       },
       "id": 2,
       "interval": "5m",
@@ -307,7 +771,7 @@
         "h": 8,
         "w": 10,
         "x": 10,
-        "y": 1.2
+        "y": 19.2
       },
       "id": 1,
       "interval": "5m",
@@ -350,9 +814,9 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 1.2
+        "y": 19.2
       },
-      "id": 20,
+      "id": 34,
       "options": {
         "code": {
           "language": "plaintext",
@@ -478,7 +942,7 @@
         "h": 10,
         "w": 20,
         "x": 0,
-        "y": 9.2
+        "y": 27.2
       },
       "id": 6,
       "interval": "1m",
@@ -639,7 +1103,7 @@
         "h": 10,
         "w": 4,
         "x": 20,
-        "y": 9.2
+        "y": 27.2
       },
       "id": 29,
       "options": {
@@ -648,7 +1112,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "This table shows a reverse-chronological log of all workspace builds.\n\nThe \"Total\" field shows the count of events which occurred within a minute.",
+        "content": "This table shows a reverse-chronological log of all workspace builds.\n\nThe \"Count\" field shows the count of events which occurred within a minute, grouped by all columns.",
         "mode": "markdown"
       },
       "pluginVersion": "10.4.0",
@@ -681,7 +1145,7 @@
         "h": 7,
         "w": 5,
         "x": 0,
-        "y": 19.2
+        "y": 37.2
       },
       "id": 8,
       "interval": "1h",
@@ -754,7 +1218,7 @@
         "h": 7,
         "w": 5,
         "x": 5,
-        "y": 19.2
+        "y": 37.2
       },
       "id": 9,
       "interval": "1h",
@@ -793,7 +1257,7 @@
           "exemplar": false,
           "expr": "count by (workspace_owner, template_name) (coderd_workspace_latest_build_status{template_name=~\"$template_name\"})",
           "instant": true,
-          "legendFormat": "{{workspace_owner}}:{{template_name}}",
+          "legendFormat": {{ printf "{{workspace_owner}}:{{template_name}}" | quote }},
           "range": false,
           "refId": "A"
         }
@@ -827,7 +1291,7 @@
         "h": 7,
         "w": 5,
         "x": 10,
-        "y": 19.2
+        "y": 37.2
       },
       "id": 4,
       "interval": "1h",
@@ -900,7 +1364,7 @@
         "h": 7,
         "w": 5,
         "x": 15,
-        "y": 19.2
+        "y": 37.2
       },
       "id": 5,
       "interval": "1h",
@@ -937,7 +1401,7 @@
           "exemplar": false,
           "expr": "count by (template_name, template_version) (coderd_workspace_latest_build_status{template_name=~\"$template_name\"})",
           "instant": true,
-          "legendFormat": "{{template_name}}:{{template_version}}",
+          "legendFormat": {{ printf "{{template_name}}:{{template_version}}" | quote }},
           "range": false,
           "refId": "A"
         }
@@ -955,7 +1419,7 @@
         "h": 7,
         "w": 4,
         "x": 20,
-        "y": 19.2
+        "y": 37.2
       },
       "id": 24,
       "options": {
@@ -972,6 +1436,19 @@
       "type": "text"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 44.2
+      },
+      "id": 32,
+      "panels": [],
+      "title": "Logs",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -980,7 +1457,7 @@
         "h": 10,
         "w": 20,
         "x": 0,
-        "y": 26.2
+        "y": 45.2
       },
       "id": 7,
       "options": {
@@ -1018,7 +1495,7 @@
         "h": 10,
         "w": 4,
         "x": 20,
-        "y": 26.2
+        "y": 45.2
       },
       "id": 22,
       "links": [
@@ -1115,14 +1592,14 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Workspaces",
   "uid": "workspaces",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
 {{ end }}
