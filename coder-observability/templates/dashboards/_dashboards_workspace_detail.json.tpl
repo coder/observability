@@ -1,3 +1,4 @@
+{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "workspace-detail-dashboard.json" }}
 {{ $ns := .Release.Namespace }}
 {{ $metrics := .Values.metrics.server.fullnameOverride }}
@@ -28,21 +29,6 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 31,
-      "panels": [],
-      "repeat": "workspace_name",
-      "repeatDirection": "h",
-      "title": "$workspace_name",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -52,7 +38,7 @@
         "h": 1.2,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 28,
       "options": {
@@ -62,6 +48,396 @@
           "showMiniMap": false
         },
         "content": "<small>**HINT**: use the dropdowns above to filter by specific workspace(s).</small>",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPUs Requested"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RAM Requested"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PVC Capacity"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 10,
+        "x": 0,
+        "y": 1.2
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 20,
+          "valueSize": 40
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "group by (template_name) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Template Name",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "group by (template_version) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Template Version",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "group by (username) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Owner",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Details",
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true,
+              "Value #B": true,
+              "Value #C": true,
+              "Value #D": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "CPUs Requested": 7,
+              "PVC Capacity": 9,
+              "RAM Requested": 8,
+              "Time": 0,
+              "Value #A": 5,
+              "Value #B": 3,
+              "Value #C": 6,
+              "template_name": 2,
+              "template_version": 4,
+              "username": 1
+            },
+            "renameByName": {
+              "Value #C": "",
+              "lifecycle_state": "Agent State",
+              "template_name": "Template",
+              "template_version": "Template Version",
+              "username": "Owner"
+            }
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPUs Requested"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "RAM Requested"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PVC Capacity"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 10,
+        "x": 10,
+        "y": 1.2
+      },
+      "id": 36,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 20,
+          "valueSize": 40
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"cpu\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "CPUs Requested",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"memory\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "RAM Requested",
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(\n  kube_pod_spec_volumes_persistentvolumeclaims_info{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\"}\n  * on(persistentvolumeclaim) group_right\n  group by (persistentvolumeclaim, persistentvolume) (\n      label_replace(\n          kube_persistentvolume_claim_ref,\n          \"persistentvolumeclaim\",\n          \"$1\",\n          \"name\",\n          \"(.+)\"\n      )\n  )\n  * on (persistentvolume)\n  kube_persistentvolume_capacity_bytes\n)",
+          "format": "time_series",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "PVC Capacity",
+          "range": false,
+          "refId": "F"
+        }
+      ],
+      "title": "Resources",
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true,
+              "Value #B": true,
+              "Value #C": true,
+              "Value #D": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "CPUs Requested": 7,
+              "PVC Capacity": 9,
+              "RAM Requested": 8,
+              "Time": 0,
+              "Value #A": 5,
+              "Value #B": 3,
+              "Value #C": 6,
+              "template_name": 2,
+              "template_version": 4,
+              "username": 1
+            },
+            "renameByName": {
+              "Value #C": "",
+              "lifecycle_state": "Agent State",
+              "template_name": "Template",
+              "template_version": "Template Version",
+              "username": "Owner"
+            }
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 1.2
+      },
+      "id": 38,
+      "links": [
+        {
+          "title": "Provisioners Dashboard",
+          "url": "/d/provisionerd/provisioners?${__url_time_range}"
+        }
+      ],
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Essential information about the selected workspace.",
         "mode": "markdown"
       },
       "pluginVersion": "10.4.0",
@@ -164,10 +540,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 4,
         "x": 0,
-        "y": 2.2
+        "y": 7.2
       },
       "id": 35,
       "options": {
@@ -183,6 +559,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 50
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -206,299 +585,6 @@
       ],
       "title": "Agent Lifecycle State",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPUs Requested"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RAM Requested"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "PVC Capacity"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 10,
-        "x": 4,
-        "y": 2.2
-      },
-      "id": 29,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "group by (template_name) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Template Name",
-          "range": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "group by (template_version) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Template Version",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "group by (username) (coderd_agents_up{workspace_name=~\"$workspace_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Owner",
-          "range": false,
-          "refId": "C"
-        }
-      ],
-      "title": "Details",
-      "transformations": [
-        {
-          "id": "concatenate",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "Value #A": true,
-              "Value #B": true,
-              "Value #C": true,
-              "Value #D": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "CPUs Requested": 7,
-              "PVC Capacity": 9,
-              "RAM Requested": 8,
-              "Time": 0,
-              "Value #A": 5,
-              "Value #B": 3,
-              "Value #C": 6,
-              "template_name": 2,
-              "template_version": 4,
-              "username": 1
-            },
-            "renameByName": {
-              "Value #C": "",
-              "lifecycle_state": "Agent State",
-              "template_name": "Template",
-              "template_version": "Template Version",
-              "username": "Owner"
-            }
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 3,
-        "x": 14,
-        "y": 2.2
-      },
-      "id": 34,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/.*/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "max by (app) (\n    label_replace(\n        {workspace_name=\"lego-builder\", __name__=~\"coderd_agentstats_session_count_.*\"},\n        \"app\",\n        \"$1\",\n        \"__name__\",\n        \"coderd_agentstats_session_count_(.*)\"\n    )\n)>0",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "legendFormat": {{ printf "{{app}}" | quote }},
-          "range": false,
-          "refId": "C"
-        }
-      ],
-      "title": "App Session Counts",
-      "transformations": [
-        {
-          "id": "concatenate",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "",
-      "gridPos": {
-        "h": 14,
-        "w": 4,
-        "x": 20,
-        "y": 2.2
-      },
-      "id": 22,
-      "links": [
-        {
-          "title": "Provisioners Dashboard",
-          "url": "/d/provisionerd/provisioners?${__url_time_range}"
-        }
-      ],
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "TODO",
-        "mode": "markdown"
-      },
-      "pluginVersion": "10.4.0",
-      "transparent": true,
-      "type": "text"
     },
     {
       "datasource": {
@@ -542,10 +628,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 0,
-        "y": 9.2
+        "h": 6,
+        "w": 3,
+        "x": 4,
+        "y": 7.2
       },
       "id": 33,
       "options": {
@@ -561,6 +647,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 50
+        },
         "textMode": "value",
         "wideLayout": true
       },
@@ -593,51 +682,116 @@
       "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
+                "color": "green",
                 "value": null
               }
             ]
           },
           "unit": "short"
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 7,
+        "y": 7.2
+      },
+      "id": 39,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 20,
+          "valueSize": 50
+        },
+        "textMode": "value_and_name",
+        "wideLayout": false
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max by (app) (\n    label_replace(\n        {workspace_name=~\"$workspace_name\", __name__=~\"coderd_agentstats_session_count_.*\"},\n        \"app\",\n        \"$1\",\n        \"__name__\",\n        \"coderd_agentstats_session_count_(.*)\"\n    )\n)>0",
+          "format": "time_series",
+          "hide": false,
+          "instant": true,
+          "legendFormat": {{ printf "{{app}}" | quote }},
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "App Session Counts",
+      "transformations": [
+        {
+          "id": "concatenate",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
         "overrides": [
           {
             "matcher": {
-              "id": "byName",
-              "options": "CPUs Requested"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RAM Requested"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "PVC Capacity"
+              "id": "byRegexp",
+              "options": "/.*Bytes/"
             },
             "properties": [
               {
@@ -649,17 +803,17 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 10,
-        "x": 4,
-        "y": 9.2
+        "x": 10,
+        "y": 7.2
       },
-      "id": 36,
+      "id": 34,
       "options": {
-        "colorMode": "background",
+        "colorMode": "none",
         "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
+        "justifyMode": "center",
+        "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -668,6 +822,10 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "titleSize": 20,
+          "valueSize": 50
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -680,13 +838,13 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"cpu\"})",
-          "format": "time_series",
+          "expr": "max(coderd_agents_connection_latencies_seconds{workspace_name=~\"$workspace_name\"})",
+          "format": "table",
           "hide": false,
           "instant": true,
-          "legendFormat": "CPUs Requested",
+          "legendFormat": "Connection Latency",
           "range": false,
-          "refId": "D"
+          "refId": "C"
         },
         {
           "datasource": {
@@ -695,13 +853,13 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"memory\"})",
-          "format": "time_series",
+          "expr": "max(sum by (pod) (sum_over_time(coderd_agentstats_rx_bytes{workspace_name=~\"$workspace_name\"}[$__range])))",
+          "format": "table",
           "hide": false,
           "instant": true,
-          "legendFormat": "RAM Requested",
+          "legendFormat": "Received Bytes",
           "range": false,
-          "refId": "E"
+          "refId": "rx"
         },
         {
           "datasource": {
@@ -710,55 +868,72 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  kube_pod_spec_volumes_persistentvolumeclaims_info{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\"}\n  * on(persistentvolumeclaim) group_right\n  group by (persistentvolumeclaim, persistentvolume) (\n      label_replace(\n          kube_persistentvolume_claim_ref,\n          \"persistentvolumeclaim\",\n          \"$1\",\n          \"name\",\n          \"(.+)\"\n      )\n  )\n  * on (persistentvolume)\n  kube_persistentvolume_capacity_bytes\n)",
-          "format": "time_series",
+          "expr": "max(sum by (pod) (sum_over_time(coderd_agentstats_tx_bytes{workspace_name=~\"$workspace_name\"}[$__range])))",
+          "format": "table",
           "hide": false,
           "instant": true,
-          "legendFormat": "PVC Capacity",
+          "legendFormat": "Transmitted Bytes",
           "range": false,
-          "refId": "F"
+          "refId": "tx"
         }
       ],
-      "title": "Resources",
+      "title": "Networking",
       "transformations": [
         {
-          "id": "concatenate",
+          "id": "merge",
           "options": {}
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true,
-              "Value #A": true,
-              "Value #B": true,
-              "Value #C": true,
-              "Value #D": true
+              "Time": true
             },
             "includeByName": {},
-            "indexByName": {
-              "CPUs Requested": 7,
-              "PVC Capacity": 9,
-              "RAM Requested": 8,
-              "Time": 0,
-              "Value #A": 5,
-              "Value #B": 3,
-              "Value #C": 6,
-              "template_name": 2,
-              "template_version": 4,
-              "username": 1
-            },
+            "indexByName": {},
             "renameByName": {
-              "Value #C": "",
-              "lifecycle_state": "Agent State",
-              "template_name": "Template",
-              "template_version": "Template Version",
-              "username": "Owner"
+              "Value #A": "Received Bytes",
+              "Value #B": "Transmitted Bytes",
+              "Value #C": "Connection Latency",
+              "Value #rx": "Received Bytes",
+              "Value #tx": "Transmitted Bytes"
             }
           }
         }
       ],
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 7.2
+      },
+      "id": 40,
+      "links": [
+        {
+          "title": "Provisioners Dashboard",
+          "url": "/d/provisionerd/provisioners?${__url_time_range}"
+        }
+      ],
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Essential information about this workspace's agent.\n\nRead more about the agent [here](https://coder.com/docs/v2/latest/about/architecture#agents).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "transparent": true,
+      "type": "text"
     },
     {
       "datasource": {
@@ -872,10 +1047,10 @@
         "h": 7,
         "w": 20,
         "x": 0,
-        "y": 16.2
+        "y": 13.2
       },
       "id": 6,
-      "interval": "1m",
+      "interval": "",
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1033,7 +1208,7 @@
         "h": 7,
         "w": 4,
         "x": 20,
-        "y": 16.2
+        "y": 13.2
       },
       "id": 37,
       "links": [
@@ -1064,7 +1239,7 @@
         "h": 10,
         "w": 20,
         "x": 0,
-        "y": 23.2
+        "y": 20.2
       },
       "id": 7,
       "options": {
@@ -1114,7 +1289,7 @@
         "h": 10,
         "w": 4,
         "x": 20,
-        "y": 23.2
+        "y": 20.2
       },
       "id": 24,
       "options": {
@@ -1138,24 +1313,15 @@
     "list": [
       {
         "allValue": "",
-        "current": {
-          "selected": true,
-          "text": [
-            "lego-builder"
-          ],
-          "value": [
-            "lego-builder"
-          ]
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
         "definition": "label_values(coderd_agents_up,workspace_name)",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Workspace Name Filter",
-        "multi": true,
+        "multi": false,
         "name": "workspace_name",
         "options": [],
         "query": {
@@ -1179,7 +1345,7 @@
   "timezone": "browser",
   "title": "Workspace Detail",
   "uid": "workspace-detail",
-  "version": 4,
+  "version": 9,
   "weekStart": ""
 }
 {{ end }}

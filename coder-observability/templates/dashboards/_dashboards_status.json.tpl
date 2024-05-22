@@ -1,3 +1,4 @@
+{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "status-dashboard.json" }}
 {{ $ns := .Release.Namespace }}
 {{ $metrics := .Values.metrics.server.fullnameOverride }}

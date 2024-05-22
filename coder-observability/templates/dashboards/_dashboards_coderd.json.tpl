@@ -1,3 +1,4 @@
+{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "coderd-dashboard.json" }}
 {{ $ns := .Release.Namespace }}
 {{ $metrics := .Values.metrics.server.fullnameOverride }}
@@ -542,49 +543,47 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus",
+        "type": "prometheus"
       },
-      "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "red",
-            "mode": "shades"
-          },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
             "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 1,
             "fillOpacity": 100,
             "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
+            "spanNulls": false,
             "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "showPoints": "auto",
             "pointSize": 5,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "axisColorMode": "text",
+            "axisBorderShow": false,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
+            "axisCenteredZero": false,
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
             },
             "thresholdsStyle": {
               "mode": "off"
             }
           },
-          "decimals": 0,
+          "color": {
+            "mode": "shades",
+            "fixedColor": "red"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -599,6 +598,7 @@
               }
             ]
           },
+          "decimals": 0,
           "unit": "short"
         },
         "overrides": [
@@ -642,15 +642,15 @@
       },
       "id": 30,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
         "tooltip": {
           "mode": "single",
           "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
         }
       },
       "pluginVersion": "10.4.0",
@@ -661,7 +661,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (reason) (kube_pod_container_status_terminated_reason{pod=~`coder.*`, pod!~`.*provisioner.*`})",
+          "expr": "sum by (reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=\"coder\"}[$__interval])\n)",
           "hide": false,
           "instant": false,
           "legendFormat": {{ printf "{{reason}}" | quote }},
@@ -670,19 +670,16 @@
         }
       ],
       "title": "Terminations",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": ""
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus",
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -697,6 +694,10 @@
               }
             ]
           },
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
           "unit": "short"
         },
         "overrides": []
@@ -709,20 +710,20 @@
       },
       "id": 34,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
         "reduceOptions": {
+          "values": false,
           "calcs": [
             "mean"
           ],
-          "fields": "",
-          "values": false
+          "fields": ""
         },
-        "showPercentChange": false,
+        "orientation": "auto",
         "textMode": "auto",
-        "wideLayout": true
+        "wideLayout": true,
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "showPercentChange": false
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -733,7 +734,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{pod=~\"coder.*\", pod!~\".*provisioner.*\"}[$__range]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{pod=~\"coder.*\", pod!~\".*provisioner.*\", namespace=\"coder\"}[$__range]))",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",

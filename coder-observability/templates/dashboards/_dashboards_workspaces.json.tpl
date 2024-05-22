@@ -1,3 +1,4 @@
+{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "workspaces-dashboard.json" }}
 {{ $ns := .Release.Namespace }}
 {{ $metrics := .Values.metrics.server.fullnameOverride }}
@@ -111,7 +112,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -493,7 +495,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (pod, reason) (kube_pod_container_status_terminated_reason{namespace=\"coder-workspaces\"})",
+          "expr": "sum by (pod, reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{namespace=\"coder-workspaces\"}[$__interval])\n)",
           "hide": false,
           "instant": false,
           "legendFormat": {{ printf "{{pod}}:{{reason}}" | quote }},
@@ -503,6 +505,32 @@
       ],
       "title": "Terminations",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 10.2
+      },
+      "id": 40,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Pods can be terminated for several reasons:\n- `OOMKilled`: pod exceeded its defined memory limit or was terminated by the OS for using excessive memory (if no limit defined)\n- `Error`: usually attributeable to a configuration problem\n- `Evicted`: pod has been evicted from node for overusing resources and will be rescheduled on another node is possible\n\nPod restarts are not necessarily problematic, but they are worth noting.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "transparent": true,
+      "type": "text"
     },
     {
       "collapsed": false,
@@ -945,7 +973,7 @@
         "y": 27.2
       },
       "id": 6,
-      "interval": "1m",
+      "interval": "",
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -1599,7 +1627,7 @@
   "timezone": "browser",
   "title": "Workspaces",
   "uid": "workspaces",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
 {{ end }}
