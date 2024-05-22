@@ -73,8 +73,32 @@ global:
     # See https://coder.com/docs/v2/latest/cli/server#--log-human
     # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
     # with regex matchers.
-    # TODO: support "json" format
-    logFormat: human
+    # TODO: support "human" format
+    logFormat: json
+    # global.coder.alerts -- alerts for Coder
+    alerts:
+      groups:
+        CPU:
+          enabled: true
+          delay: 10m
+          thresholds:
+            notify: 0.5
+            warning: 0.8
+            critical: 0.9
+        Memory:
+          enabled: true
+          delay: 10m
+          thresholds:
+            notify: 0.5
+            warning: 0.8
+            critical: 0.9
+        Restarts:
+          enabled: true
+          delay: 1m
+          thresholds:
+            notify: 1
+            warning: 2
+            critical: 3
 
 collector:
   enabled: true
@@ -371,6 +395,7 @@ metrics:
       # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
       rule_files:
         - /etc/config/alerts/postgres.yaml
+        - /etc/config/alerts/coder.yaml
 
   testFramework:
     enabled: false

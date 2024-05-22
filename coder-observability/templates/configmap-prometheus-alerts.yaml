@@ -4,8 +4,67 @@ metadata:
   name: metrics-alerts
   namespace: {{ .Release.Namespace }}
 data:
-  {{- $ := (merge . (dict "service" "postgres")) -}}
+  {{- $ := (merge . (dict "service" "coder")) -}}
 
+  {{- with .Values.global.coder }}
+  coder.yaml: |-
+    groups:
+  {{- with .alerts.groups.CPU }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: CPU Usage
+      rules:
+      {{ $alert := "CoderCPUUsage" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~"coder.*", pod!~".*provisioner.*"}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~"coder.*", pod!~".*provisioner.*", resource="cpu"}) > {{ $threshold }}
+        for: {{ $group.delay }}
+        labels:
+          summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of CPU, which may impact application performance.
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      {{- end }} {{/* range */}}
+  {{- end }} {{/* if .enabled */}}
+  {{- end }} {{/* with .alerts.groups.CPU */}}
+
+  {{- with .alerts.groups.Memory }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Memory Usage
+      rules:
+      {{ $alert := "CoderMemoryUsage" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, resource="memory"})  > {{ $threshold }}
+        for: {{ $group.delay }}
+        labels:
+          summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      {{- end }} {{/* range */}}
+  {{- end }} {{/* if .enabled */}}
+  {{- end }} {{/* with .alerts.groups.Memory */}}
+
+  {{- with .alerts.groups.Restarts }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Pod Restarts
+      rules:
+      {{ $alert := "CoderRestarts" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~"coder.*", pod!~".*provisioner.*"}[10m])) > {{ $threshold }}
+        for: {{ $group.delay }}
+        labels:
+          summary: The Coder instance {{ `{{ $labels.pod }}` }} has restarted multiple times in the last 10 minutes, which may indicate a CrashLoop.
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      {{- end }} {{/* range */}}
+  {{- end }} {{/* if .enabled */}}
+  {{- end }} {{/* with .alerts.groups.Restarts */}}
+  {{- end }} {{/* with .Values.global.Coder */}}
+
+  {{- $ := (merge . (dict "service" "postgres")) -}}
   {{- with .Values.global.postgres }}
   postgres.yaml: |-
     groups:
@@ -39,13 +98,14 @@ data:
           summary: The postgres instance {{ `{{ $labels.instance }}` }} is down!
           severity: critical
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
-      - alert: PostgresDown
-        expr: absent(pg_up)
-        for: {{ $group.delay }}
-        labels:
-          summary: The postgres instance {{ `{{ $labels.instance }}` }} is down (metrics missing)!
-          severity: critical
-          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
+      # TODO: pint says Template is using `instance` label but `absent()` is not passing it. (alerts/template)
+      #- alert: PostgresDown
+      #  expr: absent(pg_up)
+      #  for: {{ $group.delay }}
+      #  labels:
+      #    summary: The postgres instance {{ `{{ $labels.instance }}` }} is down (metrics missing)!
+      #    severity: critical
+      #    runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert)) }}
       {{- end }}
   {{ end }}
   {{- with .alerts.groups.Connections }}
@@ -56,7 +116,7 @@ data:
       {{ $alert := "PostgresConnectionsRunningLow" }}
       {{- range $severity, $threshold := .thresholds }}
         - alert: {{ $alert }}
-          expr: sum by (datname) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * {{ $threshold }})
+          expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * {{ $threshold }})
           for: {{ $group.delay }}
           labels:
             summary: The postgres instance {{ `{{ $labels.instance }}` }} is running low on connections which may impact application performance.
