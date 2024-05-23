@@ -111,8 +111,8 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 10,
+        "h": 4,
+        "w": 20,
         "x": 0,
         "y": 1.2
       },
@@ -134,8 +134,8 @@
           "titleSize": 20,
           "valueSize": 40
         },
-        "textMode": "auto",
-        "wideLayout": true
+        "textMode": "value_and_name",
+        "wideLayout": false
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -232,6 +232,37 @@
         "uid": "prometheus"
       },
       "description": "",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 1.2
+      },
+      "id": 38,
+      "links": [
+        {
+          "title": "Provisioners Dashboard",
+          "url": "/d/provisionerd/provisioners?${__url_time_range}"
+        }
+      ],
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Essential information about the selected workspace.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "10.4.0",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "mappings": [],
@@ -290,31 +321,31 @@
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 10,
-        "x": 10,
-        "y": 1.2
+        "h": 4,
+        "w": 20,
+        "x": 0,
+        "y": 5.2
       },
       "id": 36,
       "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "vertical",
         "reduceOptions": {
+          "values": false,
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/.*/",
-          "values": false
+          "fields": "/.*/"
         },
+        "orientation": "vertical",
+        "textMode": "value_and_name",
+        "wideLayout": false,
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
         "showPercentChange": false,
         "text": {
           "titleSize": 20,
           "valueSize": 40
-        },
-        "textMode": "auto",
-        "wideLayout": true
+        }
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -403,39 +434,8 @@
           }
         }
       ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "",
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 1.2
-      },
-      "id": 38,
-      "links": [
-        {
-          "title": "Provisioners Dashboard",
-          "url": "/d/provisionerd/provisioners?${__url_time_range}"
-        }
-      ],
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "Essential information about the selected workspace.",
-        "mode": "markdown"
-      },
-      "pluginVersion": "10.4.0",
-      "transparent": true,
-      "type": "text"
+      "type": "stat",
+      "description": ""
     },
     {
       "datasource": {
@@ -536,7 +536,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 7.2
+        "y": 9.2
       },
       "id": 35,
       "options": {
@@ -624,7 +624,7 @@
         "h": 6,
         "w": 3,
         "x": 4,
-        "y": 7.2
+        "y": 9.2
       },
       "id": 33,
       "options": {
@@ -696,7 +696,7 @@
         "h": 6,
         "w": 3,
         "x": 7,
-        "y": 7.2
+        "y": 9.2
       },
       "id": 39,
       "options": {
@@ -799,7 +799,7 @@
         "h": 6,
         "w": 10,
         "x": 10,
-        "y": 7.2
+        "y": 9.2
       },
       "id": 34,
       "options": {
@@ -906,7 +906,7 @@
         "h": 6,
         "w": 4,
         "x": 20,
-        "y": 7.2
+        "y": 9.2
       },
       "id": 40,
       "links": [
@@ -1040,7 +1040,7 @@
         "h": 7,
         "w": 20,
         "x": 0,
-        "y": 13.2
+        "y": 15.2
       },
       "id": 6,
       "interval": "",
@@ -1201,7 +1201,7 @@
         "h": 7,
         "w": 4,
         "x": 20,
-        "y": 13.2
+        "y": 15.2
       },
       "id": 37,
       "links": [
@@ -1232,7 +1232,7 @@
         "h": 10,
         "w": 20,
         "x": 0,
-        "y": 20.2
+        "y": 22.2
       },
       "id": 7,
       "options": {
@@ -1282,7 +1282,7 @@
         "h": 10,
         "w": 4,
         "x": 20,
-        "y": 20.2
+        "y": 22.2
       },
       "id": 24,
       "options": {
