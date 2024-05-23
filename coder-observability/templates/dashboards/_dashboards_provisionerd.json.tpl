@@ -1,11 +1,4 @@
-{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "provisionerd-dashboard.json" }}
-{{ $ns := .Release.Namespace }}
-{{ $metrics := .Values.metrics.server.fullnameOverride }}
-{{ $logs := .Values.logs.fullnameOverride }}
-{{ $collector := .Values.collector.fullnameOverride }}
-{{ $coderd := .Values.global.coder.coderdSelector }}
-{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -107,7 +100,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_provisionerd_num_daemons{pod=~`coder-provisioner.*`})",
+          "expr": "sum(coderd_provisionerd_num_daemons{ {{- include "provisionerd-selector" . -}} })",
           "hide": false,
           "instant": true,
           "legendFormat": "External",
@@ -671,7 +664,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder-provisioner.*`}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "provisionerd-selector" . -}} }[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -685,7 +678,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(kube_pod_container_resource_limits{pod=~`coder-provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_limits{ {{- include "provisionerd-selector" . -}} , resource=\"cpu\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Limit",
@@ -699,7 +692,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder-provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_requests{ {{- include "provisionerd-selector" . -}} , resource=\"cpu\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Requested",
@@ -879,7 +872,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (pod) (container_memory_working_set_bytes{pod=~`coder-provisioner.*`})",
+          "expr": "max by (pod) (container_memory_working_set_bytes{ {{- include "provisionerd-selector" . -}} })",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -893,7 +886,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(kube_pod_container_resource_limits{pod=~`coder-provisioner.*`, resource=\"memory\"})",
+          "expr": "max(kube_pod_container_resource_limits{ {{- include "provisionerd-selector" . -}} , resource=\"memory\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Limit",
@@ -907,7 +900,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder-provisioner.*`, resource=\"memory\"})",
+          "expr": "max(kube_pod_container_resource_requests{ {{- include "provisionerd-selector" . -}} , resource=\"memory\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Requested",
@@ -973,7 +966,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{pod=~\"coder.*\", logger=~\"(.*runner|terraform|provisioner.*)\"}",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=~\"(.*runner|terraform|provisioner.*)\"}",
           "queryType": "range",
           "refId": "A"
         }

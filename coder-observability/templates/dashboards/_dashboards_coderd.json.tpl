@@ -1,11 +1,4 @@
-{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "coderd-dashboard.json" }}
-{{ $ns := .Release.Namespace }}
-{{ $metrics := .Values.metrics.server.fullnameOverride }}
-{{ $logs := .Values.logs.fullnameOverride }}
-{{ $collector := .Values.collector.fullnameOverride }}
-{{ $coderd := .Values.global.coder.coderdSelector }}
-{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -119,7 +112,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(up{pod=~`coder.*`, pod!~`.*provisioner.*`} == 1) or vector(0)",
+          "expr": "count(up{ {{- include "coderd-selector" . -}} } == 1) or vector(0)",
           "instant": true,
           "legendFormat": "Up",
           "range": false,
@@ -132,7 +125,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(count(up{pod=~`coder.*`, pod!~`.*provisioner.*`} == 0) or vector(0)) > 0",
+          "expr": "(count(up{ {{- include "coderd-selector" . -}} } == 0) or vector(0)) > 0",
           "hide": false,
           "instant": true,
           "legendFormat": "Down",
@@ -479,7 +472,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "coderd-selector" . -}} }[$__rate_interval]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -491,7 +484,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_limits{ {{- include "coderd-selector" . -}} , resource=\"cpu\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Limit",
@@ -504,7 +497,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"cpu\"})",
+          "expr": "max(kube_pod_container_resource_requests{ {{- include "coderd-selector" . -}} , resource=\"cpu\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Requested",
@@ -662,7 +655,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=\"coder\"}[$__interval])\n)",
+          "expr": "sum by (reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{ {{- include "coderd-selector" . -}} }[$__interval])\n)",
           "hide": false,
           "instant": false,
           "legendFormat": {{ printf "{{reason}}" | quote }},
@@ -734,7 +727,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{pod=~\"coder.*\", pod!~\".*provisioner.*\", namespace=\"coder\"}[$__range]))",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{ {{- include "coderd-selector" . -}} }[$__range]))",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
@@ -917,7 +910,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`})",
+          "expr": "max by (pod) (container_memory_working_set_bytes{ {{- include "coderd-selector" . -}} })",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -930,7 +923,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"memory\"})",
+          "expr": "max(kube_pod_container_resource_limits{ {{- include "coderd-selector" . -}} , resource=\"memory\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Limit",
@@ -943,7 +936,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max(kube_pod_container_resource_requests{pod=~`coder.*`, pod!~`.*provisioner.*`, resource=\"memory\"})",
+          "expr": "max(kube_pod_container_resource_requests{ {{- include "coderd-selector" . -}} , resource=\"memory\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Requested",
@@ -1424,7 +1417,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(pod) (rate(coderd_api_requests_processed_total{pod=~`coder.*`, pod!~`.*provisioner.*`}[$__rate_interval]))",
+          "expr": "sum by(pod) (rate(coderd_api_requests_processed_total{ {{- include "coderd-selector" . -}} }[$__rate_interval]))",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,

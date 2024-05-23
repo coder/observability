@@ -112,3 +112,18 @@ envFrom:
 {{- end }}
 {{- end }}
 
+{{- define "coderd-selector" -}} {{- printf "%s, namespace=`%s`" .Values.global.coder.coderdSelector .Values.global.coder.controlPlaneNamespace -}} {{- end }}
+{{- define "provisionerd-selector" -}} {{- printf "%s, namespace=`%s`" .Values.global.coder.provisionerdSelector .Values.global.coder.externalProvisionersNamespace -}} {{- end }}
+{{- define "workspaces-selector" -}} {{- .Values.global.coder.workspacesSelector -}} {{- end }}
+{{- define "non-workspace-selector" -}} {{- printf "namespace=~`(%s|%s)`" (include "control-plane-namespace" .) (include "external-provisioners-namespace" .) -}} {{- end }}
+{{- define "control-plane-namespace" -}} {{- .Values.global.coder.controlPlaneNamespace -}} {{- end }}
+{{- define "external-provisioners-namespace" -}} {{- .Values.global.coder.externalProvisionersNamespace -}} {{- end }}
+
+{{/* The collector creates "job" labels in the form <namespace>/<component>/<container> */}}
+
+{{/* Prometheus job label */}}
+{{- define "metrics-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.metrics.server.fullnameOverride .Values.metrics.server.name -}} {{- end }}
+{{/* Loki job label */}}
+{{- define "logs-job" -}} {{- printf "%s/%s" .Release.Namespace .Values.logs.fullnameOverride -}} {{- end }}
+{{/* Grafana Agent job label */}}
+{{- define "collector-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.collector.fullnameOverride "grafana-agent" -}} {{- end }}

@@ -1,11 +1,4 @@
-{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "workspaces-dashboard.json" }}
-{{ $ns := .Release.Namespace }}
-{{ $metrics := .Values.metrics.server.fullnameOverride }}
-{{ $logs := .Values.logs.fullnameOverride }}
-{{ $collector := .Values.collector.fullnameOverride }}
-{{ $coderd := .Values.global.coder.coderdSelector }}
-{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -159,7 +152,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"coder-workspaces\"}[$__rate_interval]))",
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "workspaces-selector" . -}} }[$__rate_interval]))",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -264,7 +257,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (pod) (container_memory_working_set_bytes{namespace=\"coder-workspaces\"})",
+          "expr": "max by (pod) (container_memory_working_set_bytes{ {{- include "workspaces-selector" . -}} })",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -392,7 +385,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (pod) (\n  round(increase(kube_pod_container_status_restarts_total{namespace=\"coder-workspaces\"}[$__interval]))\n) > 0",
+          "expr": "sum by (pod) (\n  round(increase(kube_pod_container_status_restarts_total{ {{- include "workspaces-selector" . -}} }[$__interval]))\n) > 0",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -495,7 +488,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (pod, reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{namespace=\"coder-workspaces\"}[$__interval])\n)",
+          "expr": "sum by (pod, reason) (\n  count_over_time(kube_pod_container_status_terminated_reason{ {{- include "workspaces-selector" . -}} }[$__interval])\n)",
           "hide": false,
           "instant": false,
           "legendFormat": {{ printf "{{pod}}:{{reason}}" | quote }},
@@ -1505,7 +1498,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{pod=~\"coder.*\", logger=~\"(.*runner|terraform|provisioner.*)\"} |~ \"$workspace_name\" or \"$template_name\"",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=~\"(.*runner|terraform|provisioner.*)\"} |~ \"$workspace_name\" or \"$template_name\"",
           "queryType": "range",
           "refId": "A"
         }

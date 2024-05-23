@@ -5,7 +5,6 @@ global:
 
   queryTimeout: 900
 
-  # TODO: use these or drop them
   externalScheme: http
   # The external hostname from which k8s services can be accessed in the form of:
   # <externalScheme>:<svc>.<>
@@ -17,7 +16,8 @@ global:
     scrape_interval: 15s
     scrape_timeout: 12s
 
-  # these settings are global so we can parameterise some values which get rendered by subcharts
+  # global.postgres -- postgres connection information
+  # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
   postgres:
     hostname: localhost
     port: 5432
@@ -28,6 +28,7 @@ global:
     # ensure that your secret has a field named `PGPASSWORD`
     mountSecret:
 
+    # global.postgres.alerts -- alerts for postgres
     alerts:
       groups:
         Basic:
@@ -49,26 +50,28 @@ global:
             critical: 0.9
 
   coder:
-    # use this to scrape metrics from a standalone (set of) coder deployment(s)
-    #
+    # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)
     # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped;
-    # set this value to null and configured metricsSelector to target your coder pods
+    # set this value to null and configure coderdSelector to target your coder pods
     scrapeMetrics:
       hostname: localhost
       port: 2112
       scrapeInterval: 15s
       additionalLabels:
         job: coder
-    # Ensure this uses backticks for quotes
+    # global.coder.coderdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
+    # ensure this uses backticks for quotes!
     coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
-    # this is set the same as coderd for built-in provisioners; change this if using external provisioners
+    # global.coder.provisionerdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
     # https://coder.com/docs/v2/latest/admin/provisioners
     # TODO: rename container label in provisioner helm chart to be "provisioner" not "coder"
-    # Ensure this uses backticks for quotes
+    # ensure this uses backticks for quotes!
     provisionerdSelector: 'pod=~`coder-provisioner.*`'
-    # The namespace into which the control plane has been deployed.
+    # global.coder.workspacesSelector -- the namespace into which any external provisioners have been deployed.
+    workspacesSelector: 'namespace=`coder-workspaces`'
+    # global.coder.controlPlaneNamespace -- the namespace into which the control plane has been deployed.
     controlPlaneNamespace: coder
-    # The namespace into which any external provisioners have been deployed.
+    # global.coder.externalProvisionersNamespace -- the namespace into which any external provisioners have been deployed.
     externalProvisionersNamespace: coder
     # See https://coder.com/docs/v2/latest/cli/server#--log-human
     # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
@@ -100,6 +103,7 @@ global:
             warning: 2
             critical: 3
 
+# collector -- Grafana Agent
 collector:
   enabled: true
   fullnameOverride: collector
@@ -209,6 +213,7 @@ collector:
   podMetricsRelabelRules: ""
   podLogsRelabelRules: ""
 
+# dashboards -- Grafana
 dashboards:
   enabled: true
   fullnameOverride: dashboards
@@ -436,6 +441,7 @@ metrics:
   prometheus-pushgateway:
     enabled: false
 
+# logs -- Loki
 logs:
   enabled: true
   nameOverride: logs

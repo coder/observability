@@ -1,11 +1,4 @@
-{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "workspace-detail-dashboard.json" }}
-{{ $ns := .Release.Namespace }}
-{{ $metrics := .Values.metrics.server.fullnameOverride }}
-{{ $logs := .Values.logs.fullnameOverride }}
-{{ $collector := .Values.collector.fullnameOverride }}
-{{ $coderd := .Values.global.coder.coderdSelector }}
-{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -332,7 +325,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"cpu\"})",
+          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", {{ include "workspaces-selector" . -}}, resource=\"cpu\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -347,7 +340,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\", resource=\"memory\"})",
+          "expr": "sum(kube_pod_container_resource_requests{pod=~\".*$workspace_name.*\", {{ include "workspaces-selector" . -}}, resource=\"memory\"})",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -362,7 +355,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n  kube_pod_spec_volumes_persistentvolumeclaims_info{pod=~\".*$workspace_name.*\", namespace=\"coder-workspaces\"}\n  * on(persistentvolumeclaim) group_right\n  group by (persistentvolumeclaim, persistentvolume) (\n      label_replace(\n          kube_persistentvolume_claim_ref,\n          \"persistentvolumeclaim\",\n          \"$1\",\n          \"name\",\n          \"(.+)\"\n      )\n  )\n  * on (persistentvolume)\n  kube_persistentvolume_capacity_bytes\n)",
+          "expr": "sum(\n  kube_pod_spec_volumes_persistentvolumeclaims_info{pod=~\".*$workspace_name.*\", {{- include "workspaces-selector" . -}} }\n  * on(persistentvolumeclaim) group_right\n  group by (persistentvolumeclaim, persistentvolume) (\n      label_replace(\n          kube_persistentvolume_claim_ref,\n          \"persistentvolumeclaim\",\n          \"$1\",\n          \"name\",\n          \"(.+)\"\n      )\n  )\n  * on (persistentvolume)\n  kube_persistentvolume_capacity_bytes\n)",
           "format": "time_series",
           "hide": false,
           "instant": true,
@@ -1259,7 +1252,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": {{ printf "{pod=~\"coder.*\", logger=~\"(.*runner|terraform|provisioner.*)\"} |~ \"$workspace_name\" | line_format `{{ printf \"[\\033[35m\" }}{{.pod}}{{ printf \"\\033[0m]\\t\" }}{{ __line__ }}`" | quote }},
+          "expr": {{ printf "{%s, logger=~\"(.*runner|terraform|provisioner.*)\"} |~ \"$workspace_name\" | line_format `{{ printf \"[\\033[35m\" }}{{.pod}}{{ printf \"\\033[0m]\\t\" }}{{ __line__ }}`" (include "non-workspace-selector" .) | quote }},
           "hide": false,
           "queryType": "range",
           "refId": "A"
@@ -1270,7 +1263,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": {{ printf "{namespace=\"coder-workspaces\", pod=~\".*($workspace_name).*\"} | line_format `{{ printf \"[\\033[32m\" }}{{.pod}}{{ printf \"\\033[0m]\\t\" }}{{ __line__ }}`" | quote }},
+          "expr": {{ printf "{%s, pod=~\".*($workspace_name).*\"} | line_format `{{ printf \"[\\033[32m\" }}{{.pod}}{{ printf \"\\033[0m]\\t\" }}{{ __line__ }}`" (include "workspaces-selector" .) | quote }},
           "hide": false,
           "queryType": "range",
           "refId": "B"

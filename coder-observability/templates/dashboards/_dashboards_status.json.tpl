@@ -1,11 +1,4 @@
-{{/*TODO: replace hardcoded pod names & namespaces*/}}
 {{ define "status-dashboard.json" }}
-{{ $ns := .Release.Namespace }}
-{{ $metrics := .Values.metrics.server.fullnameOverride }}
-{{ $logs := .Values.logs.fullnameOverride }}
-{{ $collector := .Values.collector.fullnameOverride }}
-{{ $coderd := .Values.global.coder.coderdSelector }}
-{{ $provisionerd := .Values.global.coder.provisionerdSelector }}
 {
   "annotations": {
     "list": [
@@ -130,7 +123,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(up{ {{- $coderd -}} } == 1) or vector(0) > 0",
+          "expr": "count(up{ {{- include "coderd-selector" . -}} } == 1) or vector(0) > 0",
           "instant": true,
           "legendFormat": "Up",
           "range": false,
@@ -143,7 +136,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(up{ {{- $coderd -}} } == 0) or vector(0) > 0",
+          "expr": "count(up{ {{- include "coderd-selector" . -}} } == 0) or vector(0) > 0",
           "hide": false,
           "instant": true,
           "legendFormat": "Down",
@@ -214,7 +207,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_provisionerd_num_daemons{ {{- $coderd -}} })",
+          "expr": "sum(coderd_provisionerd_num_daemons{ {{- include "coderd-selector" . -}} })",
           "instant": true,
           "legendFormat": "Built-in",
           "range": false,
@@ -227,7 +220,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_provisionerd_num_daemons{ {{- $provisionerd -}} })",
+          "expr": "sum(coderd_provisionerd_num_daemons{ {{- include "provisionerd-selector" . -}} })",
           "hide": false,
           "instant": true,
           "legendFormat": "External",
@@ -411,7 +404,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(kube_pod_status_ready{condition=\"true\", namespace=\"coder-workspaces\"} == 1)\nor\ncount(coderd_api_workspace_latest_build{status=\"running\"})\nor\nvector(0)",
+          "expr": "count(kube_pod_status_ready{condition=\"true\", {{ include "workspaces-selector" . -}}} == 1)\nor\ncount(coderd_api_workspace_latest_build{status=\"running\"})\nor\nvector(0)",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -540,7 +533,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{ {{- $coderd -}} }[1h:1m])\n        [$__range:]\n    )\n)",
+          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{ {{- include "coderd-selector" . -}} }[1h:1m])\n        [$__range:]\n    )\n)",
           "instant": true,
           "legendFormat": "Control Plane CPU",
           "range": false,
@@ -553,7 +546,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{ {{- $provisionerd -}} }[1h:1m])\n        [$__range:]\n    )\n)",
+          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{ {{- include "provisionerd-selector" . -}} }[1h:1m])\n        [$__range:]\n    )\n)",
           "hide": false,
           "instant": true,
           "legendFormat": "Provisioner CPU",
@@ -567,7 +560,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(\n        container_memory_working_set_bytes{ {{- $coderd -}} }\n        [$__range:]\n    )\n)",
+          "expr": "sum(\n    max_over_time(\n        container_memory_working_set_bytes{ {{- include "coderd-selector" . -}} }\n        [$__range:]\n    )\n)",
           "hide": false,
           "instant": true,
           "legendFormat": "Control Plane RAM",
@@ -581,7 +574,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(\n        container_memory_working_set_bytes{ {{- $provisionerd -}} }\n        [$__range:]\n    )\n)",
+          "expr": "sum(\n    max_over_time(\n        container_memory_working_set_bytes{ {{- include "provisionerd-selector" . -}} }\n        [$__range:]\n    )\n)",
           "hide": false,
           "instant": true,
           "legendFormat": "Provisioner RAM",
@@ -829,7 +822,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/metrics/server\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "metrics-job" . -}}\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -946,7 +939,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/logs/write\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "logs-job" . -}}/write\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1063,7 +1056,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/logs/read\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "logs-job" . -}}/read\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1180,7 +1173,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/logs/backend\", container=\"loki\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "logs-job" . -}}/backend\", container=\"loki\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1297,7 +1290,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/logs/canary\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "logs-job" . -}}/canary\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1414,7 +1407,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"monitoring/collector/grafana-agent\"}) or vector(0)",
+          "expr": "min(up{job=\"{{- include "collector-job" . -}}\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1531,7 +1524,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "prometheus_config_last_reload_successful{job=\"monitoring/metrics/server\"}",
+          "expr": "prometheus_config_last_reload_successful{job=\"{{- include "metrics-job" . -}}\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1766,7 +1759,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min(agent_config_last_load_successful{job=\"monitoring/collector/grafana-agent\"}) or vector(0)",
+          "expr": "min(agent_config_last_load_successful{job=\"{{- include "collector-job" . -}}\"}) or vector(0)",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1881,7 +1874,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"monitoring/metrics/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"monitoring/metrics/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"monitoring/metrics/server\"}",
+          "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"{{- include "metrics-job" . -}}\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"{{- include "metrics-job" . -}}\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"{{- include "metrics-job" . -}}\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"{{- include "metrics-job" . -}}\"}",
           "instant": false,
           "legendFormat": "Retention limit used",
           "range": true,
@@ -1952,7 +1945,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\", resource=\"cpu\"})",
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"{{- .Release.Namespace -}}\", resource=\"cpu\"})",
           "hide": false,
           "instant": true,
           "legendFormat": "Requested",
@@ -1966,7 +1959,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{namespace=\"monitoring\"}[$__rate_interval])\n        [$__range:]\n    )\n)",
+          "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{namespace=\"{{- .Release.Namespace -}}\"}[$__rate_interval])\n        [$__range:]\n    )\n)",
           "hide": false,
           "instant": true,
           "legendFormat": "High Watermark",
@@ -2038,7 +2031,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{namespace=\"monitoring\", resource=\"memory\"})",
+          "expr": "sum(kube_pod_container_resource_requests{namespace=\"{{- .Release.Namespace -}}\", resource=\"memory\"})",
           "hide": false,
           "instant": true,
           "legendFormat": "Requested",
@@ -2052,7 +2045,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(\n    max_over_time(container_memory_working_set_bytes{namespace=\"monitoring\"}[$__range])\n)",
+          "expr": "sum(\n    max_over_time(container_memory_working_set_bytes{namespace=\"{{- .Release.Namespace -}}\"}[$__range])\n)",
           "instant": true,
           "legendFormat": "High Watermark",
           "range": false,
