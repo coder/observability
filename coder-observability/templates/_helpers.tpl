@@ -127,3 +127,6 @@ envFrom:
 {{- define "logs-job" -}} {{- printf "%s/%s" .Release.Namespace .Values.logs.fullnameOverride -}} {{- end }}
 {{/* Grafana Agent job label */}}
 {{- define "collector-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.collector.fullnameOverride "grafana-agent" -}} {{- end }}
+
+{{- define "dashboard-range" -}} {{ .Values.global.dashboards.timerange }} {{- end }}
+{{- define "dashboard-refresh" -}} {{ .Values.global.dashboards.refresh }} {{- end }}

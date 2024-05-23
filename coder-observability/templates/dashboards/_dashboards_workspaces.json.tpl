@@ -1539,7 +1539,7 @@
       "type": "text"
     }
   ],
-  "refresh": "30s",
+  "refresh": "{{- include "dashboard-refresh" . -}}",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -1613,7 +1613,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-{{- include "dashboard-range" . -}}",
     "to": "now"
   },
   "timepicker": {},

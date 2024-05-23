@@ -49,6 +49,13 @@ global:
             warning: 0.8
             critical: 0.9
 
+  # global.dashboards -- settings for bundled dashboards
+  dashboards:
+    # global.dashboards.timerange -- how far back dashboards should look
+    timerange: 12h
+    # global.dashboards.refresh -- how often dashboards should refresh
+    refresh: 30s
+
   coder:
     # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)
     # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped;
