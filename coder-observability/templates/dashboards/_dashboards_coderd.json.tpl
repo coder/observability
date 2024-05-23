@@ -543,47 +543,49 @@
     },
     {
       "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "shades"
+          },
           "custom": {
-            "drawStyle": "bars",
-            "lineInterpolation": "linear",
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
             "barAlignment": 0,
-            "lineWidth": 1,
+            "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
-            "spanNulls": false,
-            "insertNulls": false,
-            "showPoints": "auto",
-            "pointSize": 5,
-            "stacking": {
-              "mode": "none",
-              "group": "A"
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "axisPlacement": "auto",
-            "axisLabel": "",
-            "axisColorMode": "text",
-            "axisBorderShow": false,
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "axisCenteredZero": false,
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
             }
           },
-          "color": {
-            "mode": "shades",
-            "fixedColor": "red"
-          },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -598,7 +600,6 @@
               }
             ]
           },
-          "decimals": 0,
           "unit": "short"
         },
         "overrides": [
@@ -642,15 +643,15 @@
       },
       "id": 30,
       "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": []
         }
       },
       "pluginVersion": "10.4.0",
@@ -670,16 +671,19 @@
         }
       ],
       "title": "Terminations",
-      "type": "timeseries",
-      "description": ""
+      "type": "timeseries"
     },
     {
       "datasource": {
-        "uid": "prometheus",
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -694,10 +698,6 @@
               }
             ]
           },
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
           "unit": "short"
         },
         "overrides": []
@@ -710,20 +710,20 @@
       },
       "id": 34,
       "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "mean"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "wideLayout": true,
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "center",
-        "showPercentChange": false
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "10.4.0",
       "targets": [
@@ -999,8 +999,12 @@
                 "value": null
               },
               {
+                "color": "orange",
+                "value": 100
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 500
               }
             ]
           },
@@ -1043,7 +1047,7 @@
         "x": 12,
         "y": 12
       },
-      "id": 21,
+      "id": 16,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1068,7 +1072,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "quantile(0.9, coder_pubsub_send_latency_seconds)",
+          "expr": "quantile(0.5, coder_pubsub_send_latency_seconds)",
           "instant": false,
           "legendFormat": "Send",
           "range": true,
@@ -1080,7 +1084,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "quantile(0.9, coder_pubsub_receive_latency_seconds)",
+          "expr": "quantile(0.5, coder_pubsub_receive_latency_seconds)",
           "hide": false,
           "instant": false,
           "legendFormat": "Receive",
@@ -1088,7 +1092,7 @@
           "refId": "B"
         }
       ],
-      "title": "Pubsub Latency (P90)",
+      "title": "Pubsub Latency (Median)",
       "type": "stat"
     },
     {
@@ -1235,8 +1239,12 @@
                 "value": null
               },
               {
+                "color": "orange",
+                "value": 100
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 500
               }
             ]
           },
@@ -1279,7 +1287,7 @@
         "x": 12,
         "y": 15
       },
-      "id": 16,
+      "id": 21,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -1304,7 +1312,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "quantile(0.5, coder_pubsub_send_latency_seconds)",
+          "expr": "quantile(0.9, coder_pubsub_send_latency_seconds)",
           "instant": false,
           "legendFormat": "Send",
           "range": true,
@@ -1316,7 +1324,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "quantile(0.5, coder_pubsub_receive_latency_seconds)",
+          "expr": "quantile(0.9, coder_pubsub_receive_latency_seconds)",
           "hide": false,
           "instant": false,
           "legendFormat": "Receive",
@@ -1324,7 +1332,7 @@
           "refId": "B"
         }
       ],
-      "title": "Pubsub Latency (Median)",
+      "title": "Pubsub Latency (P90)",
       "type": "stat"
     },
     {
@@ -1467,7 +1475,7 @@
   "timezone": "browser",
   "title": "Control Plane",
   "uid": "coderd",
-  "version": 4,
+  "version": 6,
   "weekStart": ""
 }
 {{ end }}
