@@ -12,7 +12,7 @@ if [[ -n "${FORCE_VERSION:-}" ]]; then
 fi
 
 remote_url=$(git remote get-url origin)
-last_tag="$(git tag -l | sort -h | tail -n1)"
+last_tag="$(git tag -l | sort --version-sort | tail -n1)"
 
 # Remove the "v" prefix.
 echo "${last_tag#v}"
