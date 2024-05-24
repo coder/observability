@@ -380,6 +380,10 @@ prometheus:
     podAnnotations:
       prometheus.io/scrape: "true"
 
+    global:
+      # prometheus.server.evaluation_interval -- how often to evaluate recording & alerting rule groups
+      evaluation_interval: 30s
+
     extraArgs:
       log.level: debug
 
