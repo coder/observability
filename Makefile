@@ -10,7 +10,7 @@ SHELL := bash
 all: lint
 .PHONY: all
 
-lint: lint/helm
+lint: lint/helm lint/rules
 .PHONY: lint
 
 lint/helm: lint/helm/coder-observability
@@ -20,6 +20,14 @@ lint/helm/coder-observability:
 	helm dependency update --skip-refresh coder-observability/
 	helm lint --strict --set coder.image.tag=v$(shell ./scripts/version.sh) coder-observability/
 .PHONY: lint/helm/coder-observability
+
+lint/rules: lint/helm/prometheus-rules
+.PHONY: lint/rules
+
+lint/helm/prometheus-rules:
+	@./scripts/lint-rules.sh
+
+.PHONY: lint/helm/prometheus-rules
 
 # Usage: publish-patch, publish-minor, publish-major
 # Publishing is handled by GitHub Actions, triggered by tag creation.
