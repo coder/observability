@@ -61,26 +61,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "coder-observability.datasources" -}}
-apiVersion: 1
-datasources:
-  - name: prometheus
-    type: prometheus
-    url: http://prometheus-server.monitoring.svc.cluster.local
-    access: proxy
-    isDefault: true
-    editable: false
-  - name: loki
-    type: loki
-    url: http://loki-gateway.monitoring.svc.cluster.local
-    access: proxy
-    isDefault: false
-    editable: false
-{{- end }}
-
 {{/* Postgres connector string */}}
 {{- define "postgres-connector-string" -}}
 {{- if .Values.global.postgres.password -}}

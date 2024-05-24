@@ -8,4 +8,3 @@ metadata:
     checksum/config: {{ (.Files.Glob "runbooks/**").AsConfig | indent 2 | sha256sum }}
 data:
 {{ (.Files.Glob "runbooks/**").AsConfig | indent 2 }}
-# TODO: add linter to ensure all alerts have runbooks

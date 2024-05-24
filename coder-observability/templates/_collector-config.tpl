@@ -148,7 +148,7 @@ loki.process "pod_logs" {
 {{- end }}
 loki.write "loki" {
   endpoint {
-    url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.svc/loki/api/v1/push"
+    url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.{{ .Values.global.zone }}/loki/api/v1/push"
   }
 }
 
@@ -156,8 +156,8 @@ prometheus.scrape "pods" {
   targets = discovery.relabel.pod_metrics.output
   forward_to = [prometheus.relabel.pods.receiver]
 
-  scrape_interval = "{{ .Values.global.metrics.scrape_interval }}"
-  scrape_timeout = "{{ .Values.global.metrics.scrape_timeout }}"
+  scrape_interval = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
+  scrape_timeout = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
 }
 
 // These are metric_relabel_configs while discovery.relabel are relabel_configs.
@@ -227,8 +227,8 @@ prometheus.scrape "cadvisor" {
     insecure_skip_verify = true
   }
   bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-  scrape_interval   = "{{ .Values.global.metrics.scrape_interval }}"
-  scrape_timeout    = "{{ .Values.global.metrics.scrape_timeout }}"
+  scrape_interval   = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
+  scrape_timeout    = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
 }
 
 prometheus.relabel "cadvisor" {
@@ -274,7 +274,7 @@ prometheus.relabel "cadvisor" {
 
 prometheus.remote_write "default" {
   endpoint {
-    url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.svc/api/v1/write"
+    url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 
     // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
     // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>

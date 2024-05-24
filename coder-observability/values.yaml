@@ -3,8 +3,6 @@ fullnameOverride: null
 global:
   zone: svc
 
-  queryTimeout: 900
-
   externalScheme: http
   # The external hostname from which k8s services can be accessed in the form of:
   # <externalScheme>:<svc>.<>
@@ -12,9 +10,14 @@ global:
   # http://dashboards.coder-observability.svc.cluster.local
   externalZone: svc.cluster.local
 
-  metrics:
-    scrape_interval: 15s
-    scrape_timeout: 12s
+  # global.telemetry -- control telemetry collection
+  telemetry:
+    # global.telemetry.metrics -- control metric collection
+    metrics:
+      # global.telemetry.metrics.scrape_interval -- how often the collector will scrape discovered pods
+      scrape_interval: 15s
+      # global.telemetry.metrics.scrape_timeout -- how long a request will be allowed to wait before being canceled
+      scrape_timeout: 12s
 
   # global.postgres -- postgres connection information
   # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
@@ -55,6 +58,8 @@ global:
     timerange: 12h
     # global.dashboards.refresh -- how often dashboards should refresh
     refresh: 30s
+    # global.dashboards.queryTimeout -- how long until a query in Grafana will timeout after
+    queryTimeout: 900
 
   coder:
     # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)
@@ -86,29 +91,30 @@ global:
     # TODO: support "json" format
     logFormat: human
     # global.coder.alerts -- alerts for Coder
-    alerts:
-      groups:
-        CPU:
-          enabled: true
-          delay: 10m
-          thresholds:
-            notify: 0.5
-            warning: 0.8
-            critical: 0.9
-        Memory:
-          enabled: true
-          delay: 10m
-          thresholds:
-            notify: 0.5
-            warning: 0.8
-            critical: 0.9
-        Restarts:
-          enabled: true
-          delay: 1m
-          thresholds:
-            notify: 1
-            warning: 2
-            critical: 3
+    coderd:
+      alerts:
+        groups:
+          CPU:
+            enabled: true
+            delay: 10m
+            period: 10m
+            thresholds:
+              warning: 0.8
+              critical: 0.9
+          Memory:
+            enabled: true
+            delay: 10m
+            thresholds:
+              warning: 0.8
+              critical: 0.9
+          Restarts:
+            enabled: true
+            delay: 1m
+            period: 10m
+            thresholds:
+              notify: 1
+              warning: 2
+              critical: 3
 
 # collector -- Grafana Agent
 collector:
@@ -296,7 +302,7 @@ dashboards:
           isDefault: true
           editable: false
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
-          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: prometheus
         - name: logs
           type: loki
@@ -305,7 +311,7 @@ dashboards:
           isDefault: false
           editable: false
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
-          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: loki
         - name: postgres
           type: postgres
@@ -318,7 +324,7 @@ dashboards:
           isDefault: false
           editable: false
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
-          timeout: '{{ add $.Values.global.queryTimeout 5 }}'
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: postgres
   admin:
     existingSecret: grafana-admin
@@ -337,7 +343,7 @@ dashboards:
       # mounted configmap will be synced with sidecar
       default_home_dashboard_path: /var/lib/grafana/dashboards/coder/0/status.json
     dataproxy:
-      timeout: '{{ $.Values.global.queryTimeout }}'
+      timeout: '{{ $.Values.global.dashboards.queryTimeout }}'
   sidecar:
     dashboards:
       provider:

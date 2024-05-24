@@ -1,6 +1,6 @@
-# Coder Runbooks
+# Coderd Runbooks
 
-## CoderCPUUsage
+## CoderdCPUUsage
 
 The CPU usage of one or more Coder pods has been close to the limit defined for
 the deployment. This can cause slowness in the application, workspaces becoming
@@ -12,7 +12,7 @@ To resolve this issue, increase the CPU limits of the Coder deployment.
 If you find this occurring frequently, you may wish to check your Coder
 deployment against [Coder's Reference Architectures](https://coder.com/docs/v2/latest/admin/architectures).
 
-## CoderMemoryUsage
+## CoderdMemoryUsage
 
 The memory usage of one or more Coder pods has been close to the limit defined
 for the deployment. When the memory usage exceeds the limit, the pod(s) will be
@@ -25,7 +25,7 @@ If you find this occurring frequently, check the memory usage over a longer
 period of time. If it appears to be increasing monotonically, this is likely a
 memory leak and should be considered a bug.
 
-## CoderRestarts
+## CoderdRestarts
 
 One or more Coder pods have been restarting multiple times in the last 10
 minutes. This may be due to a number of issues, including:

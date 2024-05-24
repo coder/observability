@@ -15,9 +15,10 @@ data:
       - collector_name: notify
         metrics:
           # Add a metric to show the current usage of the Postgres "pub/sub" mechanism
+          # See https://www.postgresql.org/docs/current/functions-info.html
           - metric_name: {{ include "postgres-pubsub-queue-usage-metric-name" . }}
             type: gauge
-            help: 'TODO.'
+            help: "The fraction (0–1) of the asynchronous notification queue's maximum size that is currently occupied by notifications that are waiting to be processed"
             static_labels:
               hostname: {{ .Values.global.postgres.hostname }}
               database: {{ .Values.global.postgres.database }}
