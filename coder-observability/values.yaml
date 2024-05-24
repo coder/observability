@@ -30,9 +30,17 @@ global:
     # with regex matchers.
     # TODO: support "json" format
     logFormat: human
-    # global.coder.alerts -- alerts for Coder
-    coderd:
-      alerts:
+    # global.coder.alerts -- alerts for the various aspects of Coder
+    alerts:
+      enterprise:
+        groups:
+          Licences:
+            enabled: true
+            delay: 1m
+            thresholds:
+              warning: 0.9
+              critical: 1
+      coderd:
         groups:
           CPU:
             enabled: true
@@ -84,7 +92,7 @@ global:
     database: coder
     sslmode: disable
     # ensure that your secret has a field named `PGPASSWORD`
-    mountSecret:
+    mountSecret: "secret-postgres"
 
     # global.postgres.alerts -- alerts for postgres
     alerts:

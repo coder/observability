@@ -6,10 +6,10 @@ metadata:
 data:
   {{- $service := dict "service" "coder" -}}
 
-  {{- with .Values.global.coder.coderd }}
-  coder.yaml: |-
+  {{- with .Values.global.coder.alerts.coderd }} {{/* start-section */}}
+  coderd.yaml: |-
     groups:
-  {{- with .alerts.groups.CPU }}
+  {{- with .groups.CPU }}
   {{- $group := . }}
   {{- if .enabled }}
     - name: CPU Usage
@@ -19,15 +19,16 @@ data:
       - alert: {{ $alert }}
         expr: max by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "coderd-selector" $ -}} }[{{- $group.period -}}])) / max by(pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}}, resource="cpu"}) > {{ $threshold }}
         for: {{ $group.delay }}
-        labels:
+        annotations:
           summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of CPU, which may impact application performance.
+        labels:
           severity: {{ $severity }}
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
       {{- end }}
   {{- end }}
   {{- end }}
 
-  {{- with .alerts.groups.Memory }}
+  {{- with .groups.Memory }}
   {{- $group := . }}
   {{- if .enabled }}
     - name: Memory Usage
@@ -37,15 +38,16 @@ data:
       - alert: {{ $alert }}
         expr: max by (pod) (container_memory_working_set_bytes{ {{- include "coderd-selector" $ -}} }) / max by (pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}}, resource="memory"})  > {{ $threshold }}
         for: {{ $group.delay }}
-        labels:
+        annotations:
           summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.
+        labels:
           severity: {{ $severity }}
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
       {{- end }}
   {{- end }}
   {{- end }}
 
-  {{- with .alerts.groups.Restarts }}
+  {{- with .groups.Restarts }}
   {{- $group := . }}
   {{- if .enabled }}
     - name: Pod Restarts
@@ -55,14 +57,41 @@ data:
       - alert: {{ $alert }}
         expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{ {{- include "coderd-selector" $ -}} }[{{- $group.period -}}])) > {{ $threshold }}
         for: {{ $group.delay }}
-        labels:
+        annotations:
           summary: The Coder instance {{ `{{ $labels.pod }}` }} has restarted multiple times in the last {{ $group.period -}}, which may indicate a CrashLoop.
+        labels:
           severity: {{ $severity }}
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
       {{- end }}
   {{- end }}
   {{- end }}
+  {{- end }} {{/* end-section */}}
+
+
+  {{- $service = dict "service" "enterprise" -}}
+
+  {{- with .Values.global.coder.alerts.enterprise }} {{/* start-section */}}
+  enterprise.yaml: |-
+    groups:
+  {{- with .groups.Licences }}
+  {{- $group := . }}
+    {{- if .enabled }}
+      - name: Licences
+        rules:
+      {{ $alert := "CoderLicenseSeats" }}
+      {{- range $severity, $threshold := .thresholds }}
+          - alert: {{ $alert }}
+            expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >= {{- $threshold }}'
+            for: {{ $group.delay }}
+            annotations:
+              summary: Your Coder enterprise licence usage is now at {{ `{{ $value | humanizePercentage }}` }} capacity.
+            labels:
+              severity: {{ $severity }}
+              runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+    {{- end }}
   {{- end }}
+  {{- end }} {{/* end-section */}}
 
   {{- $service = dict "service" "postgres" -}}
   {{- with .Values.global.postgres }}
@@ -78,8 +107,9 @@ data:
       - alert: {{ $alert }}
         expr: {{ include "postgres-pubsub-queue-usage-metric-name" . }} > {{ $threshold }}
         for: {{ $group.delay }}
-        labels:
+        annotations:
           summary: The postgres instance {{ `{{ $labels.instance }}` }} has a notification that is filling up, which may impact application performance.
+        labels:
           severity: {{ $severity }}
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
       {{- end }}
@@ -94,8 +124,9 @@ data:
       - alert: {{ $alert }}
         expr: pg_up == 0
         for: {{ $group.delay }}
-        labels:
+        annotations:
           summary: The postgres instance {{ `{{ $labels.instance }}` }} is down!
+        labels:
           severity: critical
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
       {{- end }}

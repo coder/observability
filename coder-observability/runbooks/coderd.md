@@ -54,3 +54,9 @@ If Coder is not restarting due to excessive memory usage, check the logs:
   ```console
   kubectl -n <coder namespace> events --watch
   ```
+
+## CoderdLicenseSeats
+
+Your Enterprise license is approaching or has exceeded the number of seats purchased.
+
+Please contact your Coder sales contact, or visit https://coder.com/contact/sales.
