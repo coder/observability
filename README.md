@@ -61,6 +61,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 - Ensure these environment variables are set:
   - `CODER_PROMETHEUS_ENABLE=true`
   - `CODER_PROMETHEUS_COLLECT_AGENT_STATS=true`
+  - `CODER_LOGGING_HUMAN=/dev/stderr` (only `human` log format is supported currently; [issue](https://github.com/coder/observability/issues/8))
 
 - Ensure these labels exist on your coder & provisioner deployments:
   - `prometheus.io/scrape=true`
