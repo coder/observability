@@ -1,10 +1,12 @@
 {{- define "collector-config" -}}
-{{ .Values.collector.logging }}
-{{ .Values.collector.discovery }}
+{{ $agent := (index .Values "grafana-agent") }}
+
+{{ $agent.logging }}
+{{ $agent.discovery }}
 
 discovery.relabel "pod_logs" {
   targets = discovery.kubernetes.pods.targets
-  {{ .Values.collector.commonRelabellings | nindent 2 }}
+  {{ $agent.commonRelabellings | nindent 2 }}
   rule {
     source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
     separator     = "/"
@@ -19,14 +21,14 @@ discovery.relabel "pod_logs" {
     replacement = "$1"
     target_label = "tmp_container_runtime"
   }
-  {{- if .Values.collector.podLogsRelabelRules -}}
-  {{ .Values.collector.podLogsRelabelRules | trim | nindent 2 }}
+  {{- if $agent.podLogsRelabelRules -}}
+  {{ $agent.podLogsRelabelRules | trim | nindent 2 }}
   {{- end }}
 }
 
 discovery.relabel "pod_metrics" {
   targets = discovery.kubernetes.pods.targets
-  {{ .Values.collector.commonRelabellings | nindent 6 }}
+  {{ $agent.commonRelabellings | nindent 6 }}
   // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*
   // exposes an HTTP port which exposes metrics
   rule {
@@ -67,8 +69,8 @@ discovery.relabel "pod_metrics" {
     replacement = "$2:$1"
     target_label = "__address__"
   }
-  {{- if .Values.collector.podMetricsRelabelRules -}}
-  {{ .Values.collector.podMetricsRelabelRules | trim | nindent 2 }}
+  {{- if $agent.podMetricsRelabelRules -}}
+  {{ $agent.podMetricsRelabelRules | trim | nindent 2 }}
   {{- end }}
 }
 
@@ -143,12 +145,12 @@ loki.process "pod_logs" {
 
   forward_to = [loki.write.loki.receiver]
 }
-{{ if .Values.collector.extraBlocks -}}
-{{ .Values.collector.extraBlocks }}
+{{ if $agent.extraBlocks -}}
+{{ $agent.extraBlocks }}
 {{- end }}
 loki.write "loki" {
   endpoint {
-    url = "http://{{ include "loki.fullname" .Subcharts.logs }}-gateway.{{ .Release.Namespace }}.{{ .Values.global.zone }}/loki/api/v1/push"
+    url = "http://{{ include "loki.fullname" .Subcharts.loki }}-gateway.{{ .Release.Namespace }}.{{ .Values.global.zone }}/loki/api/v1/push"
   }
 }
 
@@ -274,7 +276,7 @@ prometheus.relabel "cadvisor" {
 
 prometheus.remote_write "default" {
   endpoint {
-    url ="http://{{ include "prometheus.server.fullname" .Subcharts.metrics }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
+    url ="http://{{ include "prometheus.server.fullname" .Subcharts.prometheus }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 
     // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
     // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>
@@ -285,7 +287,7 @@ prometheus.remote_write "default" {
   }
 }
 
-{{- if .Values.collector.withOTLPReceiver -}}
+{{- if $agent.withOTLPReceiver -}}
 otelcol.receiver.otlp "otlp_receiver" {
   grpc {
     endpoint = "0.0.0.0:4317"

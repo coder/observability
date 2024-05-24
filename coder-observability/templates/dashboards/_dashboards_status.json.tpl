@@ -822,10 +822,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "metrics-job" . -}}\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "prometheus-job" . -}}\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -939,10 +939,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "logs-job" . -}}/write\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "loki-job" . -}}/write\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1056,10 +1056,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "logs-job" . -}}/read\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "loki-job" . -}}/read\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1173,10 +1173,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "logs-job" . -}}/backend\", container=\"loki\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "loki-job" . -}}/backend\", container=\"loki\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1290,10 +1290,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "logs-job" . -}}/canary\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "loki-job" . -}}/canary\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1407,10 +1407,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "collector-job" . -}}\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(up{job=\"{{- include "grafana-agent-job" . -}}\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1524,10 +1524,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "prometheus_config_last_reload_successful{job=\"{{- include "metrics-job" . -}}\"}",
-          "instant": false,
+          "expr": "prometheus_config_last_reload_successful{job=\"{{- include "prometheus-job" . -}}\"}",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1642,9 +1642,9 @@
           },
           "editorMode": "code",
           "expr": "min(loki_runtime_config_last_reload_successful) or vector(0)",
-          "instant": false,
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1759,10 +1759,10 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min(agent_config_last_load_successful{job=\"{{- include "collector-job" . -}}\"}) or vector(0)",
-          "instant": false,
+          "expr": "min(agent_config_last_load_successful{job=\"{{- include "grafana-agent-job" . -}}\"}) or vector(0)",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1874,7 +1874,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"{{- include "metrics-job" . -}}\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"{{- include "metrics-job" . -}}\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"{{- include "metrics-job" . -}}\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"{{- include "metrics-job" . -}}\"}",
+          "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"{{- include "prometheus-job" . -}}\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"{{- include "prometheus-job" . -}}\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"{{- include "prometheus-job" . -}}\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"{{- include "prometheus-job" . -}}\"}",
           "instant": false,
           "legendFormat": "Retention limit used",
           "range": true,

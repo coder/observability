@@ -6,23 +6,20 @@ type: application
 version: 0.1.0
 dependencies:
   - name: grafana
-    alias: dashboards
-    condition: dashboards.enabled
+    condition: grafana.enabled
     repository: https://grafana.github.io/helm-charts
     version: v7.3.7
   - name: prometheus
-    alias: metrics
-    condition: metrics.enabled
+    condition: prometheus.enabled
     repository: https://prometheus-community.github.io/helm-charts
     version: v25.18.0
   - name: loki
-    alias: logs
-    condition: logs.enabled
+    condition: loki.enabled
     repository: https://grafana.github.io/helm-charts
     version: v6.3.4
   - name: grafana-agent
-    alias: collector
-    condition: collector.enabled
+    alias: grafana-agent
+    condition: grafana-agent.enabled
     repository: https://grafana.github.io/helm-charts
     version: 0.37.0
 maintainers:

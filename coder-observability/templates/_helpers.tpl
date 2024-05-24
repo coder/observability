@@ -102,11 +102,11 @@ envFrom:
 {{/* The collector creates "job" labels in the form <namespace>/<component>/<container> */}}
 
 {{/* Prometheus job label */}}
-{{- define "metrics-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.metrics.server.fullnameOverride .Values.metrics.server.name -}} {{- end }}
+{{- define "prometheus-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.prometheus.server.fullnameOverride .Values.prometheus.server.name -}} {{- end }}
 {{/* Loki job label */}}
-{{- define "logs-job" -}} {{- printf "%s/%s" .Release.Namespace .Values.logs.fullnameOverride -}} {{- end }}
+{{- define "loki-job" -}} {{- printf "%s/%s" .Release.Namespace .Values.loki.fullnameOverride -}} {{- end }}
 {{/* Grafana Agent job label */}}
-{{- define "collector-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.collector.fullnameOverride "grafana-agent" -}} {{- end }}
+{{- define "grafana-agent-job" -}} {{- printf "%s/%s/%s" .Release.Namespace (index .Values "grafana-agent").fullnameOverride "grafana-agent" -}} {{- end }}
 
 {{- define "dashboard-range" -}} {{ .Values.global.dashboards.timerange }} {{- end }}
 {{- define "dashboard-refresh" -}} {{ .Values.global.dashboards.refresh }} {{- end }}

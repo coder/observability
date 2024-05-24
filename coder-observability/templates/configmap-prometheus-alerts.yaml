@@ -17,7 +17,7 @@ data:
       {{ $alert := "CoderdCPUUsage" }}
       {{- range $severity, $threshold := .thresholds }}
       - alert: {{ $alert }}
-        expr: max by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "coderd-selector" $ -}} }[{{- $group.period -}}])) / max by(pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}} , resource="cpu"}) > {{ $threshold }}
+        expr: max by (pod) (rate(container_cpu_usage_seconds_total{ {{- include "coderd-selector" $ -}} }[{{- $group.period -}}])) / max by(pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}}, resource="cpu"}) > {{ $threshold }}
         for: {{ $group.delay }}
         labels:
           summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of CPU, which may impact application performance.
@@ -35,7 +35,7 @@ data:
       {{ $alert := "CoderdMemoryUsage" }}
       {{- range $severity, $threshold := .thresholds }}
       - alert: {{ $alert }}
-        expr: max by (pod) (container_memory_working_set_bytes{ {{- include "coderd-selector" $ -}} ) / max by (pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}} , resource="memory"})  > {{ $threshold }}
+        expr: max by (pod) (container_memory_working_set_bytes{ {{- include "coderd-selector" $ -}} }) / max by (pod) (kube_pod_container_resource_limits{ {{- include "coderd-selector" $ -}}, resource="memory"})  > {{ $threshold }}
         for: {{ $group.delay }}
         labels:
           summary: The Coder instance {{ `{{ $labels.pod }}` }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.

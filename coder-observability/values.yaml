@@ -116,10 +116,9 @@ global:
               warning: 2
               critical: 3
 
-# collector -- Grafana Agent
-collector:
+grafana-agent:
   enabled: true
-  fullnameOverride: collector
+  fullnameOverride: grafana-agent
   agent:
     mode: flow
     configMap:
@@ -226,10 +225,9 @@ collector:
   podMetricsRelabelRules: ""
   podLogsRelabelRules: ""
 
-# dashboards -- Grafana
-dashboards:
+grafana:
   enabled: true
-  fullnameOverride: dashboards
+  fullnameOverride: grafana
   useStatefulSet: true
   replicas: 1
   deploymentStrategy:
@@ -297,7 +295,7 @@ dashboards:
       datasources:
         - name: metrics
           type: prometheus
-          url: http://metrics.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
+          url: http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
           isDefault: true
           editable: false
@@ -306,7 +304,7 @@ dashboards:
           uid: prometheus
         - name: logs
           type: loki
-          url: http://logs-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
+          url: http://loki-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           access: proxy
           isDefault: false
           editable: false
@@ -375,11 +373,10 @@ dashboards:
       configMap: dashboards-workspace-detail
       readOnly: false
 
-# Prometheus
-metrics:
+prometheus:
   enabled: true
   server:
-    fullnameOverride: metrics
+    fullnameOverride: prometheus
     podAnnotations:
       prometheus.io/scrape: "true"
 
@@ -433,7 +430,7 @@ metrics:
           readonly: true
 
   alertmanager:
-    fullnameOverride: alerts
+    fullnameOverride: alertmanager
     enabled: true
     service:
       port: 80
@@ -454,11 +451,10 @@ metrics:
   prometheus-pushgateway:
     enabled: false
 
-# logs -- Loki
-logs:
+loki:
   enabled: true
-  nameOverride: logs
-  fullnameOverride: logs
+  nameOverride: loki
+  fullnameOverride: loki
 
   enterprise:
     enabled: false
@@ -467,18 +463,18 @@ logs:
     useExternalLicense: false
 
   test:
-    canaryServiceAddress: "http://logs-canary:3500/metrics"
+    canaryServiceAddress: "http://loki-canary:3500/metrics"
     enabled: true
 
   minio:
     enabled: true
-    fullnameOverride: logs-storage
-    address: logs-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000
+    fullnameOverride: loki-storage
+    address: loki-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000
     podAnnotations:
       prometheus.io/scrape: "true"
       prometheus.io/path: "/minio/v2/metrics/cluster"
     podLabels:
-      app.kubernetes.io/name: "logs-storage"
+      app.kubernetes.io/name: "loki-storage"
 
   loki:
     auth_enabled: false
@@ -501,13 +497,13 @@ logs:
         clients:
           # "fake" is the default username when auth is disabled (unfortunate, I know)
           fake:
-            url: http://metrics.{{ .Release.Namespace }}.{{ .Values.global.zone}}/api/v1/write
+            url: http://prometheus.{{ .Release.Namespace }}.{{ .Values.global.zone}}/api/v1/write
             headers:
               Source: Loki
             remote_timeout: 30s
       wal:
         dir: /var/loki-ruler-wal
-      alertmanager_url: http://alerts.{{ .Release.Namespace }}.{{ .Values.global.zone}}
+      alertmanager_url: http://alertmanager.{{ .Release.Namespace }}.{{ .Values.global.zone}}
       enable_api: true
       ring:
         kvstore:
