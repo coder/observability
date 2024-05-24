@@ -21,5 +21,9 @@ lint/helm/coder-observability:
 	helm lint --strict --set coder.image.tag=v0.0.1 coder-observability/
 .PHONY: lint/helm/coder-observability
 
-build: # TODO
-	echo helm package --version "${VERSION}"
+# Usage: publish-patch, publish-minor, publish-major
+# Publishing is handled by GitHub Actions, triggered by tag creation.
+publish-%:
+	version=$(shell ./scripts/version.sh --bump $*) && \
+	git tag --sign "$$version"  -m "Release: $$version" && \
+	git push origin tag "$$version"

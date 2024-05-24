@@ -1,6 +1,4 @@
 # Publishing the Coder Observability Chart
 
-- make desired changed
-- create & push a new tag
-- run `scripts/version.sh` which pulls the latest version and validate it is correct
-- run `scripts/publish.sh` which uses the above version, packages & uploads the chart, and updates registries
+- make desired changes
+- run `make publish-{major|minor|patch}` which creates & pushes a new tag, which kicks off a GH Action to publish the chart
