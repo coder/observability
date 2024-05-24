@@ -1,0 +1,8 @@
+# This file is uploaded to GCS at helm.coder.com/observability/artifacthub-repo.yml
+# and used by ArtifactHub to verify the repository.
+repositoryID: 167a0393-cb7e-4f42-af79-02f8a91915f5
+owners:
+  - name: colin
+    email: colin@coder.com
+  - name: Danny Kopping
+    email: danny@coder.com

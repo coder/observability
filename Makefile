@@ -18,7 +18,7 @@ lint/helm: lint/helm/coder-observability
 
 lint/helm/coder-observability:
 	helm dependency update --skip-refresh coder-observability/
-	helm lint --strict --set coder.image.tag=v0.0.1 coder-observability/
+	helm lint --strict --set coder.image.tag=v$(shell ./scripts/version.sh) coder-observability/
 .PHONY: lint/helm/coder-observability
 
 # Usage: publish-patch, publish-minor, publish-major
