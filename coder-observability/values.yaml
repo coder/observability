@@ -1,6 +1,61 @@
 fullnameOverride: null
 
 global:
+  coder:
+    # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)
+    # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped;
+    # set this value to null and configure coderdSelector to target your coder pods
+    scrapeMetrics: null
+#      hostname: localhost
+#      port: 2112
+#      scrapeInterval: 15s
+#      additionalLabels:
+#        job: coder
+    # global.coder.coderdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
+    # ensure this uses backticks for quotes!
+    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
+    # global.coder.provisionerdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
+    # https://coder.com/docs/v2/latest/admin/provisioners
+    # TODO: rename container label in provisioner helm chart to be "provisioner" not "coder"
+    # ensure this uses backticks for quotes!
+    provisionerdSelector: 'pod=~`coder-provisioner.*`'
+    # global.coder.workspacesSelector -- the namespace into which any external provisioners have been deployed.
+    workspacesSelector: 'namespace=`coder-workspaces`'
+    # global.coder.controlPlaneNamespace -- the namespace into which the control plane has been deployed.
+    controlPlaneNamespace: coder
+    # global.coder.externalProvisionersNamespace -- the namespace into which any external provisioners have been deployed.
+    externalProvisionersNamespace: coder
+    # See https://coder.com/docs/v2/latest/cli/server#--log-human
+    # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
+    # with regex matchers.
+    # TODO: support "json" format
+    logFormat: human
+    # global.coder.alerts -- alerts for Coder
+    coderd:
+      alerts:
+        groups:
+          CPU:
+            enabled: true
+            delay: 10m
+            period: 10m
+            thresholds:
+              warning: 0.8
+              critical: 0.9
+          Memory:
+            enabled: true
+            delay: 10m
+            thresholds:
+              warning: 0.8
+              critical: 0.9
+          Restarts:
+            enabled: true
+            delay: 1m
+            period: 10m
+            thresholds:
+              notify: 1
+              warning: 2
+              critical: 3
+
   zone: svc
 
   externalScheme: http
@@ -60,61 +115,6 @@ global:
     refresh: 30s
     # global.dashboards.queryTimeout -- how long until a query in Grafana will timeout after
     queryTimeout: 900
-
-  coder:
-    # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)
-    # if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped;
-    # set this value to null and configure coderdSelector to target your coder pods
-    scrapeMetrics:
-      hostname: localhost
-      port: 2112
-      scrapeInterval: 15s
-      additionalLabels:
-        job: coder
-    # global.coder.coderdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
-    # ensure this uses backticks for quotes!
-    coderdSelector: 'pod=~`coder.*`, pod!~`.*provisioner.*`'
-    # global.coder.provisionerdSelector -- series selector for Prometheus/Loki to locate provisioner pods.
-    # https://coder.com/docs/v2/latest/admin/provisioners
-    # TODO: rename container label in provisioner helm chart to be "provisioner" not "coder"
-    # ensure this uses backticks for quotes!
-    provisionerdSelector: 'pod=~`coder-provisioner.*`'
-    # global.coder.workspacesSelector -- the namespace into which any external provisioners have been deployed.
-    workspacesSelector: 'namespace=`coder-workspaces`'
-    # global.coder.controlPlaneNamespace -- the namespace into which the control plane has been deployed.
-    controlPlaneNamespace: coder
-    # global.coder.externalProvisionersNamespace -- the namespace into which any external provisioners have been deployed.
-    externalProvisionersNamespace: coder
-    # See https://coder.com/docs/v2/latest/cli/server#--log-human
-    # "Human" format is the default, which is a combination of plaintext and logfmt but it' quite tricky to parse reliably
-    # with regex matchers.
-    # TODO: support "json" format
-    logFormat: human
-    # global.coder.alerts -- alerts for Coder
-    coderd:
-      alerts:
-        groups:
-          CPU:
-            enabled: true
-            delay: 10m
-            period: 10m
-            thresholds:
-              warning: 0.8
-              critical: 0.9
-          Memory:
-            enabled: true
-            delay: 10m
-            thresholds:
-              warning: 0.8
-              critical: 0.9
-          Restarts:
-            enabled: true
-            delay: 1m
-            period: 10m
-            thresholds:
-              notify: 1
-              warning: 2
-              critical: 3
 
 grafana-agent:
   enabled: true
