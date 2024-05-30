@@ -333,10 +333,14 @@ grafana:
           timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: postgres
   admin:
-    existingSecret: grafana-admin
-    userKey: username
-    passwordKey: password
+    existingSecret: ""
+  env:
+    GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: true
   grafana.ini:
+    auth.anonymous:
+      enabled: true
+      org_name: Main Org.
+      org_role: Admin
     analytics:
       reporting_enabled: false
     users:
