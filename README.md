@@ -1,6 +1,7 @@
 # Coder Observability Chart
 
-**<span style="color:orange;">**NOTE:** this Helm chart is in BETA; use with caution.</span>**
+> [!NOTE]  
+> This Helm chart is in BETA; use with caution
 
 ## Overview
 
@@ -35,12 +36,12 @@ helm upgrade --install coder-observability coder-observability/coder-observabili
 <summary>Kubernetes-based deployments</summary>
   If your installation is not in a namespace named `coder`, you will need to modify:
 
-  ```yaml
-  global:
-    coder:
-      controlPlaneNamespace: <your namespace>
-      externalProvisionersNamespace: <your namespace>
-  ```
+```yaml
+global:
+  coder:
+    controlPlaneNamespace: <your namespace>
+    externalProvisionersNamespace: <your namespace>
+```
 
 </details>
 
@@ -50,43 +51,43 @@ helm upgrade --install coder-observability coder-observability/coder-observabili
 
 Set `global.coder.scrapeMetrics` such that the metrics can be scraped from your installation, e.g.:
 
-  ```yaml
-  global:
-    coder:
-      scrapeMetrics:
-        hostname: your.coder.host
-        port: 2112
-        scrapeInterval: 15s
-        additionalLabels:
-          job: coder
-  ```
+```yaml
+global:
+  coder:
+    scrapeMetrics:
+      hostname: your.coder.host
+      port: 2112
+      scrapeInterval: 15s
+      additionalLabels:
+        job: coder
+```
 
 If you would like your logs scraped from a process outside Kubernetes, you need to mount the log file(s) in and
 configure Grafana Agent to scrape them; here's an example configuration:
 
-  ```yaml
-  grafana-agent:
-    agent:
-      mounts:
-        extra:
-          - mountPath: /var/log
-            name: logs
-            readOnly: true
-    controller:
-      volumes:
-        extra:
-          - hostPath:
-              path: /var/log
-            name: logs
+```yaml
+grafana-agent:
+  agent:
+    mounts:
+      extra:
+        - mountPath: /var/log
+          name: logs
+          readOnly: true
+  controller:
+    volumes:
+      extra:
+        - hostPath:
+            path: /var/log
+          name: logs
 
-    extraBlocks: |-
-      loki.source.file "coder_log" {
-        targets    = [
-          {__path__ = "/var/log/coder.log", job="coder"},
-        ]
-        forward_to = [loki.write.loki.receiver]
-      }
-  ```
+  extraBlocks: |-
+    loki.source.file "coder_log" {
+      targets    = [
+        {__path__ = "/var/log/coder.log", job="coder"},
+      ]
+      forward_to = [loki.write.loki.receiver]
+    }
+```
 
 </details>
 
@@ -105,12 +106,12 @@ Ensure these labels exist on your Coder & provisioner deployments:
 If you use the [`coder/coder` helm chart](https://github.com/coder/coder/tree/main/helm), you can use the
 following:
 
-  ```yaml
-  coder:
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '2112'
-  ```
+```yaml
+coder:
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "2112"
+```
 
 For more details, see
 the [coder documentation on exposing Prometheus metrics](https://coder.com/docs/v2/latest/admin/prometheus).
@@ -122,27 +123,28 @@ by this Helm chart can access your Postgres server.
 
 Create a secret with your Postgres password and reference it as follows, along with the other connection details:
 
-  ```yaml
-  global:
-    postgres:
-      hostname: <your postgres server host>
-      port: <postgres port>
-      database: <coder database>
-      username: <database username>
-      mountSecret: <your secret name here>
-  ```
+```yaml
+global:
+  postgres:
+    hostname: <your postgres server host>
+    port: <postgres port>
+    database: <coder database>
+    username: <database username>
+    mountSecret: <your secret name here>
+```
 
 The secret should be in the form of `PGPASSWORD=<your password>`, as this secret will be used to create an environment
 variable.
 
-  ```yaml
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
   name: pg-secret
+  namespace: coder-observability
 data:
   PGPASSWORD: <base64-encoded password>
-  ```
+```
 
 <details>
 <summary>Postgres metrics (click to expand)</summary>
@@ -155,6 +157,7 @@ kubectl -n coder-observability port-forward statefulset/postgres-exporter 9187
 
 curl http://localhost:9187/metrics
 ```
+
 </details>
 
 ### Grafana
@@ -162,7 +165,7 @@ curl http://localhost:9187/metrics
 To access Grafana, run:
 
 ```bash
-kubectl -n <namespace> port-forward svc/grafana 3000:80
+kubectl -n coder-observability port-forward svc/grafana 3000:80
 ```
 
 And open your web browser to http://localhost:3000/.
@@ -170,28 +173,28 @@ And open your web browser to http://localhost:3000/.
 By default, Grafana is configured to allow anonymous access; if you want password authentication, define this in
 your `values.yaml`:
 
-  ```yaml
-  grafana:
-    admin:
-      existingSecret: grafana-admin
-      userKey: username
-      passwordKey: password
-    grafana.ini:
-      auth.anonymous:
-        enabled: false
-  ```
+```yaml
+grafana:
+  admin:
+    existingSecret: grafana-admin
+    userKey: username
+    passwordKey: password
+  grafana.ini:
+    auth.anonymous:
+      enabled: false
+```
 
 You will also need to define a secret as follows:
 
-  ```yaml
-  apiVersion: v1
-  kind: Secret
-  metadata:
-    name: grafana-admin             # this matches the "existingSecret" field above
-  stringData:
-    username: '<your username>'     # this matches the "userKey" field above
-    password: '<your password>'     # this matches the "passwordKey" field above
-  ```
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin # this matches the "existingSecret" field above
+stringData:
+  username: "<your username>" # this matches the "userKey" field above
+  password: "<your password>" # this matches the "passwordKey" field above
+```
 
 ## Usage
 
