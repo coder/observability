@@ -162,7 +162,7 @@ curl http://localhost:9187/metrics
 To access Grafana, run:
 
 ```bash
-kubectl -n <namespace> port-forward svc/grafana 3000:80
+kubectl -n coder-observability port-forward svc/grafana 3000:80
 ```
 
 And open your web browser to http://localhost:3000/.
