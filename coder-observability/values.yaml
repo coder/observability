@@ -63,6 +63,28 @@ global:
               notify: 1
               warning: 2
               critical: 3
+          Replicas:
+            enabled: true
+            delay: 1m
+            thresholds:
+              warning: 0.67 # 2/3 replicas healthy
+              critical: 0.34 # 1/3 replicas healthy
+          Builds:
+            enabled: true
+            delay: 1m
+            period: 10m
+            thresholds:
+              notify: 1
+              warning: 2
+              critical: 3
+      provisioner:
+        groups:
+          Instances:
+            enabled: true
+            delay: 1m
+            thresholds:
+              warning: 0.67 # 2/3 replicas healthy
+              critical: 0.34 # 1/3 replicas healthy
 
   zone: svc
 
