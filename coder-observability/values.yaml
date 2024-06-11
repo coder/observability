@@ -425,8 +425,9 @@ prometheus:
       scrape_configs:
       # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
       rule_files:
+        - /etc/config/alerts/coderd.yaml
+        - /etc/config/alerts/enterprise.yaml
         - /etc/config/alerts/postgres.yaml
-        - /etc/config/alerts/coder.yaml
 
   testFramework:
     enabled: false
