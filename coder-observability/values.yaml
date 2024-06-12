@@ -1,5 +1,3 @@
-fullnameOverride: null
-
 global:
   coder:
     # global.coder.scrapeMetrics -- use this to scrape metrics from a standalone (set of) coder deployment(s)

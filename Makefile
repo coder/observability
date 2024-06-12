@@ -35,3 +35,8 @@ publish-%:
 	version=$(shell ./scripts/version.sh --bump $*) && \
 	git tag --sign "$$version"  -m "Release: $$version" && \
 	git push origin tag "$$version"
+
+readme:
+	go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+	helm-docs --output-file ../README.md \
+		--values-file=values.yaml --chart-search-root=coder-observability --template-files=../README.gotmpl

@@ -1,6 +1,9 @@
+<!-- generated: do not edit manually! -->
+<!-- see scripts/README.gotmpl -->
+
 # Coder Observability Chart
 
-> [!NOTE]  
+> [!NOTE]
 > This Helm chart is in BETA; use with caution
 
 ## Overview
@@ -196,6 +199,272 @@ stringData:
   password: "<your password>" # this matches the "passwordKey" field above
 ```
 
-## Usage
+## Subcharts
 
-Please refer to the [`values.yaml`](coder-observability/values.yaml) file for all available configuration options.
+| Repository | Name | Version |
+|------------|------|---------|
+| https://grafana.github.io/helm-charts | grafana | v7.3.7 |
+| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | 0.37.0 |
+| https://grafana.github.io/helm-charts | loki | v6.3.4 |
+| https://prometheus-community.github.io/helm-charts | prometheus | v25.18.0 |
+
+Each subchart can be disabled by setting the `enabled` field to `false`.
+
+| Subchart        | Setting                 |
+|-----------------|-------------------------|
+| `grafana`       | `grafana.enabled`       |
+| `grafana-agent` | `grafana-agent.enabled` |
+| `loki`          | `loki.enabled`          |
+| `prometheus`    | `prometheus.enabled`    |
+
+## Values
+
+The `global` values are the values which pertain to this chart, while the rest pertain to the subcharts.
+These values represent only the values _set_ in this chart. For the full list of available values, please see each
+subchart.
+
+For example, the `grafana.replicas` value is set by this chart by default, and is one of hundreds of available
+values which are defined [here](https://github.com/grafana/helm-charts/tree/main/charts/grafana#configuration).
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}}}` | alerts for the various aspects of Coder |
+| global.coder.coderdSelector | string | `"pod=~`coder.*`, pod!~`.*provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. ensure this uses backticks for quotes! |
+| global.coder.controlPlaneNamespace | string | `"coder"` | the namespace into which the control plane has been deployed. |
+| global.coder.externalProvisionersNamespace | string | `"coder"` | the namespace into which any external provisioners have been deployed. |
+| global.coder.logFormat | string | `"human"` |  |
+| global.coder.provisionerdSelector | string | `"pod=~`coder-provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. https://coder.com/docs/v2/latest/admin/provisioners TODO: rename container label in provisioner helm chart to be "provisioner" not "coder" ensure this uses backticks for quotes! |
+| global.coder.scrapeMetrics | string | `nil` | use this to scrape metrics from a standalone (set of) coder deployment(s) if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped; set this value to null and configure coderdSelector to target your coder pods |
+| global.coder.workspacesSelector | string | `"namespace=`coder-workspaces`"` | the namespace into which any external provisioners have been deployed. |
+| global.dashboards | object | `{"queryTimeout":900,"refresh":"30s","timerange":"12h"}` | settings for bundled dashboards |
+| global.dashboards.queryTimeout | int | `900` | how long until a query in Grafana will timeout after |
+| global.dashboards.refresh | string | `"30s"` | how often dashboards should refresh |
+| global.dashboards.timerange | string | `"12h"` | how far back dashboards should look |
+| global.externalScheme | string | `"http"` |  |
+| global.externalZone | string | `"svc.cluster.local"` |  |
+| global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","username":"coder"}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
+| global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
+| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"}}` | control telemetry collection |
+| global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
+| global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
+| global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
+| global.zone | string | `"svc"` |  |
+| grafana-agent.agent.clustering.enabled | bool | `false` |  |
+| grafana-agent.agent.configMap.create | bool | `false` |  |
+| grafana-agent.agent.configMap.key | string | `"config.river"` |  |
+| grafana-agent.agent.configMap.name | string | `"collector-config"` |  |
+| grafana-agent.agent.extraArgs[0] | string | `"--disable-reporting=true"` |  |
+| grafana-agent.agent.mode | string | `"flow"` |  |
+| grafana-agent.agent.mounts.dockercontainers | bool | `true` |  |
+| grafana-agent.agent.mounts.varlog | bool | `true` |  |
+| grafana-agent.commonRelabellings | string | `"rule {\n  source_labels = [\"__meta_kubernetes_namespace\"]\n  target_label  = \"namespace\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_name\"]\n  target_label  = \"pod\"\n}\n// coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\nrule {\n  source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n  separator      = \"/\"\n  target_label   = \"__meta_app\"\n  action         = \"replace\"\n  regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n  replacement    = \"${1}\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n  separator     = \"/\"\n  target_label  = \"job\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_container_name\"]\n  target_label  = \"container\"\n}\nrule {\n  regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n  action  = \"labeldrop\"\n}\nrule {\n  regex   = \"pod_template_generation\"\n  action  = \"labeldrop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_phase\"]\n  regex = \"Pending|Succeeded|Failed|Completed\"\n  action = \"drop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_node_name\"]\n  action = \"replace\"\n  target_label = \"node\"\n}\nrule {\n  action = \"labelmap\"\n  regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n  replacement = \"__param_$1\"\n}"` |  |
+| grafana-agent.controller.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| grafana-agent.controller.type | string | `"daemonset"` |  |
+| grafana-agent.crds.create | bool | `false` |  |
+| grafana-agent.discovery | string | `"// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}"` |  |
+| grafana-agent.enabled | bool | `true` |  |
+| grafana-agent.extraBlocks | string | `""` |  |
+| grafana-agent.fullnameOverride | string | `"grafana-agent"` |  |
+| grafana-agent.podLogsRelabelRules | string | `""` |  |
+| grafana-agent.podMetricsRelabelRules | string | `""` |  |
+| grafana-agent.withOTLPReceiver | bool | `false` |  |
+| grafana."grafana.ini"."auth.anonymous".enabled | bool | `true` |  |
+| grafana."grafana.ini"."auth.anonymous".org_name | string | `"Main Org."` |  |
+| grafana."grafana.ini"."auth.anonymous".org_role | string | `"Admin"` |  |
+| grafana."grafana.ini".analytics.reporting_enabled | bool | `false` |  |
+| grafana."grafana.ini".dashboards.default_home_dashboard_path | string | `"/var/lib/grafana/dashboards/coder/0/status.json"` |  |
+| grafana."grafana.ini".dataproxy.timeout | string | `"{{ $.Values.global.dashboards.queryTimeout }}"` |  |
+| grafana."grafana.ini".feature_toggles.autoMigrateOldPanels | bool | `true` |  |
+| grafana."grafana.ini".users.allow_sign_up | bool | `false` |  |
+| grafana.admin.existingSecret | string | `""` |  |
+| grafana.annotations."prometheus.io/scrape" | string | `"true"` |  |
+| grafana.dashboardProviders."coder.yaml".apiVersion | int | `1` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].disableDeletion | bool | `false` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].editable | bool | `false` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].folder | string | `"Coder"` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].name | string | `"coder"` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].options.path | string | `"/var/lib/grafana/dashboards/coder"` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].orgId | int | `1` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].type | string | `"file"` |  |
+| grafana.dashboardProviders."coder.yaml".providers[0].updateIntervalSeconds | int | `5` |  |
+| grafana.dashboardProviders."infra.yaml".apiVersion | int | `1` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].disableDeletion | bool | `false` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].editable | bool | `false` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].folder | string | `"Infrastructure"` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].name | string | `"infra"` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].options.path | string | `"/var/lib/grafana/dashboards/infra"` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].orgId | int | `1` |  |
+| grafana.dashboardProviders."infra.yaml".providers[0].type | string | `"file"` |  |
+| grafana.dashboardProviders."sidecar.yaml".apiVersion | int | `1` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].disableDeletion | bool | `false` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].editable | bool | `false` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].folder | string | `"Other"` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].name | string | `"sidecar"` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].options.path | string | `"/tmp/dashboards"` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].orgId | int | `1` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].type | string | `"file"` |  |
+| grafana.dashboardProviders."sidecar.yaml".providers[0].updateIntervalSeconds | int | `30` |  |
+| grafana.dashboards.infra.node-exporter-full.datasource | string | `"metrics"` |  |
+| grafana.dashboards.infra.node-exporter-full.gnetId | int | `1860` |  |
+| grafana.dashboards.infra.node-exporter-full.revision | int | `36` |  |
+| grafana.dashboards.infra.postgres-database.datasource | string | `"metrics"` |  |
+| grafana.dashboards.infra.postgres-database.gnetId | int | `9628` |  |
+| grafana.dashboards.infra.postgres-database.revision | int | `7` |  |
+| grafana.datasources."datasources.yaml".apiVersion | int | `1` |  |
+| grafana.datasources."datasources.yaml".datasources[0].access | string | `"proxy"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].editable | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[0].isDefault | bool | `true` |  |
+| grafana.datasources."datasources.yaml".datasources[0].name | string | `"metrics"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].type | string | `"prometheus"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].uid | string | `"prometheus"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].url | string | `"http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].access | string | `"proxy"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].editable | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[1].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[1].name | string | `"logs"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].type | string | `"loki"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].uid | string | `"loki"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].url | string | `"http://loki-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].editable | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[2].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[2].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].name | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].type | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].uid | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].url | string | `"{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].user | string | `"{{ .Values.global.postgres.username }}"` |  |
+| grafana.deploymentStrategy.type | string | `"Recreate"` |  |
+| grafana.enabled | bool | `true` |  |
+| grafana.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION | bool | `true` |  |
+| grafana.extraConfigmapMounts[0].configMap | string | `"dashboards-status"` |  |
+| grafana.extraConfigmapMounts[0].mountPath | string | `"/var/lib/grafana/dashboards/coder/0"` |  |
+| grafana.extraConfigmapMounts[0].name | string | `"dashboards-status"` |  |
+| grafana.extraConfigmapMounts[0].readOnly | bool | `false` |  |
+| grafana.extraConfigmapMounts[1].configMap | string | `"dashboards-coderd"` |  |
+| grafana.extraConfigmapMounts[1].mountPath | string | `"/var/lib/grafana/dashboards/coder/1"` |  |
+| grafana.extraConfigmapMounts[1].name | string | `"dashboards-coderd"` |  |
+| grafana.extraConfigmapMounts[1].readOnly | bool | `false` |  |
+| grafana.extraConfigmapMounts[2].configMap | string | `"dashboards-provisionerd"` |  |
+| grafana.extraConfigmapMounts[2].mountPath | string | `"/var/lib/grafana/dashboards/coder/2"` |  |
+| grafana.extraConfigmapMounts[2].name | string | `"dashboards-provisionerd"` |  |
+| grafana.extraConfigmapMounts[2].readOnly | bool | `false` |  |
+| grafana.extraConfigmapMounts[3].configMap | string | `"dashboards-workspaces"` |  |
+| grafana.extraConfigmapMounts[3].mountPath | string | `"/var/lib/grafana/dashboards/coder/3"` |  |
+| grafana.extraConfigmapMounts[3].name | string | `"dashboards-workspaces"` |  |
+| grafana.extraConfigmapMounts[3].readOnly | bool | `false` |  |
+| grafana.extraConfigmapMounts[4].configMap | string | `"dashboards-workspace-detail"` |  |
+| grafana.extraConfigmapMounts[4].mountPath | string | `"/var/lib/grafana/dashboards/coder/4"` |  |
+| grafana.extraConfigmapMounts[4].name | string | `"dashboards-workspace-detail"` |  |
+| grafana.extraConfigmapMounts[4].readOnly | bool | `false` |  |
+| grafana.fullnameOverride | string | `"grafana"` |  |
+| grafana.persistence.enabled | bool | `true` |  |
+| grafana.persistence.size | string | `"10Gi"` |  |
+| grafana.replicas | int | `1` |  |
+| grafana.service.enabled | bool | `true` |  |
+| grafana.sidecar.dashboards.enabled | bool | `false` |  |
+| grafana.sidecar.dashboards.labelValue | string | `"1"` |  |
+| grafana.sidecar.dashboards.provider.allowUiUpdates | bool | `true` |  |
+| grafana.sidecar.dashboards.provider.disableDelete | bool | `true` |  |
+| grafana.testFramework.enabled | bool | `false` |  |
+| grafana.useStatefulSet | bool | `true` |  |
+| loki.backend.extraArgs[0] | string | `"-log.level=debug"` |  |
+| loki.backend.extraVolumeMounts[0].mountPath | string | `"/var/loki-ruler-wal"` |  |
+| loki.backend.extraVolumeMounts[0].name | string | `"ruler-wal"` |  |
+| loki.backend.extraVolumes[0].emptyDir | object | `{}` |  |
+| loki.backend.extraVolumes[0].name | string | `"ruler-wal"` |  |
+| loki.backend.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| loki.backend.replicas | int | `1` |  |
+| loki.chunksCache.allocatedMemory | int | `1024` |  |
+| loki.enabled | bool | `true` |  |
+| loki.enterprise.adminApi.enabled | bool | `false` |  |
+| loki.enterprise.enabled | bool | `false` |  |
+| loki.enterprise.useExternalLicense | bool | `false` |  |
+| loki.fullnameOverride | string | `"loki"` |  |
+| loki.gateway.replicas | int | `1` |  |
+| loki.loki.auth_enabled | bool | `false` |  |
+| loki.loki.commonConfig.path_prefix | string | `"/var/loki"` |  |
+| loki.loki.commonConfig.replication_factor | int | `1` |  |
+| loki.loki.rulerConfig.alertmanager_url | string | `"http://alertmanager.{{ .Release.Namespace }}.{{ .Values.global.zone}}"` |  |
+| loki.loki.rulerConfig.enable_alertmanager_v2 | bool | `true` |  |
+| loki.loki.rulerConfig.enable_api | bool | `true` |  |
+| loki.loki.rulerConfig.remote_write.clients.fake.headers.Source | string | `"Loki"` |  |
+| loki.loki.rulerConfig.remote_write.clients.fake.remote_timeout | string | `"30s"` |  |
+| loki.loki.rulerConfig.remote_write.clients.fake.url | string | `"http://prometheus.{{ .Release.Namespace }}.{{ .Values.global.zone}}/api/v1/write"` |  |
+| loki.loki.rulerConfig.remote_write.enabled | bool | `true` |  |
+| loki.loki.rulerConfig.ring.kvstore.store | string | `"inmemory"` |  |
+| loki.loki.rulerConfig.rule_path | string | `"/rules"` |  |
+| loki.loki.rulerConfig.storage.local.directory | string | `"/rules"` |  |
+| loki.loki.rulerConfig.storage.type | string | `"local"` |  |
+| loki.loki.rulerConfig.wal.dir | string | `"/var/loki-ruler-wal"` |  |
+| loki.loki.schemaConfig.configs[0].from | string | `"2024-04-01"` |  |
+| loki.loki.schemaConfig.configs[0].index.period | string | `"24h"` |  |
+| loki.loki.schemaConfig.configs[0].index.prefix | string | `"index_"` |  |
+| loki.loki.schemaConfig.configs[0].object_store | string | `"s3"` |  |
+| loki.loki.schemaConfig.configs[0].schema | string | `"v13"` |  |
+| loki.loki.schemaConfig.configs[0].store | string | `"tsdb"` |  |
+| loki.lokiCanary.annotations."prometheus.io/scrape" | string | `"true"` |  |
+| loki.lokiCanary.enabled | bool | `true` |  |
+| loki.minio.address | string | `"loki-storage.{{ .Release.Namespace }}.{{ .Values.global.zone}}:9000"` |  |
+| loki.minio.enabled | bool | `true` |  |
+| loki.minio.fullnameOverride | string | `"loki-storage"` |  |
+| loki.minio.podAnnotations."prometheus.io/path" | string | `"/minio/v2/metrics/cluster"` |  |
+| loki.minio.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| loki.minio.podLabels."app.kubernetes.io/name" | string | `"loki-storage"` |  |
+| loki.monitoring.dashboards.enabled | bool | `true` |  |
+| loki.monitoring.selfMonitoring.enabled | bool | `false` |  |
+| loki.monitoring.selfMonitoring.grafanaAgent.installOperator | bool | `false` |  |
+| loki.nameOverride | string | `"loki"` |  |
+| loki.read.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| loki.read.replicas | int | `1` |  |
+| loki.resultsCache.allocatedMemory | int | `1024` |  |
+| loki.sidecar.rules.folder | string | `"/rules/fake"` |  |
+| loki.sidecar.rules.logLevel | string | `"DEBUG"` |  |
+| loki.test.canaryServiceAddress | string | `"http://loki-canary:3500/metrics"` |  |
+| loki.test.enabled | bool | `true` |  |
+| loki.write.extraArgs[0] | string | `"-log.level=debug"` |  |
+| loki.write.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| loki.write.replicas | int | `1` |  |
+| prometheus.alertmanager.enabled | bool | `true` |  |
+| prometheus.alertmanager.fullnameOverride | string | `"alertmanager"` |  |
+| prometheus.alertmanager.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus.alertmanager.service.port | int | `80` |  |
+| prometheus.configmapReload.prometheus.containerPort | int | `9091` |  |
+| prometheus.configmapReload.prometheus.extraArgs.listen-address | string | `"0.0.0.0:9091"` |  |
+| prometheus.configmapReload.prometheus.extraArgs.log-level | string | `"all"` |  |
+| prometheus.configmapReload.prometheus.extraArgs.watch-interval | string | `"15s"` |  |
+| prometheus.configmapReload.prometheus.extraConfigmapMounts[0].configMap | string | `"metrics-alerts"` |  |
+| prometheus.configmapReload.prometheus.extraConfigmapMounts[0].mountPath | string | `"/etc/config/alerts"` |  |
+| prometheus.configmapReload.prometheus.extraConfigmapMounts[0].name | string | `"alerts"` |  |
+| prometheus.configmapReload.prometheus.extraConfigmapMounts[0].readonly | bool | `true` |  |
+| prometheus.enabled | bool | `true` |  |
+| prometheus.kube-state-metrics.enabled | bool | `true` |  |
+| prometheus.kube-state-metrics.fullnameOverride | string | `"kube-state-metrics"` |  |
+| prometheus.kube-state-metrics.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus.prometheus-node-exporter.enabled | bool | `true` |  |
+| prometheus.prometheus-node-exporter.fullnameOverride | string | `"node-exporter"` |  |
+| prometheus.prometheus-node-exporter.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus.prometheus-pushgateway.enabled | bool | `false` |  |
+| prometheus.server.extraArgs."log.level" | string | `"debug"` |  |
+| prometheus.server.extraConfigmapMounts[0].configMap | string | `"metrics-alerts"` |  |
+| prometheus.server.extraConfigmapMounts[0].mountPath | string | `"/etc/config/alerts"` |  |
+| prometheus.server.extraConfigmapMounts[0].name | string | `"alerts"` |  |
+| prometheus.server.extraConfigmapMounts[0].readonly | bool | `true` |  |
+| prometheus.server.extraFlags[0] | string | `"web.enable-lifecycle"` |  |
+| prometheus.server.extraFlags[1] | string | `"enable-feature=remote-write-receiver"` |  |
+| prometheus.server.fullnameOverride | string | `"prometheus"` |  |
+| prometheus.server.global.evaluation_interval | string | `"30s"` |  |
+| prometheus.server.persistentVolume.enabled | bool | `true` |  |
+| prometheus.server.persistentVolume.size | string | `"12Gi"` |  |
+| prometheus.server.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus.server.replicaCount | int | `1` |  |
+| prometheus.server.retentionSize | string | `"10GB"` |  |
+| prometheus.server.service.type | string | `"ClusterIP"` |  |
+| prometheus.server.statefulSet.enabled | bool | `true` |  |
+| prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
+| prometheus.serverFiles."prometheus.yml".scrape_configs | string | `nil` |  |
+| prometheus.testFramework.enabled | bool | `false` |  |
+
