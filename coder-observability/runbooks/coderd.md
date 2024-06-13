@@ -45,15 +45,23 @@ If Coder is not restarting due to excessive memory usage, check the logs:
 
 1. Check the logs of the deployment for any errors,
 
-  ```console
-  kubectl -n <coder namespace> logs deployment/coder --previous
-  ```
+```console
+kubectl -n <coder namespace> logs deployment/coder --previous
+```
 
 2. Check any Kubernetes events related to the deployment,
 
-  ```console
-  kubectl -n <coder namespace> events --watch
-  ```
+```console
+kubectl -n <coder namespace> events --watch
+```
+
+## CoderdReplicas
+
+TODO
+
+## CoderdWorkspaceBuildFailures
+
+TODO
 
 ## CoderdLicenseSeats
 
