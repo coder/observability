@@ -59,6 +59,10 @@ kubectl -n <coder namespace> events --watch
 
 TODO
 
+## CoderdWorkspaceBuildFailures
+
+TODO
+
 ## CoderdLicenseSeats
 
 Your Enterprise license is approaching or has exceeded the number of seats purchased.

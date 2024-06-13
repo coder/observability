@@ -85,6 +85,25 @@ data:
   {{- end }}
   {{- end }}
 
+  {{- with .groups.WorkspaceBuildFailures }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Coderd Workspace Build Failures
+      rules:
+      {{ $alert := "CoderdWorkspaceBuildFailures" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: sum(increase(coderd_workspace_builds_total{ {{- include "coderd-selector" $ -}} , status="failed" }[{{- $group.period -}}])) > {{ $threshold }}
+        for: {{ $group.delay }}
+        annotations:
+          summary: Workspace builds have failed multiple times in the last {{ $group.period -}}, which may indicate a broken Coder template.
+        labels:
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+
   {{- end }} {{/* end-section */}}
 
 
@@ -94,12 +113,12 @@ data:
   {{- with .groups.Replicas }}
   {{- $group := . }}
   {{- if .enabled }}
-    - name: Coderd Replicas
+    - name: Provisionerd Replicas
       rules:
       {{ $alert := "ProvisionerdReplicas" }}
       {{- range $severity, $threshold := .thresholds }}
       - alert: {{ $alert }}
-        expr: sum(coderd_provisionerd_num_daemons) < {{ $threshold }}
+        expr: sum(coderd_provisionerd_num_daemons{ {{- include "coderd-selector" $ -}} }) < {{ $threshold }}
         for: {{ $group.delay }}
         annotations:
           summary: Number of alive provisionerd replicas is below the threshold = {{ $threshold -}}.
