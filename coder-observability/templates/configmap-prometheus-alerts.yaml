@@ -10,7 +10,7 @@ data:
   coderd.yaml: |-
     groups:
   {{- with .groups.CPU }}
-  {{- $group := . }}
+  {{- $group := . }}  
   {{- if .enabled }}
     - name: CPU Usage
       rules:
@@ -65,6 +65,51 @@ data:
       {{- end }}
   {{- end }}
   {{- end }}
+
+  {{- with .groups.Replicas }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Coderd Replicas
+      rules:
+      {{ $alert := "CoderdReplicas" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: sum(up{ {{- include "coderd-selector" $ -}} }) < {{ $threshold }}
+        for: {{ $group.delay }}
+        annotations:
+          summary: Number of alive coderd replicas is below the threshold = {{ $threshold -}}.
+        labels:
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+
+  {{- end }} {{/* end-section */}}
+
+
+  {{- with .Values.global.coder.alerts.provisionerd }} {{/* start-section */}}
+  provisionerd.yaml: |-
+    groups:
+  {{- with .groups.Replicas }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Coderd Replicas
+      rules:
+      {{ $alert := "ProvisionerdReplicas" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: sum(coderd_provisionerd_num_daemons) < {{ $threshold }}
+        for: {{ $group.delay }}
+        annotations:
+          summary: Number of alive provisionerd replicas is below the threshold = {{ $threshold -}}.
+        labels:
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+
   {{- end }} {{/* end-section */}}
 
 
