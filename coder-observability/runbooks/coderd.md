@@ -57,18 +57,19 @@ kubectl -n <coder namespace> events --watch
 
 ## CoderdReplicas
 
-One of more Coderd replicas is down. This may cause availability problems and elevated
-response time for user and agent API calls.
+One or more Coderd replicas are down. This may cause availability problems and elevated
+response times for user and agent API calls.
 
-To resolve this issue, review the Coder deployment looking for possible `CrashLoopBackOff`
-or re-adjust alarm levels based on the real number of replicas.
+To resolve this issue, review the Coder deployment for possible `CrashLoopBackOff`
+instances or re-adjust alarm levels based on the actual number of replicas.
 
 ## CoderdWorkspaceBuildFailures
 
 A few workspace build errors have been recently observed.
 
-Review Prometheus metrics to identify failed jobs. Check workspace build logs to see
-if there is a relationship with a new template version or a buggy Terraform plugin.
+Review Prometheus metrics to identify failed jobs. Check the workspace build logs
+to determine if there is a relationship with a new template version or a buggy
+Terraform plugin.
 
 ## CoderdLicenseSeats
 
