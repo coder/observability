@@ -10,7 +10,11 @@ SHELL := bash
 all: lint
 .PHONY: all
 
-lint: lint/helm lint/rules
+lint: build lint/helm lint/rules readme
+	@if ! git diff --quiet; then \
+		echo "Error: uncommitted changes."; \
+		exit 1; \
+	fi;
 .PHONY: lint
 
 lint/helm: lint/helm/coder-observability
@@ -24,7 +28,12 @@ build:
 	helm --repository-cache /tmp/cache repo update
 	helm dependency update coder-observability/
 	helm template coder-observability coder-observability/ > compiled/resources.yaml
-	@if ! git diff --quiet -- compiled/resources.yaml; then \
+	# Check for unexpected changes.
+	# Helm dependencies are versioned using ^ which accepts minor & patch changes:
+	# 	e.g. ^1.2.3 is equivalent to >= 1.2.3 < 2.0.0
+	# We *expect* that the versions will change in the rendered template output, so we ignore those, but
+	# if there are changes to the manifests themselves then we need to fail the build to force manual review.
+	@if git diff -- compiled/resources.yaml | grep -ve 'helm.sh/chart' -e 'app.kubernetes.io/version' -e 'image:' | egrep '^(\+|\-)[^\+|\-]'; then \
 		echo "Error: uncommitted changes in 'compiled/resources.yaml'."; \
 		exit 1; \
 	fi;
