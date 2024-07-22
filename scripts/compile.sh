@@ -12,7 +12,7 @@ helm --repository-cache /tmp/cache repo update
 helm dependency update coder-observability/
 # We *expect* that the versions will change in the rendered template output, so we ignore those, but
 # if there are changes to the manifests themselves then we need to fail the build to force manual review.
-helm template -f coder-observability/values.yaml coder-observability coder-observability/ | \
+helm template --namespace coder-observability -f coder-observability/values.yaml coder-observability coder-observability/ | \
   yq 'del(.spec.template.spec.containers[].image, .metadata.labels."helm.sh/chart", .metadata.labels."app.kubernetes.io/version")' - \
   > compiled/resources.yaml
 

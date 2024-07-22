@@ -4,7 +4,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: loki-memcached-chunks-cache
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -22,7 +22,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: loki-memcached-results-cache
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -40,7 +40,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: grafana-agent
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
@@ -56,21 +56,21 @@ metadata:
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
   name: grafana
-  namespace: default
+  namespace: coder-observability
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: "minio-sa"
-  namespace: "default"
+  namespace: "coder-observability"
 ---
 # Source: coder-observability/charts/loki/templates/loki-canary/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: loki-canary
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -85,7 +85,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: loki
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -101,7 +101,7 @@ metadata:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: coder-observability
 automountServiceAccountToken: true
 ---
 # Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/serviceaccount.yaml
@@ -116,14 +116,14 @@ metadata:
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
   name: kube-state-metrics
-  namespace: default
+  namespace: coder-observability
 ---
 # Source: coder-observability/charts/prometheus/charts/prometheus-node-exporter/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: node-exporter
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
@@ -143,7 +143,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
-  namespace: default
+  namespace: coder-observability
   annotations: {}
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/secrets.yaml
@@ -151,7 +151,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: loki-storage
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -167,7 +167,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -212,7 +212,7 @@ data:
       timeout: '905'
       type: prometheus
       uid: prometheus
-      url: http://prometheus.default.svc
+      url: http://prometheus.coder-observability.svc
     - access: proxy
       editable: false
       isDefault: false
@@ -220,7 +220,7 @@ data:
       timeout: '905'
       type: loki
       uid: loki
-      url: http://loki-gateway.default.svc
+      url: http://loki-gateway.coder-observability.svc
     - editable: false
       isDefault: false
       jsonData:
@@ -275,7 +275,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboards-infra
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -288,7 +288,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-storage
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -492,7 +492,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -511,7 +511,7 @@ data:
           batch_size: 4
           parallelism: 5
         memcached_client:
-          addresses: dnssrvnoa+_memcached-client._tcp.loki-chunks-cache.default.svc
+          addresses: dnssrvnoa+_memcached-client._tcp.loki-chunks-cache.coder-observability.svc
           consistent_hash: true
           max_idle_conns: 72
           timeout: 2000ms
@@ -523,7 +523,7 @@ data:
         s3:
           access_key_id: enterprise-logs
           bucketnames: chunks
-          endpoint: loki-storage.default.svc:9000
+          endpoint: loki-storage.coder-observability.svc:9000
           insecure: true
           s3forcepathstyle: true
           secret_access_key: supersecret
@@ -557,12 +557,12 @@ data:
             writeback_size_limit: 500MB
           default_validity: 12h
           memcached_client:
-            addresses: dnssrvnoa+_memcached-client._tcp.loki-results-cache.default.svc
+            addresses: dnssrvnoa+_memcached-client._tcp.loki-results-cache.coder-observability.svc
             consistent_hash: true
             timeout: 500ms
             update_interval: 1m
     ruler:
-      alertmanager_url: http://alertmanager.default.svc
+      alertmanager_url: http://alertmanager.coder-observability.svc
       enable_alertmanager_v2: true
       enable_api: true
       remote_write:
@@ -571,7 +571,7 @@ data:
             headers:
               Source: Loki
             remote_timeout: 30s
-            url: http://prometheus.default.svc/api/v1/write
+            url: http://prometheus.coder-observability.svc/api/v1/write
         enabled: true
       ring:
         kvstore:
@@ -602,14 +602,14 @@ data:
     storage_config:
       boltdb_shipper:
         index_gateway_client:
-          server_address: dns+loki-backend-headless.default.svc.cluster.local:9095
+          server_address: dns+loki-backend-headless.coder-observability.svc.cluster.local:9095
       hedging:
         at: 250ms
         max_per_second: 20
         up_to: 3
       tsdb_shipper:
         index_gateway_client:
-          server_address: dns+loki-backend-headless.default.svc.cluster.local:9095
+          server_address: dns+loki-backend-headless.coder-observability.svc.cluster.local:9095
     tracing:
       enabled: false
 ---
@@ -618,21 +618,21 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-gateway
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 data:
-  nginx.conf: "worker_processes  5;  ## Default: 1\nerror_log  /dev/stderr;\npid        /tmp/nginx.pid;\nworker_rlimit_nofile 8192;\n\nevents {\n  worker_connections  4096;  ## Default: 1024\n}\n\nhttp {\n  client_body_temp_path /tmp/client_temp;\n  proxy_temp_path       /tmp/proxy_temp_path;\n  fastcgi_temp_path     /tmp/fastcgi_temp;\n  uwsgi_temp_path       /tmp/uwsgi_temp;\n  scgi_temp_path        /tmp/scgi_temp;\n\n  client_max_body_size  4M;\n\n  proxy_read_timeout    600; ## 10 minutes\n  proxy_send_timeout    600;\n  proxy_connect_timeout 600;\n\n  proxy_http_version    1.1;\n\n  default_type application/octet-stream;\n  log_format   main '$remote_addr - $remote_user [$time_local]  $status '\n        '\"$request\" $body_bytes_sent \"$http_referer\" '\n        '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  access_log   /dev/stderr  main;\n\n  sendfile     on;\n  tcp_nopush   on;\n  resolver kube-dns.kube-system.svc.cluster.local.;\n  \n\n  server {\n    listen             8080;\n    listen             [::]:8080;\n\n    location = / {\n      return 200 'OK';\n      auth_basic off;\n    }\n\n    ########################################################\n    # Configure backend targets# Distributor\n    location = /api/prom/push {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/push {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /distributor/ring {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /otlp/v1/logs {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ingester\n    location = /flush {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /ingester/ {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /ingester {\n      internal;        # to suppress 301\n    }\n\n    # Ring\n    location = /ring {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # MemberListKV\n    location = /memberlist {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ruler\n    location = /ruler/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /api/prom/rules/ {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /loki/api/v1/rules/ {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/alerts {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Compactor\n    location = /compactor/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/delete {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/cache/generation_numbers {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # IndexGateway\n    location = /indexgateway/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # QueryScheduler\n    location = /scheduler/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Config\n    location = /config {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n\n    # QueryFrontend, Querier\n    location = /api/prom/tail {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location = /loki/api/v1/tail {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location ^~ /api/prom/ {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom {\n      internal;        # to suppress 301\n    }\n    location ^~ /loki/api/v1/ {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1 {\n      internal;        # to suppress 301\n    }\n  }\n}\n"
+  nginx.conf: "worker_processes  5;  ## Default: 1\nerror_log  /dev/stderr;\npid        /tmp/nginx.pid;\nworker_rlimit_nofile 8192;\n\nevents {\n  worker_connections  4096;  ## Default: 1024\n}\n\nhttp {\n  client_body_temp_path /tmp/client_temp;\n  proxy_temp_path       /tmp/proxy_temp_path;\n  fastcgi_temp_path     /tmp/fastcgi_temp;\n  uwsgi_temp_path       /tmp/uwsgi_temp;\n  scgi_temp_path        /tmp/scgi_temp;\n\n  client_max_body_size  4M;\n\n  proxy_read_timeout    600; ## 10 minutes\n  proxy_send_timeout    600;\n  proxy_connect_timeout 600;\n\n  proxy_http_version    1.1;\n\n  default_type application/octet-stream;\n  log_format   main '$remote_addr - $remote_user [$time_local]  $status '\n        '\"$request\" $body_bytes_sent \"$http_referer\" '\n        '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  access_log   /dev/stderr  main;\n\n  sendfile     on;\n  tcp_nopush   on;\n  resolver kube-dns.kube-system.svc.cluster.local.;\n  \n\n  server {\n    listen             8080;\n    listen             [::]:8080;\n\n    location = / {\n      return 200 'OK';\n      auth_basic off;\n    }\n\n    ########################################################\n    # Configure backend targets# Distributor\n    location = /api/prom/push {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/push {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /distributor/ring {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /otlp/v1/logs {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ingester\n    location = /flush {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /ingester/ {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /ingester {\n      internal;        # to suppress 301\n    }\n\n    # Ring\n    location = /ring {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # MemberListKV\n    location = /memberlist {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ruler\n    location = /ruler/ring {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom/rules {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /api/prom/rules/ {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/rules {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /loki/api/v1/rules/ {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/alerts {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/rules {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # Compactor\n    location = /compactor/ring {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/delete {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/cache/generation_numbers {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # IndexGateway\n    location = /indexgateway/ring {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # QueryScheduler\n    location = /scheduler/ring {\n      proxy_pass       http://loki-backend.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n    # Config\n    location = /config {\n      proxy_pass       http://loki-write.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n\n\n    # QueryFrontend, Querier\n    location = /api/prom/tail {\n      proxy_pass       http://loki-read.coder-observability.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location = /loki/api/v1/tail {\n      proxy_pass       http://loki-read.coder-observability.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location ^~ /api/prom/ {\n      proxy_pass       http://loki-read.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom {\n      internal;        # to suppress 301\n    }\n    location ^~ /loki/api/v1/ {\n      proxy_pass       http://loki-read.coder-observability.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1 {\n      internal;        # to suppress 301\n    }\n  }\n}\n"
 ---
 # Source: coder-observability/charts/loki/templates/monitoring/dashboards/configmap-1.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-dashboards-1
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -655,7 +655,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-dashboards-2
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -678,7 +678,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-runtime
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -696,7 +696,7 @@ metadata:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: coder-observability
 data:
   alertmanager.yml: |
     global: {}
@@ -721,7 +721,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
-  namespace: default
+  namespace: coder-observability
 data:
   allow-snippet-annotations: "false"
   alerting_rules.yml: |
@@ -1044,7 +1044,7 @@ data:
         bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
         relabel_configs:
         - source_labels: [__meta_kubernetes_namespace]
-          regex: default
+          regex: coder-observability
           action: keep
         - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
           regex: coder-observability
@@ -1065,28 +1065,28 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: collector-config
-  namespace: default
+  namespace: coder-observability
 data:
-  config.river: "\n// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}\n\ndiscovery.relabel \"pod_logs\" {\n  targets = discovery.kubernetes.pods.targets\n  \n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\"]\n    target_label  = \"namespace\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_name\"]\n    target_label  = \"pod\"\n  }\n  // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n  rule {\n    source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n    separator      = \"/\"\n    target_label   = \"__meta_app\"\n    action         = \"replace\"\n    regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n    replacement    = \"${1}\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n    separator     = \"/\"\n    target_label  = \"job\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_name\"]\n    target_label  = \"container\"\n  }\n  rule {\n    regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    regex   = \"pod_template_generation\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_phase\"]\n    regex = \"Pending|Succeeded|Failed|Completed\"\n    action = \"drop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_node_name\"]\n    action = \"replace\"\n    target_label = \"node\"\n  }\n  rule {\n    action = \"labelmap\"\n    regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n    replacement = \"__param_$1\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_uid\", \"__meta_kubernetes_pod_container_name\"]\n    separator     = \"/\"\n    action        = \"replace\"\n    replacement   = \"/var/log/pods/*$1/*.log\"\n    target_label  = \"__path__\"\n  }\n  rule {\n    action = \"replace\"\n    source_labels = [\"__meta_kubernetes_pod_container_id\"]\n    regex = \"^(\\\\w+):\\\\/\\\\/.+$\"\n    replacement = \"$1\"\n    target_label = \"tmp_container_runtime\"\n  }\n}\n\ndiscovery.relabel \"pod_metrics\" {\n  targets = discovery.kubernetes.pods.targets\n  \n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\"]\n        target_label  = \"namespace\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_name\"]\n        target_label  = \"pod\"\n      }\n      // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n      rule {\n        source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n        separator      = \"/\"\n        target_label   = \"__meta_app\"\n        action         = \"replace\"\n        regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n        replacement    = \"${1}\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n        separator     = \"/\"\n        target_label  = \"job\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_container_name\"]\n        target_label  = \"container\"\n      }\n      rule {\n        regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        regex   = \"pod_template_generation\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_phase\"]\n        regex = \"Pending|Succeeded|Failed|Completed\"\n        action = \"drop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_node_name\"]\n        action = \"replace\"\n        target_label = \"node\"\n      }\n      rule {\n        action = \"labelmap\"\n        regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n        replacement = \"__param_$1\"\n      }\n  // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*\n  // exposes an HTTP port which exposes metrics\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_port_name\"]\n    regex         = \"grpc|http-(memberlist|console)\"\n    action        = \"drop\"\n  }\n  // adapted from the Prometheus helm chart\n  // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scrape\"]\n    action = \"keep\"\n    regex = \"true\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scheme\"]\n    action = \"replace\"\n    regex = \"(https?)\"\n    target_label = \"__scheme__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_path\"]\n    action = \"replace\"\n    target_label = \"__metrics_path__\"\n    regex = \"(.+)\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})\"\n    replacement = \"[$2]:$1\"\n    target_label = \"__address__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);((([0-9]+?)(\\\\.|$)){4})\"\n    replacement = \"$2:$1\"\n    target_label = \"__address__\"\n  }\n}\n\nlocal.file_match \"pod_logs\" {\n  path_targets = discovery.relabel.pod_logs.output\n}\n\nloki.source.file \"pod_logs\" {\n  targets    = local.file_match.pod_logs.targets\n  forward_to = [loki.process.pod_logs.receiver]\n}\n\nloki.process \"pod_logs\" {\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"containerd\\\"}\"\n    // the cri processing stage extracts the following k/v pairs: log, stream, time, flags\n    stage.cri {}\n    // Set the extract flags and stream values as labels\n    stage.labels {\n      values = {\n        flags   = \"\",\n        stream  = \"\",\n      }\n    }\n  }\n\n  // if the label tmp_container_runtime from above is docker parse using docker\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"docker\\\"}\"\n    // the docker processing stage extracts the following k/v pairs: log, stream, time\n    stage.docker {}\n\n    // Set the extract stream value as a label\n    stage.labels {\n      values = {\n        stream  = \"\",\n      }\n    }\n  }\n\n  // drop the temporary container runtime label as it is no longer needed\n  stage.label_drop {\n    values = [\"tmp_container_runtime\"]\n  }\n\n  // parse Coder logs and extract level & logger for efficient filtering\n  stage.match {\n    selector = \"{pod=~\\\"coder.*\\\"}\" // TODO: make configurable\n\n    stage.multiline {\n      firstline     = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\"\n      max_wait_time = \"10s\"\n    }\n\n    stage.regex {\n      expression = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\\\\s\\\\[(?P<level>\\\\w+)\\\\]\\\\s\\\\s(?P<logger>[^:]+):\\\\s(?P<line>.+)\"\n    }\n\n    stage.timestamp {\n      source            = \"ts\"\n      format            = \"2006-01-02 15:04:05.000\"\n      action_on_failure = \"fudge\" // rather have inaccurate time than drop the log line\n    }\n\n    stage.labels {\n      values = {\n        level  = \"\",\n        logger = \"\",\n      }\n    }\n  }\n\n  forward_to = [loki.write.loki.receiver]\n}\n\nloki.write \"loki\" {\n  endpoint {\n    url = \"http://loki-gateway.default.svc/loki/api/v1/push\"\n  }\n}\n\nprometheus.scrape \"pods\" {\n  targets = discovery.relabel.pod_metrics.output\n  forward_to = [prometheus.relabel.pods.receiver]\n\n  scrape_interval = \"15s\"\n  scrape_timeout = \"12s\"\n}\n\n// These are metric_relabel_configs while discovery.relabel are relabel_configs.\n// See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106\nprometheus.relabel \"pods\" {\n  forward_to = [prometheus.remote_write.default.receiver]\n\n  // Drop kube-state-metrics' labels which clash with ours\n  rule {\n    source_labels = [\"__name__\", \"container\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"container\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"pod\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"pod\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"namespace\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"namespace\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_container\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"container\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_pod\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"pod\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_namespace\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"namespace\"\n    replacement   = \"$1\"\n  }\n  rule {\n    regex         = \"^(exported_.*|image_.*|container_id|id|uid)$\"\n    action        = \"labeldrop\"\n  }\n}\n\ndiscovery.relabel \"cadvisor\" {\n  targets = discovery.kubernetes.nodes.targets\n  rule {\n    replacement   = \"/metrics/cadvisor\"\n    target_label  = \"__metrics_path__\"\n  }\n}\n\nprometheus.scrape \"cadvisor\" {\n  targets    = discovery.relabel.cadvisor.output\n  forward_to = [ prometheus.relabel.cadvisor.receiver ]\n  scheme     = \"https\"\n  tls_config {\n    insecure_skip_verify = true\n  }\n  bearer_token_file = \"/var/run/secrets/kubernetes.io/serviceaccount/token\"\n  scrape_interval   = \"15s\"\n  scrape_timeout    = \"12s\"\n}\n\nprometheus.relabel \"cadvisor\" {\n  forward_to = [ prometheus.remote_write.default.receiver ]\n\n  // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"container\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*)@\"\n    action = \"drop\"\n  }\n  // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"image\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@\"\n    action = \"drop\"\n  }\n  // Drop irrelevant series\n  rule {\n    source_labels = [\"container\"]\n    regex         = \"^POD$\"\n    action        = \"drop\"\n  }\n  // Drop unnecessary labels\n  rule {\n    source_labels = [\"id\"]\n    target_label  = \"id\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"job\"]\n    target_label  = \"job\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"name\"]\n    target_label  = \"name\"\n    replacement   = \"\"\n  }\n}\n\nprometheus.remote_write \"default\" {\n  endpoint {\n    url =\"http://prometheus.default.svc/api/v1/write\"\n\n    // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned\n    // NOTE: \"__address__\" is mapped to \"instance\", so will contain <hostname>:<port>\n    write_relabel_config {\n      regex  = \"instance\"\n      action = \"labeldrop\"\n    }\n  }\n}"
+  config.river: "\n// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}\n\ndiscovery.relabel \"pod_logs\" {\n  targets = discovery.kubernetes.pods.targets\n  \n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\"]\n    target_label  = \"namespace\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_name\"]\n    target_label  = \"pod\"\n  }\n  // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n  rule {\n    source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n    separator      = \"/\"\n    target_label   = \"__meta_app\"\n    action         = \"replace\"\n    regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n    replacement    = \"${1}\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n    separator     = \"/\"\n    target_label  = \"job\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_name\"]\n    target_label  = \"container\"\n  }\n  rule {\n    regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    regex   = \"pod_template_generation\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_phase\"]\n    regex = \"Pending|Succeeded|Failed|Completed\"\n    action = \"drop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_node_name\"]\n    action = \"replace\"\n    target_label = \"node\"\n  }\n  rule {\n    action = \"labelmap\"\n    regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n    replacement = \"__param_$1\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_uid\", \"__meta_kubernetes_pod_container_name\"]\n    separator     = \"/\"\n    action        = \"replace\"\n    replacement   = \"/var/log/pods/*$1/*.log\"\n    target_label  = \"__path__\"\n  }\n  rule {\n    action = \"replace\"\n    source_labels = [\"__meta_kubernetes_pod_container_id\"]\n    regex = \"^(\\\\w+):\\\\/\\\\/.+$\"\n    replacement = \"$1\"\n    target_label = \"tmp_container_runtime\"\n  }\n}\n\ndiscovery.relabel \"pod_metrics\" {\n  targets = discovery.kubernetes.pods.targets\n  \n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\"]\n        target_label  = \"namespace\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_name\"]\n        target_label  = \"pod\"\n      }\n      // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n      rule {\n        source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n        separator      = \"/\"\n        target_label   = \"__meta_app\"\n        action         = \"replace\"\n        regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n        replacement    = \"${1}\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n        separator     = \"/\"\n        target_label  = \"job\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_container_name\"]\n        target_label  = \"container\"\n      }\n      rule {\n        regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        regex   = \"pod_template_generation\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_phase\"]\n        regex = \"Pending|Succeeded|Failed|Completed\"\n        action = \"drop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_node_name\"]\n        action = \"replace\"\n        target_label = \"node\"\n      }\n      rule {\n        action = \"labelmap\"\n        regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n        replacement = \"__param_$1\"\n      }\n  // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*\n  // exposes an HTTP port which exposes metrics\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_port_name\"]\n    regex         = \"grpc|http-(memberlist|console)\"\n    action        = \"drop\"\n  }\n  // adapted from the Prometheus helm chart\n  // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scrape\"]\n    action = \"keep\"\n    regex = \"true\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scheme\"]\n    action = \"replace\"\n    regex = \"(https?)\"\n    target_label = \"__scheme__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_path\"]\n    action = \"replace\"\n    target_label = \"__metrics_path__\"\n    regex = \"(.+)\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})\"\n    replacement = \"[$2]:$1\"\n    target_label = \"__address__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);((([0-9]+?)(\\\\.|$)){4})\"\n    replacement = \"$2:$1\"\n    target_label = \"__address__\"\n  }\n}\n\nlocal.file_match \"pod_logs\" {\n  path_targets = discovery.relabel.pod_logs.output\n}\n\nloki.source.file \"pod_logs\" {\n  targets    = local.file_match.pod_logs.targets\n  forward_to = [loki.process.pod_logs.receiver]\n}\n\nloki.process \"pod_logs\" {\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"containerd\\\"}\"\n    // the cri processing stage extracts the following k/v pairs: log, stream, time, flags\n    stage.cri {}\n    // Set the extract flags and stream values as labels\n    stage.labels {\n      values = {\n        flags   = \"\",\n        stream  = \"\",\n      }\n    }\n  }\n\n  // if the label tmp_container_runtime from above is docker parse using docker\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"docker\\\"}\"\n    // the docker processing stage extracts the following k/v pairs: log, stream, time\n    stage.docker {}\n\n    // Set the extract stream value as a label\n    stage.labels {\n      values = {\n        stream  = \"\",\n      }\n    }\n  }\n\n  // drop the temporary container runtime label as it is no longer needed\n  stage.label_drop {\n    values = [\"tmp_container_runtime\"]\n  }\n\n  // parse Coder logs and extract level & logger for efficient filtering\n  stage.match {\n    selector = \"{pod=~\\\"coder.*\\\"}\" // TODO: make configurable\n\n    stage.multiline {\n      firstline     = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\"\n      max_wait_time = \"10s\"\n    }\n\n    stage.regex {\n      expression = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\\\\s\\\\[(?P<level>\\\\w+)\\\\]\\\\s\\\\s(?P<logger>[^:]+):\\\\s(?P<line>.+)\"\n    }\n\n    stage.timestamp {\n      source            = \"ts\"\n      format            = \"2006-01-02 15:04:05.000\"\n      action_on_failure = \"fudge\" // rather have inaccurate time than drop the log line\n    }\n\n    stage.labels {\n      values = {\n        level  = \"\",\n        logger = \"\",\n      }\n    }\n  }\n\n  forward_to = [loki.write.loki.receiver]\n}\n\nloki.write \"loki\" {\n  endpoint {\n    url = \"http://loki-gateway.coder-observability.svc/loki/api/v1/push\"\n  }\n}\n\nprometheus.scrape \"pods\" {\n  targets = discovery.relabel.pod_metrics.output\n  forward_to = [prometheus.relabel.pods.receiver]\n\n  scrape_interval = \"15s\"\n  scrape_timeout = \"12s\"\n}\n\n// These are metric_relabel_configs while discovery.relabel are relabel_configs.\n// See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106\nprometheus.relabel \"pods\" {\n  forward_to = [prometheus.remote_write.default.receiver]\n\n  // Drop kube-state-metrics' labels which clash with ours\n  rule {\n    source_labels = [\"__name__\", \"container\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"container\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"pod\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"pod\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"namespace\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"namespace\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_container\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"container\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_pod\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"pod\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_namespace\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"namespace\"\n    replacement   = \"$1\"\n  }\n  rule {\n    regex         = \"^(exported_.*|image_.*|container_id|id|uid)$\"\n    action        = \"labeldrop\"\n  }\n}\n\ndiscovery.relabel \"cadvisor\" {\n  targets = discovery.kubernetes.nodes.targets\n  rule {\n    replacement   = \"/metrics/cadvisor\"\n    target_label  = \"__metrics_path__\"\n  }\n}\n\nprometheus.scrape \"cadvisor\" {\n  targets    = discovery.relabel.cadvisor.output\n  forward_to = [ prometheus.relabel.cadvisor.receiver ]\n  scheme     = \"https\"\n  tls_config {\n    insecure_skip_verify = true\n  }\n  bearer_token_file = \"/var/run/secrets/kubernetes.io/serviceaccount/token\"\n  scrape_interval   = \"15s\"\n  scrape_timeout    = \"12s\"\n}\n\nprometheus.relabel \"cadvisor\" {\n  forward_to = [ prometheus.remote_write.default.receiver ]\n\n  // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"container\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*)@\"\n    action = \"drop\"\n  }\n  // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"image\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@\"\n    action = \"drop\"\n  }\n  // Drop irrelevant series\n  rule {\n    source_labels = [\"container\"]\n    regex         = \"^POD$\"\n    action        = \"drop\"\n  }\n  // Drop unnecessary labels\n  rule {\n    source_labels = [\"id\"]\n    target_label  = \"id\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"job\"]\n    target_label  = \"job\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"name\"]\n    target_label  = \"name\"\n    replacement   = \"\"\n  }\n}\n\nprometheus.remote_write \"default\" {\n  endpoint {\n    url =\"http://prometheus.coder-observability.svc/api/v1/write\"\n\n    // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned\n    // NOTE: \"__address__\" is mapped to \"instance\", so will contain <hostname>:<port>\n    write_relabel_config {\n      regex  = \"instance\"\n      action = \"labeldrop\"\n    }\n  }\n}"
 ---
 # Source: coder-observability/templates/configmap-prometheus-alerts.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: metrics-alerts
-  namespace: default
+  namespace: coder-observability
 data:
-  coderd.yaml: "groups:\n- name: CPU Usage\n  rules:\n  \n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage\n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage\n- name: Memory Usage\n  rules:\n  \n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage\n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage\n- name: Pod Restarts\n  rules:\n  \n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 3\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 1\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 2\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n- name: Coderd Replicas\n  rules:\n  \n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n- name: Coderd Workspace Build Failures\n  rules:\n  \n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 10\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 2\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 5\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures  "
-  provisionerd.yaml: "groups:\n- name: Provisionerd Replicas\n  rules:\n  \n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas  "
-  enterprise.yaml: "groups:\n  - name: Licences\n    rules:\n  \n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=1'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: critical\n          runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats\n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=0.9'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: warning\n          runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats "
-  postgres.yaml: "groups:\n- name: Notifications\n  rules:\n  \n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.9\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.5\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.8\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n\n- name: Liveness\n  rules:\n  \n  - alert: PostgresDown\n    expr: pg_up == 0\n    for: 1m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} is down!\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresdown\n\n\n- name: Connections\n  rules:\n  \n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.9)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: critical\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.5)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: notify\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.8)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: warning\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow"
+  coderd.yaml: "groups:\n- name: CPU Usage\n  rules:\n  \n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdcpuusage\n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdcpuusage\n- name: Memory Usage\n  rules:\n  \n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdmemoryusage\n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdmemoryusage\n- name: Pod Restarts\n  rules:\n  \n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 3\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 1\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 2\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdrestarts\n- name: Coderd Replicas\n  rules:\n  \n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdreplicas\n- name: Coderd Workspace Build Failures\n  rules:\n  \n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 10\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 2\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 5\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#coderdworkspacebuildfailures  "
+  provisionerd.yaml: "groups:\n- name: Provisionerd Replicas\n  rules:\n  \n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coder#provisionerdreplicas  "
+  enterprise.yaml: "groups:\n  - name: Licences\n    rules:\n  \n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=1'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: critical\n          runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/enterprise#coderlicenseseats\n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=0.9'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: warning\n          runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/enterprise#coderlicenseseats "
+  postgres.yaml: "groups:\n- name: Notifications\n  rules:\n  \n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.9\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.5\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.8\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n\n- name: Liveness\n  rules:\n  \n  - alert: PostgresDown\n    expr: pg_up == 0\n    for: 1m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} is down!\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresdown\n\n\n- name: Connections\n  rules:\n  \n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.9)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: critical\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.5)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: notify\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.8)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: warning\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow"
 ---
 # Source: coder-observability/templates/configmap-runbooks.yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: runbooks
-  namespace: default
+  namespace: coder-observability
   annotations:
     checksum/config: 7ab4d06d5b454cc584880f9b58fb50fe85f2803bbd0021edb957c5a2d73b640e
 data:
@@ -1230,7 +1230,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: sql-exporter-config
-  namespace: default
+  namespace: coder-observability
 data:
   config.yaml: |-
     global:
@@ -1259,7 +1259,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dashboards-coderd
-  namespace: default
+  namespace: coder-observability
 data:
   coderd.json: |-
     {
@@ -2740,7 +2740,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dashboards-provisionerd
-  namespace: default
+  namespace: coder-observability
 data:
   provisionerd.json: |-
     {
@@ -3768,7 +3768,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dashboards-status
-  namespace: default
+  namespace: coder-observability
 data:
   status.json: |-
     {
@@ -4594,7 +4594,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/prometheus/server\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/prometheus/server\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -4711,7 +4711,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/loki/write\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/loki/write\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -4828,7 +4828,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/loki/read\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/loki/read\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -4945,7 +4945,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/loki/backend\", container=\"loki\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/loki/backend\", container=\"loki\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -5062,7 +5062,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/loki/canary\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/loki/canary\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -5179,7 +5179,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"default/grafana-agent/grafana-agent\"}) or vector(0)",
+              "expr": "min(up{job=\"coder-observability/grafana-agent/grafana-agent\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -5296,7 +5296,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "prometheus_config_last_reload_successful{job=\"default/prometheus/server\"}",
+              "expr": "prometheus_config_last_reload_successful{job=\"coder-observability/prometheus/server\"}",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -5531,7 +5531,7 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "min(agent_config_last_load_successful{job=\"default/grafana-agent/grafana-agent\"}) or vector(0)",
+              "expr": "min(agent_config_last_load_successful{job=\"coder-observability/grafana-agent/grafana-agent\"}) or vector(0)",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
@@ -5646,7 +5646,7 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"default/prometheus/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"default/prometheus/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"default/prometheus/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"default/prometheus/server\"}",
+              "expr": "(\n    prometheus_tsdb_wal_storage_size_bytes{job=\"coder-observability/prometheus/server\"} +\n    prometheus_tsdb_storage_blocks_bytes{job=\"coder-observability/prometheus/server\"} +\n    prometheus_tsdb_symbol_table_size_bytes{job=\"coder-observability/prometheus/server\"}\n)\n/\nprometheus_tsdb_retention_limit_bytes{job=\"coder-observability/prometheus/server\"}",
               "instant": false,
               "legendFormat": "Retention limit used",
               "range": true,
@@ -5717,7 +5717,7 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(kube_pod_container_resource_requests{namespace=\"default\", resource=\"cpu\"})",
+              "expr": "sum(kube_pod_container_resource_requests{namespace=\"coder-observability\", resource=\"cpu\"})",
               "hide": false,
               "instant": true,
               "legendFormat": "Requested",
@@ -5731,7 +5731,7 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{namespace=\"default\"}[$__rate_interval])\n        [$__range:]\n    )\n)",
+              "expr": "sum(\n    max_over_time(\n        rate(container_cpu_usage_seconds_total{namespace=\"coder-observability\"}[$__rate_interval])\n        [$__range:]\n    )\n)",
               "hide": false,
               "instant": true,
               "legendFormat": "High Watermark",
@@ -5803,7 +5803,7 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(kube_pod_container_resource_requests{namespace=\"default\", resource=\"memory\"})",
+              "expr": "sum(kube_pod_container_resource_requests{namespace=\"coder-observability\", resource=\"memory\"})",
               "hide": false,
               "instant": true,
               "legendFormat": "Requested",
@@ -5817,7 +5817,7 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum(\n    max_over_time(container_memory_working_set_bytes{namespace=\"default\"}[$__range])\n)",
+              "expr": "sum(\n    max_over_time(container_memory_working_set_bytes{namespace=\"coder-observability\"}[$__range])\n)",
               "instant": true,
               "legendFormat": "High Watermark",
               "range": false,
@@ -5851,7 +5851,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dashboards-workspace-detail
-  namespace: default
+  namespace: coder-observability
 data:
   workspaces-detail.json: |-
     {
@@ -7202,7 +7202,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dashboards-workspaces
-  namespace: default
+  namespace: coder-observability
 data:
   workspaces.json: |-
     {
@@ -8835,7 +8835,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -9162,7 +9162,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-agent
-    namespace: default
+    namespace: coder-observability
 ---
 # Source: coder-observability/charts/grafana/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
@@ -9178,7 +9178,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: grafana
-    namespace: default
+    namespace: coder-observability
 roleRef:
   kind: ClusterRole
   name: grafana-clusterrole
@@ -9196,7 +9196,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: loki
-    namespace: default
+    namespace: coder-observability
 roleRef:
   kind: ClusterRole
   name: loki-clusterrole
@@ -9220,7 +9220,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: kube-state-metrics
-    namespace: default
+    namespace: coder-observability
 ---
 # Source: coder-observability/charts/prometheus/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -9236,7 +9236,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: prometheus
-    namespace: default
+    namespace: coder-observability
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -9247,7 +9247,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -9261,7 +9261,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -9275,7 +9275,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana
-    namespace: default
+    namespace: coder-observability
 ---
 # Source: coder-observability/charts/grafana-agent/templates/service.yaml
 apiVersion: v1
@@ -9303,7 +9303,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -9324,7 +9324,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-storage-console
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -9346,7 +9346,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-storage
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -9369,7 +9369,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-storage-svc
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -9392,7 +9392,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-query-scheduler-discovery
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9421,7 +9421,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-backend-headless
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9451,7 +9451,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-backend
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9485,7 +9485,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-chunks-cache"
   annotations: {}
-  namespace: "default"
+  namespace: "coder-observability"
 spec:
   type: ClusterIP
   clusterIP: None
@@ -9506,7 +9506,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-gateway
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9530,7 +9530,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-canary
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9554,7 +9554,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-read-headless
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9585,7 +9585,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-read
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9619,7 +9619,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-results-cache"
   annotations: {}
-  namespace: "default"
+  namespace: "coder-observability"
 spec:
   type: ClusterIP
   clusterIP: None
@@ -9640,7 +9640,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-memberlist
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9663,7 +9663,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-write-headless
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9694,7 +9694,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: loki-write
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9726,7 +9726,7 @@ metadata:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: coder-observability
 spec:
   type: ClusterIP
   ports:
@@ -9747,7 +9747,7 @@ metadata:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: coder-observability
 spec:
   clusterIP: None
   ports:
@@ -9764,7 +9764,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kube-state-metrics
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
@@ -9789,7 +9789,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: node-exporter
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
@@ -9820,7 +9820,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus-headless
-  namespace: default
+  namespace: coder-observability
 spec:
   clusterIP: None
   ports:
@@ -9844,7 +9844,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
-  namespace: default
+  namespace: coder-observability
 spec:
   ports:
     - name: http
@@ -9962,7 +9962,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: loki-canary
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -9997,7 +9997,7 @@ spec:
         - name: loki-canary
           imagePullPolicy: IfNotPresent
           args:
-            - -addr=loki-gateway.default.svc.cluster.local.:80
+            - -addr=loki-gateway.coder-observability.svc.cluster.local.:80
             - -labelname=pod
             - -labelvalue=$(POD_NAME)
             - -push=true
@@ -10030,7 +10030,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
@@ -10143,7 +10143,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loki-gateway
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -10162,7 +10162,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 4ea9d3706be6ca24d89b30dc62db530f9a6707d5219b1b71c75a25958c086c27
+        checksum/config: ff23ab7fb28317d44f32989811420210d0dafee54196d89ab5335e95846350ad
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: coder-observability
@@ -10224,7 +10224,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loki-read
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/part-of: memberlist
     app.kubernetes.io/name: loki
@@ -10246,7 +10246,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
+        checksum/config: 140751cc58d257d5572ecb927b0fbe6d86da84e12809df37a9dc5bbdb6902202
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/part-of: memberlist
@@ -10269,7 +10269,7 @@ spec:
             - -config.file=/etc/loki/config/config.yaml
             - -target=read
             - -legacy-read-mode=false
-            - -common.compactor-grpc-address=loki-backend.default.svc.cluster.local:9095
+            - -common.compactor-grpc-address=loki-backend.coder-observability.svc.cluster.local:9095
           ports:
             - name: http-metrics
               containerPort: 3100
@@ -10329,7 +10329,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-state-metrics
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
@@ -10412,7 +10412,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: grafana
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -10432,8 +10432,8 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 2cdae5e415b83264685b9b119f0e6555245dc0894210503eb80d8926248facdf
-        checksum/dashboards-json-config: 7c5c6d1ffa19b9a663a60749cdbab60b578057fac5fa959612c91c8fa8467ec4
+        checksum/config: 4b5f6512e962f90e1dcdfbecb3713a10f3a998745141a4fc1adfcbb4cff23282
+        checksum/dashboards-json-config: 3f59a9bfe9e7e9b7e6ca4ea81afd7bac7a8d78eadb7edbb44be4a327efd1d931
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
@@ -10608,7 +10608,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: loki-storage
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio
     chart: minio-4.0.15
@@ -10632,8 +10632,8 @@ spec:
         release: coder-observability
         app.kubernetes.io/name: loki-storage
       annotations:
-        checksum/secrets: d0a62bb1ca696ec2547f7fa74438fb15a035e96627268c1dd42d8eaf3b06e6d1
-        checksum/config: c893319b9f2b29039c380d90ecbc6cc8f4af49dbd85f29b9fee7c364b72c1971
+        checksum/secrets: 982fb92f094edb3a3a156ec880923b557a774f885bf38c7d14d92c08f1d1257d
+        checksum/config: 876a07a82a63058ee3cc32fd1988af1e51b44e1d25825387ad4ecfdde9199417
         prometheus.io/path: /minio/v2/metrics/cluster
         prometheus.io/scrape: "true"
     spec:
@@ -10646,7 +10646,7 @@ spec:
       containers:
         - name: minio
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-ce", "/usr/bin/docker-entrypoint.sh minio server  http://loki-storage-{0...0}.loki-storage-svc.default.svc.cluster.local/export-{0...1} -S /etc/minio/certs/ --address :9000 --console-address :9001"]
+          command: ["/bin/sh", "-ce", "/usr/bin/docker-entrypoint.sh minio server  http://loki-storage-{0...0}.loki-storage-svc.coder-observability.svc.cluster.local/export-{0...1} -S /etc/minio/certs/ --address :9000 --console-address :9001"]
           volumeMounts:
             - name: export-0
               mountPath: /export-0
@@ -10699,7 +10699,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: loki-backend
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -10725,7 +10725,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
+        checksum/config: 140751cc58d257d5572ecb927b0fbe6d86da84e12809df37a9dc5bbdb6902202
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -10852,7 +10852,7 @@ metadata:
     app.kubernetes.io/component: "memcached-chunks-cache"
     name: "memcached-chunks-cache"
   annotations: {}
-  namespace: "default"
+  namespace: "coder-observability"
 spec:
   podManagementPolicy: Parallel
   replicas: 1
@@ -10939,7 +10939,7 @@ metadata:
     app.kubernetes.io/component: "memcached-results-cache"
     name: "memcached-results-cache"
   annotations: {}
-  namespace: "default"
+  namespace: "coder-observability"
 spec:
   podManagementPolicy: Parallel
   replicas: 1
@@ -11019,7 +11019,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: loki-write
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -11042,7 +11042,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
+        checksum/config: 140751cc58d257d5572ecb927b0fbe6d86da84e12809df37a9dc5bbdb6902202
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -11134,7 +11134,7 @@ metadata:
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
-  namespace: default
+  namespace: coder-observability
 spec:
   replicas: 1
   minReadySeconds: 0
@@ -11150,7 +11150,7 @@ spec:
         app.kubernetes.io/name: alertmanager
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 8c3d32eb07ccfeb79c4a248c979210090c2b68a60c6981b79d28c804c4fcc59c
+        checksum/config: 490f47b0d70495b76347dac06d9734b3074df82e0cc70a914ab7859d725f850b
         prometheus.io/scrape: "true"
     spec:
       automountServiceAccountToken: true
@@ -11219,7 +11219,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
-  namespace: default
+  namespace: coder-observability
 spec:
   persistentVolumeClaimRetentionPolicy:
     whenDeleted: Retain
@@ -11370,7 +11370,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres-exporter
-  namespace: default
+  namespace: coder-observability
 spec:
   selector:
     matchLabels:
@@ -11404,7 +11404,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: runbook-viewer
-  namespace: default
+  namespace: coder-observability
 spec:
   selector:
     matchLabels:
@@ -11438,7 +11438,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: sql-exporter
-  namespace: default
+  namespace: coder-observability
 spec:
   selector:
     matchLabels:
@@ -11449,7 +11449,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
-        checksum/config: d91487c47b6e077ac12e0be063a09752a2e9729eeaca050e7a1914a178402c77
+        checksum/config: e12c0044ef2cab3438ffdc8f5e16c24c5acf5ee36dcc8bee77294f27e53ce4a2
       labels:
         app: sql-exporter
         app.kubernetes.io/name: "database-stats"
@@ -11477,7 +11477,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: "loki-helm-test"
-  namespace: default
+  namespace: coder-observability
   labels:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -11505,7 +11505,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: loki-storage-make-bucket-job
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio-make-bucket-job
     chart: minio-4.0.15
@@ -11553,7 +11553,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: loki-storage-make-user-job
-  namespace: "default"
+  namespace: "coder-observability"
   labels:
     app: minio-make-user-job
     chart: minio-4.0.15
