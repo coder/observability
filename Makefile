@@ -17,9 +17,18 @@ lint/helm: lint/helm/coder-observability
 .PHONY: lint/helm
 
 lint/helm/coder-observability:
-	helm dependency update --skip-refresh coder-observability/
 	helm lint --strict --set coder.image.tag=v$(shell ./scripts/version.sh) coder-observability/
 .PHONY: lint/helm/coder-observability
+
+build:
+	helm --repository-cache /tmp/cache repo update
+	helm dependency update coder-observability/
+	helm template coder-observability coder-observability/ > compiled/resources.yaml
+	@if ! git diff --quiet -- compiled/resources.yaml; then \
+		echo "Error: uncommitted changes in 'compiled/resources.yaml'."; \
+		exit 1; \
+	fi;
+.PHONY: build
 
 lint/rules: lint/helm/prometheus-rules
 .PHONY: lint/rules
