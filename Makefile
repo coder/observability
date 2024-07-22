@@ -25,9 +25,10 @@ lint/helm/coder-observability:
 .PHONY: lint/helm/coder-observability
 
 build:
+	cd coder-observability/
 	helm --repository-cache /tmp/cache repo update
-	helm dependency update coder-observability/
-	helm template coder-observability coder-observability/ > compiled/resources.yaml
+	helm dependency update
+	helm template coder-observability . > ../compiled/resources.yaml
 	# Check for unexpected changes.
 	# Helm dependencies are versioned using ^ which accepts minor & patch changes:
 	# 	e.g. ^1.2.3 is equivalent to >= 1.2.3 < 2.0.0
