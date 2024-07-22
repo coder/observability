@@ -11,7 +11,7 @@ all: lint
 .PHONY: all
 
 lint: build lint/helm lint/rules readme
-	@if ! git diff --quiet; then \
+	@if ! git diff; then \
 		echo "Error: uncommitted changes."; \
 		exit 1; \
 	fi;
