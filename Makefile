@@ -10,16 +10,20 @@ SHELL := bash
 all: lint
 .PHONY: all
 
-lint: lint/helm lint/rules
+lint: build lint/helm lint/rules readme
+	./scripts/check-unstaged.sh
 .PHONY: lint
 
 lint/helm: lint/helm/coder-observability
 .PHONY: lint/helm
 
 lint/helm/coder-observability:
-	helm dependency update --skip-refresh coder-observability/
 	helm lint --strict --set coder.image.tag=v$(shell ./scripts/version.sh) coder-observability/
 .PHONY: lint/helm/coder-observability
+
+build:
+	./scripts/compile.sh
+.PHONY: build
 
 lint/rules: lint/helm/prometheus-rules
 .PHONY: lint/rules

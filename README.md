@@ -203,10 +203,10 @@ stringData:
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://grafana.github.io/helm-charts | grafana | v7.3.7 |
-| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | 0.37.0 |
-| https://grafana.github.io/helm-charts | loki | v6.3.4 |
-| https://prometheus-community.github.io/helm-charts | prometheus | v25.18.0 |
+| https://grafana.github.io/helm-charts | grafana | ^v7.3.7 |
+| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ^0.37.0 |
+| https://grafana.github.io/helm-charts | loki | ^v6.3.4 |
+| https://prometheus-community.github.io/helm-charts | prometheus | ^v25.18.0 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
@@ -228,7 +228,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}}}` | alerts for the various aspects of Coder |
+| global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}},"WorkspaceBuildFailures":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":10,"notify":2,"warning":5}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}},"provisionerd":{"groups":{"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}}}}}` | alerts for the various aspects of Coder |
 | global.coder.coderdSelector | string | `"pod=~`coder.*`, pod!~`.*provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. ensure this uses backticks for quotes! |
 | global.coder.controlPlaneNamespace | string | `"coder"` | the namespace into which the control plane has been deployed. |
 | global.coder.externalProvisionersNamespace | string | `"coder"` | the namespace into which any external provisioners have been deployed. |
