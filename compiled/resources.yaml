@@ -1068,6 +1068,306 @@ data:
       scrape_timeout: 10s
     rule_files:
     - /etc/config/alerts/*.yaml
+    scrape_configs:
+    - job_name: prometheus
+      static_configs:
+      - targets:
+        - localhost:9090
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-apiservers
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: default;kubernetes;https
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_service_name
+        - __meta_kubernetes_endpoint_port_name
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-nodes
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - replacement: kubernetes.default.svc:443
+        target_label: __address__
+      - regex: (.+)
+        replacement: /api/v1/nodes/$1/proxy/metrics
+        source_labels:
+        - __meta_kubernetes_node_name
+        target_label: __metrics_path__
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-nodes-cadvisor
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - replacement: kubernetes.default.svc:443
+        target_label: __address__
+      - regex: (.+)
+        replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+        source_labels:
+        - __meta_kubernetes_node_name
+        target_label: __metrics_path__
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - honor_labels: true
+      job_name: kubernetes-service-endpoints
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape
+      - action: drop
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: (.+?)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_service_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+        replacement: __param_$1
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_service_name
+        target_label: service
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: node
+    - honor_labels: true
+      job_name: kubernetes-service-endpoints-slow
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: (.+?)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_service_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+        replacement: __param_$1
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_service_name
+        target_label: service
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: node
+      scrape_interval: 5m
+      scrape_timeout: 30s
+    - honor_labels: true
+      job_name: prometheus-pushgateway
+      kubernetes_sd_configs:
+      - role: service
+      relabel_configs:
+      - action: keep
+        regex: pushgateway
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+    - honor_labels: true
+      job_name: kubernetes-services
+      kubernetes_sd_configs:
+      - role: service
+      metrics_path: /probe
+      params:
+        module:
+        - http_2xx
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+      - source_labels:
+        - __address__
+        target_label: __param_target
+      - replacement: blackbox
+        target_label: __address__
+      - source_labels:
+        - __param_target
+        target_label: instance
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - source_labels:
+        - __meta_kubernetes_service_name
+        target_label: service
+    - honor_labels: true
+      job_name: kubernetes-pods
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+      - action: drop
+        regex: true
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: (\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})
+        replacement: '[$2]:$1'
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        - __meta_kubernetes_pod_ip
+        target_label: __address__
+      - action: replace
+        regex: (\d+);((([0-9]+?)(\.|$)){4})
+        replacement: $2:$1
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        - __meta_kubernetes_pod_ip
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+        replacement: __param_$1
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: pod
+      - action: drop
+        regex: Pending|Succeeded|Failed|Completed
+        source_labels:
+        - __meta_kubernetes_pod_phase
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: node
+    - honor_labels: true
+      job_name: kubernetes-pods-slow
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: (\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})
+        replacement: '[$2]:$1'
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        - __meta_kubernetes_pod_ip
+        target_label: __address__
+      - action: replace
+        regex: (\d+);((([0-9]+?)(\.|$)){4})
+        replacement: $2:$1
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        - __meta_kubernetes_pod_ip
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+        replacement: __param_$1
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: pod
+      - action: drop
+        regex: Pending|Succeeded|Failed|Completed
+        source_labels:
+        - __meta_kubernetes_pod_phase
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: node
+      scrape_interval: 5m
+      scrape_timeout: 30s
     alerting:
       alertmanagers:
       - kubernetes_sd_configs:
@@ -1561,7 +1861,90 @@ data:
           summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.
         labels:
           severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts  
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts
+    - name: Coderd Replicas
+      rules:
+      
+      - alert: CoderdReplicas
+        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1
+        for: 5m
+        annotations:
+          summary: Number of alive coderd replicas is below the threshold = 1.
+        labels:
+          severity: critical
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
+      - alert: CoderdReplicas
+        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3
+        for: 5m
+        annotations:
+          summary: Number of alive coderd replicas is below the threshold = 3.
+        labels:
+          severity: notify
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
+      - alert: CoderdReplicas
+        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2
+        for: 5m
+        annotations:
+          summary: Number of alive coderd replicas is below the threshold = 2.
+        labels:
+          severity: warning
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
+    - name: Coderd Workspace Build Failures
+      rules:
+      
+      - alert: CoderdWorkspaceBuildFailures
+        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 10
+        for: 10m
+        annotations:
+          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
+        labels:
+          severity: critical
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures
+      - alert: CoderdWorkspaceBuildFailures
+        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 2
+        for: 10m
+        annotations:
+          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
+        labels:
+          severity: notify
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures
+      - alert: CoderdWorkspaceBuildFailures
+        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 5
+        for: 10m
+        annotations:
+          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
+        labels:
+          severity: warning
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures  
+  provisionerd.yaml: |-
+    groups:
+    - name: Provisionerd Replicas
+      rules:
+      
+      - alert: ProvisionerdReplicas
+        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1
+        for: 5m
+        annotations:
+          summary: Number of alive provisionerd replicas is below the threshold = 1.
+        labels:
+          severity: critical
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas
+      - alert: ProvisionerdReplicas
+        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3
+        for: 5m
+        annotations:
+          summary: Number of alive provisionerd replicas is below the threshold = 3.
+        labels:
+          severity: notify
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas
+      - alert: ProvisionerdReplicas
+        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2
+        for: 5m
+        annotations:
+          summary: Number of alive provisionerd replicas is below the threshold = 2.
+        labels:
+          severity: warning
+          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas  
   enterprise.yaml: |-
     groups:
       - name: Licences
@@ -1658,7 +2041,7 @@ metadata:
   name: runbooks
   namespace: default
   annotations:
-    checksum/config: 120a61dd911c7eadda16dfe1b9ff9694ce50f429cc8eba7f4913d883094d3d7f
+    checksum/config: 7ab4d06d5b454cc584880f9b58fb50fe85f2803bbd0021edb957c5a2d73b640e
 data:
   coderd.md: |
     # Coderd Runbooks
@@ -1708,15 +2091,31 @@ data:
   
     1. Check the logs of the deployment for any errors,
   
-      ```console
-      kubectl -n <coder namespace> logs deployment/coder --previous
-      ```
+    ```console
+    kubectl -n <coder namespace> logs deployment/coder --previous
+    ```
   
     2. Check any Kubernetes events related to the deployment,
   
-      ```console
-      kubectl -n <coder namespace> events --watch
-      ```
+    ```console
+    kubectl -n <coder namespace> events --watch
+    ```
+  
+    ## CoderdReplicas
+  
+    One or more Coderd replicas are down. This may cause availability problems and elevated
+    response times for user and agent API calls.
+  
+    To resolve this issue, review the Coder deployment for possible `CrashLoopBackOff`
+    instances or re-adjust alarm levels based on the actual number of replicas.
+  
+    ## CoderdWorkspaceBuildFailures
+  
+    A few workspace build errors have been recently observed.
+  
+    Review Prometheus metrics to identify failed jobs. Check the workspace build logs
+    to determine if there is a relationship with a new template version or a buggy
+    Terraform plugin.
   
     ## CoderdLicenseSeats
   
@@ -1768,6 +2167,16 @@ data:
   
     - [PostgreSQL Documentation: Server Configuration](https://www.postgresql.org/docs/16/runtime-config-file-locations.html)
     - [Tuning your PostgreSQL Server](https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server)
+  provisionerd.md: |
+    # Provisionerd Runbooks
+  
+    ## ProvisionerdReplicas
+  
+    One of more Provisioner replicas is down. Workspace builds may be queued and processed slower.
+  
+    To resolve this issue, review the Coder deployment (Coder provisioner pods)
+    for possible `CrashLoopBackOff` instances or re-adjust alarm levels based on the actual
+    number of replicas.
 ---
 # Source: coder-observability/templates/configmap-sql-exporter.yaml
 apiVersion: v1
@@ -12140,7 +12549,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 120a61dd911c7eadda16dfe1b9ff9694ce50f429cc8eba7f4913d883094d3d7f
+        checksum/config: 7ab4d06d5b454cc584880f9b58fb50fe85f2803bbd0021edb957c5a2d73b640e
       labels:
         app: runbook-viewer
     spec:
