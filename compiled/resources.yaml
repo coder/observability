@@ -55,10 +55,10 @@ kind: ServiceAccount
 automountServiceAccountToken: false
 metadata:
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   name: grafana
   namespace: default
@@ -77,10 +77,10 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
   annotations:
@@ -94,10 +94,10 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
@@ -107,7 +107,7 @@ kind: ServiceAccount
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.10.0
+    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/version: "v0.27.0"
@@ -118,15 +118,16 @@ automountServiceAccountToken: true
 # Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
+automountServiceAccountToken: true
 metadata:
   labels:    
-    helm.sh/chart: kube-state-metrics-5.17.0
+    helm.sh/chart: kube-state-metrics-5.21.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.11.0"
+    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
   namespace: default
 ---
@@ -137,13 +138,14 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.31.0
+    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.1"
+automountServiceAccountToken: false
 ---
 # Source: coder-observability/charts/prometheus/templates/serviceaccount.yaml
 apiVersion: v1
@@ -153,8 +155,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -185,10 +187,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -319,10 +321,10 @@ metadata:
   name: grafana-dashboards-infra
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
     dashboard-provider: infra
 data:
@@ -655,10 +657,10 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 data:
   config.yaml: |
@@ -693,7 +695,7 @@ data:
           secret_access_key: supersecret
     frontend:
       scheduler_address: ""
-      tail_proxy_url: http://loki-querier.default.svc.cluster.local:3100
+      tail_proxy_url: ""
     frontend_worker:
       scheduler_address: ""
     index_gateway:
@@ -784,10 +786,10 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 data:
@@ -955,10 +957,10 @@ metadata:
   name: loki-dashboards-1
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     grafana_dashboard: "1"
 data:
@@ -980,10 +982,10 @@ metadata:
   name: loki-dashboards-2
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     grafana_dashboard: "1"
 data:
@@ -1005,10 +1007,10 @@ metadata:
   name: loki-runtime
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 data:
   runtime-config.yaml: |
@@ -1020,7 +1022,7 @@ kind: ConfigMap
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.10.0
+    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/version: "v0.27.0"
@@ -1047,8 +1049,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -9379,10 +9381,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   finalizers:
     - kubernetes.io/pvc-protection
@@ -9496,10 +9498,10 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -9511,10 +9513,10 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
   name: loki-clusterrole
 rules:
@@ -9527,13 +9529,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:    
-    helm.sh/chart: kube-state-metrics-5.17.0
+    helm.sh/chart: kube-state-metrics-5.21.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.11.0"
+    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
 rules:
 
@@ -9685,8 +9687,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -9756,10 +9758,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: grafana-clusterrolebinding
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -9778,10 +9780,10 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: loki-clusterrolebinding
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 subjects:
   - kind: ServiceAccount
@@ -9797,13 +9799,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:    
-    helm.sh/chart: kube-state-metrics-5.17.0
+    helm.sh/chart: kube-state-metrics-5.21.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.11.0"
+    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -9822,8 +9824,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -9843,10 +9845,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -9859,10 +9861,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -9906,10 +9908,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -10056,10 +10058,10 @@ metadata:
   name: loki-backend
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: backend
   annotations:
@@ -10085,10 +10087,10 @@ kind: Service
 metadata:
   name: loki-chunks-cache
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-chunks-cache"
   annotations:
@@ -10117,10 +10119,10 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
   annotations:
@@ -10143,10 +10145,10 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
   annotations:
@@ -10200,10 +10202,10 @@ metadata:
   name: loki-read
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: read
   annotations:
@@ -10229,10 +10231,10 @@ kind: Service
 metadata:
   name: loki-results-cache
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-results-cache"
   annotations:
@@ -10261,10 +10263,10 @@ metadata:
   name: loki-memberlist
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -10317,10 +10319,10 @@ metadata:
   name: loki-write
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: write
   annotations:
@@ -10346,7 +10348,7 @@ kind: Service
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.10.0
+    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/version: "v0.27.0"
@@ -10369,7 +10371,7 @@ kind: Service
 metadata:
   name: alertmanager-headless
   labels:
-    helm.sh/chart: alertmanager-1.10.0
+    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/version: "v0.27.0"
@@ -10393,13 +10395,13 @@ metadata:
   name: kube-state-metrics
   namespace: default
   labels:    
-    helm.sh/chart: kube-state-metrics-5.17.0
+    helm.sh/chart: kube-state-metrics-5.21.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.11.0"
+    app.kubernetes.io/version: "2.12.0"
   annotations:
     prometheus.io/scrape: 'true'
 spec:
@@ -10421,13 +10423,13 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.31.0
+    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.1"
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -10449,8 +10451,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus-headless
@@ -10476,8 +10478,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -10606,10 +10608,10 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
 spec:
@@ -10640,7 +10642,7 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki-canary
-          image: docker.io/grafana/loki-canary:3.0.0
+          image: docker.io/grafana/loki-canary:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -addr=loki-gateway.default.svc.cluster.local.:80
@@ -10679,13 +10681,13 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.31.0
+    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.1"
 spec:
   selector:
     matchLabels:
@@ -10702,13 +10704,13 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         prometheus.io/scrape: "true"
       labels:
-        helm.sh/chart: prometheus-node-exporter-4.31.0
+        helm.sh/chart: prometheus-node-exporter-4.37.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: prometheus-node-exporter
         app.kubernetes.io/name: prometheus-node-exporter
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "1.7.0"
+        app.kubernetes.io/version: "1.8.1"
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -10719,7 +10721,7 @@ spec:
       serviceAccountName: node-exporter
       containers:
         - name: node-exporter
-          image: quay.io/prometheus/node-exporter:v1.7.0
+          image: quay.io/prometheus/node-exporter:v1.8.1
           imagePullPolicy: IfNotPresent
           args:
             - --path.procfs=/host/proc
@@ -10795,10 +10797,10 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 spec:
@@ -10814,7 +10816,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: e8be82c086a4b852387a0f8f26acb719b4e178d7373881a0da547cc58c3e9eae
+        checksum/config: 4ea9d3706be6ca24d89b30dc62db530f9a6707d5219b1b71c75a25958c086c27
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: coder-observability
@@ -10882,10 +10884,10 @@ metadata:
   namespace: default
   labels:
     app.kubernetes.io/part-of: memberlist
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: read
 spec:
@@ -10903,7 +10905,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 05c2cbc734b355c6188a5b911eee350f337f1b787c5e07a96cc4669528382c34
+        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/part-of: memberlist
@@ -10922,7 +10924,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.0.0
+          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -10991,13 +10993,13 @@ metadata:
   name: kube-state-metrics
   namespace: default
   labels:    
-    helm.sh/chart: kube-state-metrics-5.17.0
+    helm.sh/chart: kube-state-metrics-5.21.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.11.0"
+    app.kubernetes.io/version: "2.12.0"
 spec:
   selector:
     matchLabels:      
@@ -11010,16 +11012,17 @@ spec:
   template:
     metadata:
       labels:        
-        helm.sh/chart: kube-state-metrics-5.17.0
+        helm.sh/chart: kube-state-metrics-5.21.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: kube-state-metrics
         app.kubernetes.io/name: kube-state-metrics
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "2.11.0"
+        app.kubernetes.io/version: "2.12.0"
       annotations:
         prometheus.io/scrape: "true"
     spec:
+      automountServiceAccountToken: true
       hostNetwork: false
       serviceAccountName: kube-state-metrics
       securityContext:
@@ -11035,7 +11038,7 @@ spec:
         - --port=8080
         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
         imagePullPolicy: IfNotPresent
-        image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.11.0
+        image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.12.0
         ports:
         - containerPort: 8080
           name: "http"
@@ -11061,6 +11064,8 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 5
+        resources:
+          {}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -11075,10 +11080,10 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.7
+    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.0"
+    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -11095,8 +11100,8 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 1efbcd6919c5d1a3c647432a78b113fb3354bcac120f25a38525b7a9e298c181
-        checksum/dashboards-json-config: bc0931bc7c5f661afcbe6fa5f175241ff40cd3660670908f929208ba95f6e226
+        checksum/config: 2cdae5e415b83264685b9b119f0e6555245dc0894210503eb80d8926248facdf
+        checksum/dashboards-json-config: 7c5c6d1ffa19b9a663a60749cdbab60b578057fac5fa959612c91c8fa8467ec4
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
@@ -11150,7 +11155,7 @@ spec:
       enableServiceLinks: true
       containers:
         - name: grafana
-          image: "docker.io/grafana/grafana:10.4.0"
+          image: "docker.io/grafana/grafana:10.4.3"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
@@ -11371,10 +11376,10 @@ metadata:
   name: loki-backend
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: memberlist
@@ -11398,7 +11403,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 05c2cbc734b355c6188a5b911eee350f337f1b787c5e07a96cc4669528382c34
+        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -11438,7 +11443,7 @@ spec:
             - name: sc-rules-volume
               mountPath: "/rules/fake"
         - name: loki
-          image: docker.io/grafana/loki:3.0.0
+          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -11523,10 +11528,10 @@ kind: StatefulSet
 metadata:
   name: loki-chunks-cache
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-chunks-cache"
     name: "memcached-chunks-cache"
@@ -11623,10 +11628,10 @@ kind: StatefulSet
 metadata:
   name: loki-results-cache
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-results-cache"
     name: "memcached-results-cache"
@@ -11724,10 +11729,10 @@ metadata:
   name: loki-write
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: write
     app.kubernetes.io/part-of: memberlist
@@ -11747,7 +11752,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 05c2cbc734b355c6188a5b911eee350f337f1b787c5e07a96cc4669528382c34
+        checksum/config: 57c20303bb5f641f6c00271e02250585796478da871fe2836b453480ea613242
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -11767,7 +11772,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.0.0
+          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -11839,7 +11844,7 @@ kind: StatefulSet
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.10.0
+    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/version: "v0.27.0"
@@ -11860,7 +11865,7 @@ spec:
         app.kubernetes.io/name: alertmanager
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 26589432e5808105b1ba18654a88ede882637180ded722445fb716e0caaa3519
+        checksum/config: 8c3d32eb07ccfeb79c4a248c979210090c2b68a60c6981b79d28c804c4fcc59c
         prometheus.io/scrape: "true"
     spec:
       automountServiceAccountToken: true
@@ -11928,8 +11933,8 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.51.0
-    helm.sh/chart: prometheus-25.18.0
+    app.kubernetes.io/version: v2.53.1
+    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -11956,8 +11961,8 @@ spec:
         app.kubernetes.io/component: server
         app.kubernetes.io/name: prometheus
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: v2.51.0
-        helm.sh/chart: prometheus-25.18.0
+        app.kubernetes.io/version: v2.53.1
+        helm.sh/chart: prometheus-25.24.1
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/part-of: prometheus
     spec:
@@ -11965,16 +11970,37 @@ spec:
       serviceAccountName: prometheus
       containers:
         - name: prometheus-server-configmap-reload
-          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.72.0"
+          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.74.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --watched-dir=/etc/config
+            - --listen-address=0.0.0.0:9091
             - --reload-url=http://127.0.0.1:9090/-/reload
             - --listen-address=0.0.0.0:9091
             - --log-level=all
             - --watch-interval=15s
           ports:
             - containerPort: 9091
+              name: metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+              scheme: HTTP
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+              scheme: HTTP
+            periodSeconds: 10
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
@@ -11985,7 +12011,7 @@ spec:
               readOnly: 
 
         - name: prometheus-server
-          image: "quay.io/prometheus/prometheus:v2.51.0"
+          image: "quay.io/prometheus/prometheus:v2.53.1"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=15d
@@ -12051,7 +12077,9 @@ spec:
           configMap:
             name: metrics-alerts
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1	
+      kind: PersistentVolumeClaim	
+      metadata:
         name: storage-volume
       spec:
         accessModes:
@@ -12182,10 +12210,10 @@ metadata:
   name: "loki-helm-test"
   namespace: default
   labels:
-    helm.sh/chart: loki-6.3.4
+    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.0.0"
+    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: helm-test
   annotations:
