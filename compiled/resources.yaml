@@ -42,11 +42,8 @@ metadata:
   name: grafana-agent
   namespace: default
   labels:
-    helm.sh/chart: grafana-agent-0.37.0
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
-    
-    app.kubernetes.io/version: "v0.40.3"
     app.kubernetes.io/managed-by: Helm
 ---
 # Source: coder-observability/charts/grafana/templates/serviceaccount.yaml
@@ -55,10 +52,8 @@ kind: ServiceAccount
 automountServiceAccountToken: false
 metadata:
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   name: grafana
   namespace: default
@@ -77,10 +72,8 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
   annotations:
@@ -94,10 +87,8 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
@@ -107,10 +98,8 @@ kind: ServiceAccount
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "v0.27.0"
     app.kubernetes.io/managed-by: Helm
   namespace: default
 automountServiceAccountToken: true
@@ -120,14 +109,12 @@ apiVersion: v1
 kind: ServiceAccount
 automountServiceAccountToken: true
 metadata:
-  labels:    
-    helm.sh/chart: kube-state-metrics-5.21.0
+  labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
   namespace: default
 ---
@@ -138,13 +125,11 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.8.1"
 automountServiceAccountToken: false
 ---
 # Source: coder-observability/charts/prometheus/templates/serviceaccount.yaml
@@ -155,14 +140,11 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
   namespace: default
-  annotations:
-    {}
+  annotations: {}
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/secrets.yaml
 apiVersion: v1
@@ -187,15 +169,12 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 data:
-  
   grafana.ini: |
     [analytics]
     check_for_updates = true
@@ -289,30 +268,7 @@ data:
       orgId: 1
       type: file
       updateIntervalSeconds: 30
-  download_dashboards.sh: |
-    #!/usr/bin/env sh
-    set -euf
-    mkdir -p /var/lib/grafana/dashboards/coder
-    mkdir -p /var/lib/grafana/dashboards/infra
-    mkdir -p /tmp/dashboards
-  
-    curl -skf \
-    --connect-timeout 60 \
-    --max-time 60 \
-    -H "Accept: application/json" \
-    -H "Content-Type: application/json;charset=UTF-8" \
-      "https://grafana.com/api/dashboards/1860/revisions/36/download" \
-      | sed '/-- .* --/! s/"datasource":.*,/"datasource": "metrics",/g' \
-    > "/var/lib/grafana/dashboards/infra/node-exporter-full.json"
-      
-    curl -skf \
-    --connect-timeout 60 \
-    --max-time 60 \
-    -H "Accept: application/json" \
-    -H "Content-Type: application/json;charset=UTF-8" \
-      "https://grafana.com/api/dashboards/9628/revisions/7/download" \
-      | sed '/-- .* --/! s/"datasource":.*,/"datasource": "metrics",/g' \
-    > "/var/lib/grafana/dashboards/infra/postgres-database.json"
+  download_dashboards.sh: "#!/usr/bin/env sh\nset -euf\nmkdir -p /var/lib/grafana/dashboards/coder\nmkdir -p /var/lib/grafana/dashboards/infra\nmkdir -p /tmp/dashboards\n\ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/1860/revisions/36/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/node-exporter-full.json\"\n  \ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/9628/revisions/7/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/postgres-database.json\"\n"
 ---
 # Source: coder-observability/charts/grafana/templates/dashboards-json-configmap.yaml
 apiVersion: v1
@@ -321,14 +277,11 @@ metadata:
   name: grafana-dashboards-infra
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
     dashboard-provider: infra
-data:
-  {}
+data: {}
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/configmap.yaml
 apiVersion: v1
@@ -342,130 +295,17 @@ metadata:
     release: coder-observability
     heritage: Helm
 data:
-  initialize: |-
-    #!/bin/sh
-    set -e ; # Have script exit in the event of a failed command.
-    MC_CONFIG_DIR="/etc/minio/mc/"
-    MC="/usr/bin/mc --insecure --config-dir ${MC_CONFIG_DIR}"
-    
-    # connectToMinio
-    # Use a check-sleep-check loop to wait for MinIO service to be available
-    connectToMinio() {
-      SCHEME=$1
-      ATTEMPTS=0 ; LIMIT=29 ; # Allow 30 attempts
-      set -e ; # fail if we can't read the keys.
-      ACCESS=$(cat /config/rootUser) ; SECRET=$(cat /config/rootPassword) ;
-      set +e ; # The connections to minio are allowed to fail.
-      echo "Connecting to MinIO server: $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT" ;
-      MC_COMMAND="${MC} alias set myminio $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET" ;
-      $MC_COMMAND ;
-      STATUS=$? ;
-      until [ $STATUS = 0 ]
-      do
-        ATTEMPTS=`expr $ATTEMPTS + 1` ;
-        echo \"Failed attempts: $ATTEMPTS\" ;
-        if [ $ATTEMPTS -gt $LIMIT ]; then
-          exit 1 ;
-        fi ;
-        sleep 2 ; # 1 second intervals between attempts
-        $MC_COMMAND ;
-        STATUS=$? ;
-      done ;
-      set -e ; # reset `e` as active
-      return 0
-    }
-    
-    # checkBucketExists ($bucket)
-    # Check if the bucket exists, by using the exit code of `mc ls`
-    checkBucketExists() {
-      BUCKET=$1
-      CMD=$(${MC} ls myminio/$BUCKET > /dev/null 2>&1)
-      return $?
-    }
-    
-    # createBucket ($bucket, $policy, $purge)
-    # Ensure bucket exists, purging if asked to
-    createBucket() {
-      BUCKET=$1
-      POLICY=$2
-      PURGE=$3
-      VERSIONING=$4
-      OBJECTLOCKING=$5
-    
-      # Purge the bucket, if set & exists
-      # Since PURGE is user input, check explicitly for `true`
-      if [ $PURGE = true ]; then
-        if checkBucketExists $BUCKET ; then
-          echo "Purging bucket '$BUCKET'."
-          set +e ; # don't exit if this fails
-          ${MC} rm -r --force myminio/$BUCKET
-          set -e ; # reset `e` as active
-        else
-          echo "Bucket '$BUCKET' does not exist, skipping purge."
-        fi
-      fi
-    
-    # Create the bucket if it does not exist and set objectlocking if enabled (NOTE: versioning will be not changed if OBJECTLOCKING is set because it enables versioning to the Buckets created)
-    if ! checkBucketExists $BUCKET ; then
-        if [ ! -z $OBJECTLOCKING ] ; then
-          if [ $OBJECTLOCKING = true ] ; then
-              echo "Creating bucket with OBJECTLOCKING '$BUCKET'"
-              ${MC} mb --with-lock myminio/$BUCKET
-          elif [ $OBJECTLOCKING = false ] ; then
-                echo "Creating bucket '$BUCKET'"
-                ${MC} mb myminio/$BUCKET
-          fi
-      elif [ -z $OBJECTLOCKING ] ; then
-            echo "Creating bucket '$BUCKET'"
-            ${MC} mb myminio/$BUCKET
-      else
-        echo "Bucket '$BUCKET' already exists."  
-      fi
-      fi
-    
-    
-      # set versioning for bucket if objectlocking is disabled or not set
-      if [ -z $OBJECTLOCKING ] ; then
-      if [ ! -z $VERSIONING ] ; then
-        if [ $VERSIONING = true ] ; then
-            echo "Enabling versioning for '$BUCKET'"
-            ${MC} version enable myminio/$BUCKET
-        elif [ $VERSIONING = false ] ; then
-            echo "Suspending versioning for '$BUCKET'"
-            ${MC} version suspend myminio/$BUCKET
-        fi
-        fi
-      else
-          echo "Bucket '$BUCKET' versioning unchanged."
-      fi
-    
-    
-      # At this point, the bucket should exist, skip checking for existence
-      # Set policy on the bucket
-      echo "Setting policy of bucket '$BUCKET' to '$POLICY'."
-      ${MC} policy set $POLICY myminio/$BUCKET
-    }
-    
-    # Try connecting to MinIO instance
-    scheme=http
-    connectToMinio $scheme
-    
-    
-    
-    # Create the buckets
-    createBucket chunks none false  
-    createBucket ruler none false  
-    createBucket admin none false  
+  initialize: "#!/bin/sh\nset -e ; # Have script exit in the event of a failed command.\nMC_CONFIG_DIR=\"/etc/minio/mc/\"\nMC=\"/usr/bin/mc --insecure --config-dir ${MC_CONFIG_DIR}\"\n\n# connectToMinio\n# Use a check-sleep-check loop to wait for MinIO service to be available\nconnectToMinio() {\n  SCHEME=$1\n  ATTEMPTS=0 ; LIMIT=29 ; # Allow 30 attempts\n  set -e ; # fail if we can't read the keys.\n  ACCESS=$(cat /config/rootUser) ; SECRET=$(cat /config/rootPassword) ;\n  set +e ; # The connections to minio are allowed to fail.\n  echo \"Connecting to MinIO server: $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT\" ;\n  MC_COMMAND=\"${MC} alias set myminio $SCHEME://$MINIO_ENDPOINT:$MINIO_PORT $ACCESS $SECRET\" ;\n  $MC_COMMAND ;\n  STATUS=$? ;\n  until [ $STATUS = 0 ]\n  do\n    ATTEMPTS=`expr $ATTEMPTS + 1` ;\n    echo \\\"Failed attempts: $ATTEMPTS\\\" ;\n    if [ $ATTEMPTS -gt $LIMIT ]; then\n      exit 1 ;\n    fi ;\n    sleep 2 ; # 1 second intervals between attempts\n    $MC_COMMAND ;\n    STATUS=$? ;\n  done ;\n  set -e ; # reset `e` as active\n  return 0\n}\n\n# checkBucketExists ($bucket)\n# Check if the bucket exists, by using the exit code of `mc ls`\ncheckBucketExists() {\n  BUCKET=$1\n  CMD=$(${MC} ls myminio/$BUCKET > /dev/null 2>&1)\n  return $?\n}\n\n# createBucket ($bucket, $policy, $purge)\n# Ensure bucket exists, purging if asked to\ncreateBucket() {\n  BUCKET=$1\n  POLICY=$2\n  PURGE=$3\n  VERSIONING=$4\n  OBJECTLOCKING=$5\n\n  # Purge the bucket, if set & exists\n  # Since PURGE is user input, check explicitly for `true`\n  if [ $PURGE = true ]; then\n    if checkBucketExists $BUCKET ; then\n      echo \"Purging bucket '$BUCKET'.\"\n      set +e ; # don't exit if this fails\n      ${MC} rm -r --force myminio/$BUCKET\n      set -e ; # reset `e` as active\n    else\n      echo \"Bucket '$BUCKET' does not exist, skipping purge.\"\n    fi\n  fi\n\n# Create the bucket if it does not exist and set objectlocking if enabled (NOTE: versioning will be not changed if OBJECTLOCKING is set because it enables versioning to the Buckets created)\nif ! checkBucketExists $BUCKET ; then\n    if [ ! -z $OBJECTLOCKING ] ; then\n      if [ $OBJECTLOCKING = true ] ; then\n          echo \"Creating bucket with OBJECTLOCKING '$BUCKET'\"\n          ${MC} mb --with-lock myminio/$BUCKET\n      elif [ $OBJECTLOCKING = false ] ; then\n            echo \"Creating bucket '$BUCKET'\"\n            ${MC} mb myminio/$BUCKET\n      fi\n  elif [ -z $OBJECTLOCKING ] ; then\n        echo \"Creating bucket '$BUCKET'\"\n        ${MC} mb myminio/$BUCKET\n  else\n    echo \"Bucket '$BUCKET' already exists.\"  \n  fi\n  fi\n\n\n  # set versioning for bucket if objectlocking is disabled or not set\n  if [ -z $OBJECTLOCKING ] ; then\n  if [ ! -z $VERSIONING ] ; then\n    if [ $VERSIONING = true ] ; then\n        echo \"Enabling versioning for '$BUCKET'\"\n        ${MC} version enable myminio/$BUCKET\n    elif [ $VERSIONING = false ] ; then\n        echo \"Suspending versioning for '$BUCKET'\"\n        ${MC} version suspend myminio/$BUCKET\n    fi\n    fi\n  else\n      echo \"Bucket '$BUCKET' versioning unchanged.\"\n  fi\n\n\n  # At this point, the bucket should exist, skip checking for existence\n  # Set policy on the bucket\n  echo \"Setting policy of bucket '$BUCKET' to '$POLICY'.\"\n  ${MC} policy set $POLICY myminio/$BUCKET\n}\n\n# Try connecting to MinIO instance\nscheme=http\nconnectToMinio $scheme\n\n\n\n# Create the buckets\ncreateBucket chunks none false  \ncreateBucket ruler none false  \ncreateBucket admin none false  "
   add-user: |-
     #!/bin/sh
     set -e ; # Have script exit in the event of a failed command.
     MC_CONFIG_DIR="/etc/minio/mc/"
     MC="/usr/bin/mc --insecure --config-dir ${MC_CONFIG_DIR}"
-    
+
     # AccessKey and secretkey credentials file are added to prevent shell execution errors caused by special characters.
     # Special characters for example : ',",<,>,{,}
     MINIO_ACCESSKEY_SECRETKEY_TMP="/tmp/accessKey_and_secretKey_tmp"
-    
+
     # connectToMinio
     # Use a check-sleep-check loop to wait for MinIO service to be available
     connectToMinio() {
@@ -492,14 +332,14 @@ data:
       set -e ; # reset `e` as active
       return 0
     }
-    
+
     # checkUserExists ()
     # Check if the user exists, by using the exit code of `mc admin user info`
     checkUserExists() {
       CMD=$(${MC} admin user info myminio $(head -1 $MINIO_ACCESSKEY_SECRETKEY_TMP) > /dev/null 2>&1)
       return $?
     }
-    
+
     # createUser ($policy)
     createUser() {
       POLICY=$1
@@ -523,7 +363,7 @@ data:
       fi
       #clean up credentials files.
       rm -f $MINIO_ACCESSKEY_SECRETKEY_TMP
-    
+
       # set policy for user
       if [ ! -z $POLICY -a $POLICY != " " ] ; then
           echo "Adding policy '$POLICY' for '$USER'"
@@ -532,24 +372,23 @@ data:
           echo "User '$USER' has no policy attached."
       fi
     }
-    
+
     # Try connecting to MinIO instance
     scheme=http
     connectToMinio $scheme
-    
-    
-    
+
+
+
     # Create the users
     echo console > $MINIO_ACCESSKEY_SECRETKEY_TMP
     echo console123 >> $MINIO_ACCESSKEY_SECRETKEY_TMP
     createUser consoleAdmin
-    
   add-policy: |-
     #!/bin/sh
     set -e ; # Have script exit in the event of a failed command.
     MC_CONFIG_DIR="/etc/minio/mc/"
     MC="/usr/bin/mc --insecure --config-dir ${MC_CONFIG_DIR}"
-    
+
     # connectToMinio
     # Use a check-sleep-check loop to wait for MinIO service to be available
     connectToMinio() {
@@ -576,7 +415,7 @@ data:
       set -e ; # reset `e` as active
       return 0
     }
-    
+
     # checkPolicyExists ($policy)
     # Check if the policy exists, by using the exit code of `mc admin policy info`
     checkPolicyExists() {
@@ -584,12 +423,12 @@ data:
       CMD=$(${MC} admin policy info myminio $POLICY > /dev/null 2>&1)
       return $?
     }
-    
+
     # createPolicy($name, $filename)
     createPolicy () {
       NAME=$1
       FILENAME=$2
-    
+
       # Create the name if it does not exist
       echo "Checking policy: $NAME (in /config/$FILENAME.json)"
       if ! checkPolicyExists $NAME ; then
@@ -598,20 +437,18 @@ data:
         echo "Policy '$NAME' already exists."
       fi
       ${MC} admin policy add myminio $NAME /config/$FILENAME.json
-    
+
     }
-    
+
     # Try connecting to MinIO instance
     scheme=http
     connectToMinio $scheme
-    
-    
   custom-command: |-
     #!/bin/sh
     set -e ; # Have script exit in the event of a failed command.
     MC_CONFIG_DIR="/etc/minio/mc/"
     MC="/usr/bin/mc --insecure --config-dir ${MC_CONFIG_DIR}"
-    
+
     # connectToMinio
     # Use a check-sleep-check loop to wait for MinIO service to be available
     connectToMinio() {
@@ -638,14 +475,14 @@ data:
       set -e ; # reset `e` as active
       return 0
     }
-    
+
     # runCommand ($@)
     # Run custom mc command
     runCommand() {
       ${MC} "$@"
       return $?
     }
-    
+
     # Try connecting to MinIO instance
     scheme=http
     connectToMinio $scheme
@@ -657,14 +494,11 @@ metadata:
   name: loki
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 data:
-  config.yaml: |
-    
+  config.yaml: |2
     auth_enabled: false
     chunk_store_config:
       chunk_cache_config:
@@ -786,169 +620,12 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 data:
-  nginx.conf: |    
-    worker_processes  5;  ## Default: 1
-    error_log  /dev/stderr;
-    pid        /tmp/nginx.pid;
-    worker_rlimit_nofile 8192;
-    
-    events {
-      worker_connections  4096;  ## Default: 1024
-    }
-    
-    http {
-      client_body_temp_path /tmp/client_temp;
-      proxy_temp_path       /tmp/proxy_temp_path;
-      fastcgi_temp_path     /tmp/fastcgi_temp;
-      uwsgi_temp_path       /tmp/uwsgi_temp;
-      scgi_temp_path        /tmp/scgi_temp;
-    
-      client_max_body_size  4M;
-    
-      proxy_read_timeout    600; ## 10 minutes
-      proxy_send_timeout    600;
-      proxy_connect_timeout 600;
-    
-      proxy_http_version    1.1;
-    
-      default_type application/octet-stream;
-      log_format   main '$remote_addr - $remote_user [$time_local]  $status '
-            '"$request" $body_bytes_sent "$http_referer" '
-            '"$http_user_agent" "$http_x_forwarded_for"';
-      access_log   /dev/stderr  main;
-    
-      sendfile     on;
-      tcp_nopush   on;
-      resolver kube-dns.kube-system.svc.cluster.local.;
-      
-    
-      server {
-        listen             8080;
-        listen             [::]:8080;
-    
-        location = / {
-          return 200 'OK';
-          auth_basic off;
-        }
-    
-        ########################################################
-        # Configure backend targets# Distributor
-        location = /api/prom/push {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /loki/api/v1/push {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /distributor/ring {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /otlp/v1/logs {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # Ingester
-        location = /flush {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-        location ^~ /ingester/ {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /ingester {
-          internal;        # to suppress 301
-        }
-    
-        # Ring
-        location = /ring {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # MemberListKV
-        location = /memberlist {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # Ruler
-        location = /ruler/ring {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /api/prom/rules {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location ^~ /api/prom/rules/ {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /loki/api/v1/rules {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location ^~ /loki/api/v1/rules/ {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /prometheus/api/v1/alerts {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /prometheus/api/v1/rules {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # Compactor
-        location = /compactor/ring {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /loki/api/v1/delete {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /loki/api/v1/cache/generation_numbers {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # IndexGateway
-        location = /indexgateway/ring {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # QueryScheduler
-        location = /scheduler/ring {
-          proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;
-        }
-    
-        # Config
-        location = /config {
-          proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;
-        }
-    
-    
-        # QueryFrontend, Querier
-        location = /api/prom/tail {
-          proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-        }
-        location = /loki/api/v1/tail {
-          proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;
-          proxy_set_header Upgrade $http_upgrade;
-          proxy_set_header Connection "upgrade";
-        }
-        location ^~ /api/prom/ {
-          proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /api/prom {
-          internal;        # to suppress 301
-        }
-        location ^~ /loki/api/v1/ {
-          proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;
-        }
-        location = /loki/api/v1 {
-          internal;        # to suppress 301
-        }
-      }
-    }
+  nginx.conf: "worker_processes  5;  ## Default: 1\nerror_log  /dev/stderr;\npid        /tmp/nginx.pid;\nworker_rlimit_nofile 8192;\n\nevents {\n  worker_connections  4096;  ## Default: 1024\n}\n\nhttp {\n  client_body_temp_path /tmp/client_temp;\n  proxy_temp_path       /tmp/proxy_temp_path;\n  fastcgi_temp_path     /tmp/fastcgi_temp;\n  uwsgi_temp_path       /tmp/uwsgi_temp;\n  scgi_temp_path        /tmp/scgi_temp;\n\n  client_max_body_size  4M;\n\n  proxy_read_timeout    600; ## 10 minutes\n  proxy_send_timeout    600;\n  proxy_connect_timeout 600;\n\n  proxy_http_version    1.1;\n\n  default_type application/octet-stream;\n  log_format   main '$remote_addr - $remote_user [$time_local]  $status '\n        '\"$request\" $body_bytes_sent \"$http_referer\" '\n        '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n  access_log   /dev/stderr  main;\n\n  sendfile     on;\n  tcp_nopush   on;\n  resolver kube-dns.kube-system.svc.cluster.local.;\n  \n\n  server {\n    listen             8080;\n    listen             [::]:8080;\n\n    location = / {\n      return 200 'OK';\n      auth_basic off;\n    }\n\n    ########################################################\n    # Configure backend targets# Distributor\n    location = /api/prom/push {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/push {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /distributor/ring {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /otlp/v1/logs {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ingester\n    location = /flush {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /ingester/ {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /ingester {\n      internal;        # to suppress 301\n    }\n\n    # Ring\n    location = /ring {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # MemberListKV\n    location = /memberlist {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Ruler\n    location = /ruler/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /api/prom/rules/ {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location ^~ /loki/api/v1/rules/ {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/alerts {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /prometheus/api/v1/rules {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Compactor\n    location = /compactor/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/delete {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1/cache/generation_numbers {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # IndexGateway\n    location = /indexgateway/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # QueryScheduler\n    location = /scheduler/ring {\n      proxy_pass       http://loki-backend.default.svc.cluster.local:3100$request_uri;\n    }\n\n    # Config\n    location = /config {\n      proxy_pass       http://loki-write.default.svc.cluster.local:3100$request_uri;\n    }\n\n\n    # QueryFrontend, Querier\n    location = /api/prom/tail {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location = /loki/api/v1/tail {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n      proxy_set_header Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n    location ^~ /api/prom/ {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /api/prom {\n      internal;        # to suppress 301\n    }\n    location ^~ /loki/api/v1/ {\n      proxy_pass       http://loki-read.default.svc.cluster.local:3100$request_uri;\n    }\n    location = /loki/api/v1 {\n      internal;        # to suppress 301\n    }\n  }\n}\n"
 ---
 # Source: coder-observability/charts/loki/templates/monitoring/dashboards/configmap-1.yaml
 apiVersion: v1
@@ -957,10 +634,8 @@ metadata:
   name: loki-dashboards-1
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     grafana_dashboard: "1"
 data:
@@ -982,10 +657,8 @@ metadata:
   name: loki-dashboards-2
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     grafana_dashboard: "1"
 data:
@@ -1007,10 +680,8 @@ metadata:
   name: loki-runtime
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 data:
   runtime-config.yaml: |
@@ -1022,10 +693,8 @@ kind: ConfigMap
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "v0.27.0"
     app.kubernetes.io/managed-by: Helm
   namespace: default
 data:
@@ -1049,8 +718,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -1400,393 +1067,7 @@ metadata:
   name: collector-config
   namespace: default
 data:
-  config.river: |-
-    
-    // Discover k8s nodes
-    discovery.kubernetes "nodes" {
-      role = "node"
-    }
-    
-    // Discover k8s pods
-    discovery.kubernetes "pods" {
-      role = "pod"
-      selectors {
-       role  = "pod"
-      }
-    }
-    
-    discovery.relabel "pod_logs" {
-      targets = discovery.kubernetes.pods.targets
-      
-      rule {
-        source_labels = ["__meta_kubernetes_namespace"]
-        target_label  = "namespace"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_name"]
-        target_label  = "pod"
-      }
-      // coalesce the following labels and pick the first value; we'll use this to define the "job" label
-      rule {
-        source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
-        separator      = "/"
-        target_label   = "__meta_app"
-        action         = "replace"
-        regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
-        replacement    = "${1}"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
-        separator     = "/"
-        target_label  = "job"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_container_name"]
-        target_label  = "container"
-      }
-      rule {
-        regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
-        action  = "labeldrop"
-      }
-      rule {
-        regex   = "pod_template_generation"
-        action  = "labeldrop"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_phase"]
-        regex = "Pending|Succeeded|Failed|Completed"
-        action = "drop"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_node_name"]
-        action = "replace"
-        target_label = "node"
-      }
-      rule {
-        action = "labelmap"
-        regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
-        replacement = "__param_$1"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
-        separator     = "/"
-        action        = "replace"
-        replacement   = "/var/log/pods/*$1/*.log"
-        target_label  = "__path__"
-      }
-      rule {
-        action = "replace"
-        source_labels = ["__meta_kubernetes_pod_container_id"]
-        regex = "^(\\w+):\\/\\/.+$"
-        replacement = "$1"
-        target_label = "tmp_container_runtime"
-      }
-    }
-    
-    discovery.relabel "pod_metrics" {
-      targets = discovery.kubernetes.pods.targets
-      
-          rule {
-            source_labels = ["__meta_kubernetes_namespace"]
-            target_label  = "namespace"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_name"]
-            target_label  = "pod"
-          }
-          // coalesce the following labels and pick the first value; we'll use this to define the "job" label
-          rule {
-            source_labels  = ["__meta_kubernetes_pod_label_app_kubernetes_io_component", "app", "__meta_kubernetes_pod_container_name"]
-            separator      = "/"
-            target_label   = "__meta_app"
-            action         = "replace"
-            regex          = "^/*([^/]+?)(?:/.*)?$" // split by the delimiter if it exists, we only want the first one
-            replacement    = "${1}"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_app"]
-            separator     = "/"
-            target_label  = "job"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_container_name"]
-            target_label  = "container"
-          }
-          rule {
-            regex   = "__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)"
-            action  = "labeldrop"
-          }
-          rule {
-            regex   = "pod_template_generation"
-            action  = "labeldrop"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_phase"]
-            regex = "Pending|Succeeded|Failed|Completed"
-            action = "drop"
-          }
-          rule {
-            source_labels = ["__meta_kubernetes_pod_node_name"]
-            action = "replace"
-            target_label = "node"
-          }
-          rule {
-            action = "labelmap"
-            regex = "__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)"
-            replacement = "__param_$1"
-          }
-      // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*
-      // exposes an HTTP port which exposes metrics
-      rule {
-        source_labels = ["__meta_kubernetes_pod_container_port_name"]
-        regex         = "grpc|http-(memberlist|console)"
-        action        = "drop"
-      }
-      // adapted from the Prometheus helm chart
-      // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
-        action = "keep"
-        regex = "true"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
-        action = "replace"
-        regex = "(https?)"
-        target_label = "__scheme__"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
-        action = "replace"
-        target_label = "__metrics_path__"
-        regex = "(.+)"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
-        action = "replace"
-        regex = "(\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})"
-        replacement = "[$2]:$1"
-        target_label = "__address__"
-      }
-      rule {
-        source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
-        action = "replace"
-        regex = "(\\d+);((([0-9]+?)(\\.|$)){4})"
-        replacement = "$2:$1"
-        target_label = "__address__"
-      }
-    }
-    
-    local.file_match "pod_logs" {
-      path_targets = discovery.relabel.pod_logs.output
-    }
-    
-    loki.source.file "pod_logs" {
-      targets    = local.file_match.pod_logs.targets
-      forward_to = [loki.process.pod_logs.receiver]
-    }
-    
-    loki.process "pod_logs" {
-      stage.match {
-        selector = "{tmp_container_runtime=\"containerd\"}"
-        // the cri processing stage extracts the following k/v pairs: log, stream, time, flags
-        stage.cri {}
-        // Set the extract flags and stream values as labels
-        stage.labels {
-          values = {
-            flags   = "",
-            stream  = "",
-          }
-        }
-      }
-    
-      // if the label tmp_container_runtime from above is docker parse using docker
-      stage.match {
-        selector = "{tmp_container_runtime=\"docker\"}"
-        // the docker processing stage extracts the following k/v pairs: log, stream, time
-        stage.docker {}
-    
-        // Set the extract stream value as a label
-        stage.labels {
-          values = {
-            stream  = "",
-          }
-        }
-      }
-    
-      // drop the temporary container runtime label as it is no longer needed
-      stage.label_drop {
-        values = ["tmp_container_runtime"]
-      }
-    
-      // parse Coder logs and extract level & logger for efficient filtering
-      stage.match {
-        selector = "{pod=~\"coder.*\"}" // TODO: make configurable
-    
-        stage.multiline {
-          firstline     = "^(?P<ts>\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3})"
-          max_wait_time = "10s"
-        }
-    
-        stage.regex {
-          expression = "^(?P<ts>\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s\\[(?P<level>\\w+)\\]\\s\\s(?P<logger>[^:]+):\\s(?P<line>.+)"
-        }
-    
-        stage.timestamp {
-          source            = "ts"
-          format            = "2006-01-02 15:04:05.000"
-          action_on_failure = "fudge" // rather have inaccurate time than drop the log line
-        }
-    
-        stage.labels {
-          values = {
-            level  = "",
-            logger = "",
-          }
-        }
-      }
-    
-      forward_to = [loki.write.loki.receiver]
-    }
-    
-    loki.write "loki" {
-      endpoint {
-        url = "http://loki-gateway.default.svc/loki/api/v1/push"
-      }
-    }
-    
-    prometheus.scrape "pods" {
-      targets = discovery.relabel.pod_metrics.output
-      forward_to = [prometheus.relabel.pods.receiver]
-    
-      scrape_interval = "15s"
-      scrape_timeout = "12s"
-    }
-    
-    // These are metric_relabel_configs while discovery.relabel are relabel_configs.
-    // See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106
-    prometheus.relabel "pods" {
-      forward_to = [prometheus.remote_write.default.receiver]
-    
-      // Drop kube-state-metrics' labels which clash with ours
-      rule {
-        source_labels = ["__name__", "container"]
-        regex         = "kube_pod.+;(.+)"
-        target_label  = "container"
-        replacement   = ""
-      }
-      rule {
-        source_labels = ["__name__", "pod"]
-        regex         = "kube_pod.+;(.+)"
-        target_label  = "pod"
-        replacement   = ""
-      }
-      rule {
-        source_labels = ["__name__", "namespace"]
-        regex         = "kube_pod.+;(.+)"
-        target_label  = "namespace"
-        replacement   = ""
-      }
-      rule {
-        source_labels = ["__name__", "exported_container"]
-        // don't replace an empty label
-        regex         = "^kube_pod.+;(.+)$"
-        target_label  = "container"
-        replacement   = "$1"
-      }
-      rule {
-        source_labels = ["__name__", "exported_pod"]
-        // don't replace an empty label
-        regex         = "^kube_pod.+;(.+)$"
-        target_label  = "pod"
-        replacement   = "$1"
-      }
-      rule {
-        source_labels = ["__name__", "exported_namespace"]
-        // don't replace an empty label
-        regex         = "^kube_pod.+;(.+)$"
-        target_label  = "namespace"
-        replacement   = "$1"
-      }
-      rule {
-        regex         = "^(exported_.*|image_.*|container_id|id|uid)$"
-        action        = "labeldrop"
-      }
-    }
-    
-    discovery.relabel "cadvisor" {
-      targets = discovery.kubernetes.nodes.targets
-      rule {
-        replacement   = "/metrics/cadvisor"
-        target_label  = "__metrics_path__"
-      }
-    }
-    
-    prometheus.scrape "cadvisor" {
-      targets    = discovery.relabel.cadvisor.output
-      forward_to = [ prometheus.relabel.cadvisor.receiver ]
-      scheme     = "https"
-      tls_config {
-        insecure_skip_verify = true
-      }
-      bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-      scrape_interval   = "15s"
-      scrape_timeout    = "12s"
-    }
-    
-    prometheus.relabel "cadvisor" {
-      forward_to = [ prometheus.remote_write.default.receiver ]
-    
-      // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688
-      rule {
-        source_labels = ["__name__","container"]
-        separator = "@"
-        regex = "(container_cpu_.*|container_fs_.*|container_memory_.*)@"
-        action = "drop"
-      }
-      // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688
-      rule {
-        source_labels = ["__name__","image"]
-        separator = "@"
-        regex = "(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@"
-        action = "drop"
-      }
-      // Drop irrelevant series
-      rule {
-        source_labels = ["container"]
-        regex         = "^POD$"
-        action        = "drop"
-      }
-      // Drop unnecessary labels
-      rule {
-        source_labels = ["id"]
-        target_label  = "id"
-        replacement   = ""
-      }
-      rule {
-        source_labels = ["job"]
-        target_label  = "job"
-        replacement   = ""
-      }
-      rule {
-        source_labels = ["name"]
-        target_label  = "name"
-        replacement   = ""
-      }
-    }
-    
-    prometheus.remote_write "default" {
-      endpoint {
-        url ="http://prometheus.default.svc/api/v1/write"
-    
-        // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
-        // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>
-        write_relabel_config {
-          regex  = "instance"
-          action = "labeldrop"
-        }
-      }
-    }
+  config.river: "\n// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}\n\ndiscovery.relabel \"pod_logs\" {\n  targets = discovery.kubernetes.pods.targets\n  \n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\"]\n    target_label  = \"namespace\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_name\"]\n    target_label  = \"pod\"\n  }\n  // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n  rule {\n    source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n    separator      = \"/\"\n    target_label   = \"__meta_app\"\n    action         = \"replace\"\n    regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n    replacement    = \"${1}\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n    separator     = \"/\"\n    target_label  = \"job\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_name\"]\n    target_label  = \"container\"\n  }\n  rule {\n    regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    regex   = \"pod_template_generation\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_phase\"]\n    regex = \"Pending|Succeeded|Failed|Completed\"\n    action = \"drop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_node_name\"]\n    action = \"replace\"\n    target_label = \"node\"\n  }\n  rule {\n    action = \"labelmap\"\n    regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n    replacement = \"__param_$1\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_uid\", \"__meta_kubernetes_pod_container_name\"]\n    separator     = \"/\"\n    action        = \"replace\"\n    replacement   = \"/var/log/pods/*$1/*.log\"\n    target_label  = \"__path__\"\n  }\n  rule {\n    action = \"replace\"\n    source_labels = [\"__meta_kubernetes_pod_container_id\"]\n    regex = \"^(\\\\w+):\\\\/\\\\/.+$\"\n    replacement = \"$1\"\n    target_label = \"tmp_container_runtime\"\n  }\n}\n\ndiscovery.relabel \"pod_metrics\" {\n  targets = discovery.kubernetes.pods.targets\n  \n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\"]\n        target_label  = \"namespace\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_name\"]\n        target_label  = \"pod\"\n      }\n      // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n      rule {\n        source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n        separator      = \"/\"\n        target_label   = \"__meta_app\"\n        action         = \"replace\"\n        regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n        replacement    = \"${1}\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n        separator     = \"/\"\n        target_label  = \"job\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_container_name\"]\n        target_label  = \"container\"\n      }\n      rule {\n        regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        regex   = \"pod_template_generation\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_phase\"]\n        regex = \"Pending|Succeeded|Failed|Completed\"\n        action = \"drop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_node_name\"]\n        action = \"replace\"\n        target_label = \"node\"\n      }\n      rule {\n        action = \"labelmap\"\n        regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n        replacement = \"__param_$1\"\n      }\n  // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*\n  // exposes an HTTP port which exposes metrics\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_port_name\"]\n    regex         = \"grpc|http-(memberlist|console)\"\n    action        = \"drop\"\n  }\n  // adapted from the Prometheus helm chart\n  // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scrape\"]\n    action = \"keep\"\n    regex = \"true\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scheme\"]\n    action = \"replace\"\n    regex = \"(https?)\"\n    target_label = \"__scheme__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_path\"]\n    action = \"replace\"\n    target_label = \"__metrics_path__\"\n    regex = \"(.+)\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})\"\n    replacement = \"[$2]:$1\"\n    target_label = \"__address__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);((([0-9]+?)(\\\\.|$)){4})\"\n    replacement = \"$2:$1\"\n    target_label = \"__address__\"\n  }\n}\n\nlocal.file_match \"pod_logs\" {\n  path_targets = discovery.relabel.pod_logs.output\n}\n\nloki.source.file \"pod_logs\" {\n  targets    = local.file_match.pod_logs.targets\n  forward_to = [loki.process.pod_logs.receiver]\n}\n\nloki.process \"pod_logs\" {\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"containerd\\\"}\"\n    // the cri processing stage extracts the following k/v pairs: log, stream, time, flags\n    stage.cri {}\n    // Set the extract flags and stream values as labels\n    stage.labels {\n      values = {\n        flags   = \"\",\n        stream  = \"\",\n      }\n    }\n  }\n\n  // if the label tmp_container_runtime from above is docker parse using docker\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"docker\\\"}\"\n    // the docker processing stage extracts the following k/v pairs: log, stream, time\n    stage.docker {}\n\n    // Set the extract stream value as a label\n    stage.labels {\n      values = {\n        stream  = \"\",\n      }\n    }\n  }\n\n  // drop the temporary container runtime label as it is no longer needed\n  stage.label_drop {\n    values = [\"tmp_container_runtime\"]\n  }\n\n  // parse Coder logs and extract level & logger for efficient filtering\n  stage.match {\n    selector = \"{pod=~\\\"coder.*\\\"}\" // TODO: make configurable\n\n    stage.multiline {\n      firstline     = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\"\n      max_wait_time = \"10s\"\n    }\n\n    stage.regex {\n      expression = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\\\\s\\\\[(?P<level>\\\\w+)\\\\]\\\\s\\\\s(?P<logger>[^:]+):\\\\s(?P<line>.+)\"\n    }\n\n    stage.timestamp {\n      source            = \"ts\"\n      format            = \"2006-01-02 15:04:05.000\"\n      action_on_failure = \"fudge\" // rather have inaccurate time than drop the log line\n    }\n\n    stage.labels {\n      values = {\n        level  = \"\",\n        logger = \"\",\n      }\n    }\n  }\n\n  forward_to = [loki.write.loki.receiver]\n}\n\nloki.write \"loki\" {\n  endpoint {\n    url = \"http://loki-gateway.default.svc/loki/api/v1/push\"\n  }\n}\n\nprometheus.scrape \"pods\" {\n  targets = discovery.relabel.pod_metrics.output\n  forward_to = [prometheus.relabel.pods.receiver]\n\n  scrape_interval = \"15s\"\n  scrape_timeout = \"12s\"\n}\n\n// These are metric_relabel_configs while discovery.relabel are relabel_configs.\n// See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106\nprometheus.relabel \"pods\" {\n  forward_to = [prometheus.remote_write.default.receiver]\n\n  // Drop kube-state-metrics' labels which clash with ours\n  rule {\n    source_labels = [\"__name__\", \"container\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"container\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"pod\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"pod\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"namespace\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"namespace\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_container\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"container\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_pod\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"pod\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_namespace\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"namespace\"\n    replacement   = \"$1\"\n  }\n  rule {\n    regex         = \"^(exported_.*|image_.*|container_id|id|uid)$\"\n    action        = \"labeldrop\"\n  }\n}\n\ndiscovery.relabel \"cadvisor\" {\n  targets = discovery.kubernetes.nodes.targets\n  rule {\n    replacement   = \"/metrics/cadvisor\"\n    target_label  = \"__metrics_path__\"\n  }\n}\n\nprometheus.scrape \"cadvisor\" {\n  targets    = discovery.relabel.cadvisor.output\n  forward_to = [ prometheus.relabel.cadvisor.receiver ]\n  scheme     = \"https\"\n  tls_config {\n    insecure_skip_verify = true\n  }\n  bearer_token_file = \"/var/run/secrets/kubernetes.io/serviceaccount/token\"\n  scrape_interval   = \"15s\"\n  scrape_timeout    = \"12s\"\n}\n\nprometheus.relabel \"cadvisor\" {\n  forward_to = [ prometheus.remote_write.default.receiver ]\n\n  // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"container\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*)@\"\n    action = \"drop\"\n  }\n  // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"image\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@\"\n    action = \"drop\"\n  }\n  // Drop irrelevant series\n  rule {\n    source_labels = [\"container\"]\n    regex         = \"^POD$\"\n    action        = \"drop\"\n  }\n  // Drop unnecessary labels\n  rule {\n    source_labels = [\"id\"]\n    target_label  = \"id\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"job\"]\n    target_label  = \"job\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"name\"]\n    target_label  = \"name\"\n    replacement   = \"\"\n  }\n}\n\nprometheus.remote_write \"default\" {\n  endpoint {\n    url =\"http://prometheus.default.svc/api/v1/write\"\n\n    // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned\n    // NOTE: \"__address__\" is mapped to \"instance\", so will contain <hostname>:<port>\n    write_relabel_config {\n      regex  = \"instance\"\n      action = \"labeldrop\"\n    }\n  }\n}"
 ---
 # Source: coder-observability/templates/configmap-prometheus-alerts.yaml
 apiVersion: v1
@@ -1794,245 +1075,11 @@ kind: ConfigMap
 metadata:
   name: metrics-alerts
   namespace: default
-data: 
-  coderd.yaml: |-
-    groups:
-    - name: CPU Usage
-      rules:
-      
-      - alert: CoderdCPUUsage
-        expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource="cpu"}) > 0.9
-        for: 10m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage
-      - alert: CoderdCPUUsage
-        expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource="cpu"}) > 0.8
-        for: 10m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage
-    - name: Memory Usage
-      rules:
-      
-      - alert: CoderdMemoryUsage
-        expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource="memory"})  > 0.9
-        for: 10m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage
-      - alert: CoderdMemoryUsage
-        expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource="memory"})  > 0.8
-        for: 10m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage
-    - name: Pod Restarts
-      rules:
-      
-      - alert: CoderdRestarts
-        expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 3
-        for: 1m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts
-      - alert: CoderdRestarts
-        expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 1
-        for: 1m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.
-        labels:
-          severity: notify
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts
-      - alert: CoderdRestarts
-        expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 2
-        for: 1m
-        annotations:
-          summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts
-    - name: Coderd Replicas
-      rules:
-      
-      - alert: CoderdReplicas
-        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1
-        for: 5m
-        annotations:
-          summary: Number of alive coderd replicas is below the threshold = 1.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
-      - alert: CoderdReplicas
-        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3
-        for: 5m
-        annotations:
-          summary: Number of alive coderd replicas is below the threshold = 3.
-        labels:
-          severity: notify
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
-      - alert: CoderdReplicas
-        expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2
-        for: 5m
-        annotations:
-          summary: Number of alive coderd replicas is below the threshold = 2.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas
-    - name: Coderd Workspace Build Failures
-      rules:
-      
-      - alert: CoderdWorkspaceBuildFailures
-        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 10
-        for: 10m
-        annotations:
-          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures
-      - alert: CoderdWorkspaceBuildFailures
-        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 2
-        for: 10m
-        annotations:
-          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
-        labels:
-          severity: notify
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures
-      - alert: CoderdWorkspaceBuildFailures
-        expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status="failed" }[10m])) > 5
-        for: 10m
-        annotations:
-          summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures  
-  provisionerd.yaml: |-
-    groups:
-    - name: Provisionerd Replicas
-      rules:
-      
-      - alert: ProvisionerdReplicas
-        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1
-        for: 5m
-        annotations:
-          summary: Number of alive provisionerd replicas is below the threshold = 1.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas
-      - alert: ProvisionerdReplicas
-        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3
-        for: 5m
-        annotations:
-          summary: Number of alive provisionerd replicas is below the threshold = 3.
-        labels:
-          severity: notify
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas
-      - alert: ProvisionerdReplicas
-        expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2
-        for: 5m
-        annotations:
-          summary: Number of alive provisionerd replicas is below the threshold = 2.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas  
-  enterprise.yaml: |-
-    groups:
-      - name: Licences
-        rules:
-      
-          - alert: CoderLicenseSeats
-            expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=1'
-            for: 1m
-            annotations:
-              summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.
-            labels:
-              severity: critical
-              runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats
-          - alert: CoderLicenseSeats
-            expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=0.9'
-            for: 1m
-            annotations:
-              summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.
-            labels:
-              severity: warning
-              runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats 
-  postgres.yaml: |-
-    groups:
-    - name: Notifications
-      rules:
-      
-      - alert: PostgresNotificationQueueFillingUp
-        expr: pg_pubsub_usage > 0.9
-        for: 15m
-        annotations:
-          summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup
-      - alert: PostgresNotificationQueueFillingUp
-        expr: pg_pubsub_usage > 0.5
-        for: 15m
-        annotations:
-          summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.
-        labels:
-          severity: notify
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup
-      - alert: PostgresNotificationQueueFillingUp
-        expr: pg_pubsub_usage > 0.8
-        for: 15m
-        annotations:
-          summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.
-        labels:
-          severity: warning
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup
-  
-    - name: Liveness
-      rules:
-      
-      - alert: PostgresDown
-        expr: pg_up == 0
-        for: 1m
-        annotations:
-          summary: The postgres instance {{ $labels.instance }} is down!
-        labels:
-          severity: critical
-          runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresdown
-  
-  
-    - name: Connections
-      rules:
-      
-        - alert: PostgresConnectionsRunningLow
-          expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.9)
-          for: 5m
-          labels:
-            summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.
-            severity: critical
-            runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow
-        - alert: PostgresConnectionsRunningLow
-          expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.5)
-          for: 5m
-          labels:
-            summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.
-            severity: notify
-            runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow
-        - alert: PostgresConnectionsRunningLow
-          expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.8)
-          for: 5m
-          labels:
-            summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.
-            severity: warning
-            runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow
+data:
+  coderd.yaml: "groups:\n- name: CPU Usage\n  rules:\n  \n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage\n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdcpuusage\n- name: Memory Usage\n  rules:\n  \n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage\n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdmemoryusage\n- name: Pod Restarts\n  rules:\n  \n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 3\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 1\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 2\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdrestarts\n- name: Coderd Replicas\n  rules:\n  \n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdreplicas\n- name: Coderd Workspace Build Failures\n  rules:\n  \n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 10\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 2\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 5\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#coderdworkspacebuildfailures  "
+  provisionerd.yaml: "groups:\n- name: Provisionerd Replicas\n  rules:\n  \n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/coder#provisionerdreplicas  "
+  enterprise.yaml: "groups:\n  - name: Licences\n    rules:\n  \n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=1'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: critical\n          runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats\n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=0.9'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: warning\n          runbook_url: http://runbook-viewer.default.svc.cluster.local/enterprise#coderlicenseseats "
+  postgres.yaml: "groups:\n- name: Notifications\n  rules:\n  \n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.9\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.5\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.8\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n\n- name: Liveness\n  rules:\n  \n  - alert: PostgresDown\n    expr: pg_up == 0\n    for: 1m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} is down!\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresdown\n\n\n- name: Connections\n  rules:\n  \n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.9)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: critical\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.5)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: notify\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.8)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: warning\n        runbook_url: http://runbook-viewer.default.svc.cluster.local/postgres#postgresconnectionsrunninglow"
 ---
 # Source: coder-observability/templates/configmap-runbooks.yaml
 kind: ConfigMap
@@ -2045,135 +1092,135 @@ metadata:
 data:
   coderd.md: |
     # Coderd Runbooks
-  
+
     ## CoderdCPUUsage
-  
+
     The CPU usage of one or more Coder pods has been close to the limit defined for
     the deployment. This can cause slowness in the application, workspaces becoming
     unavailable, and may lead to the application failing its liveness probes and
     being restarted.
-  
+
     To resolve this issue, increase the CPU limits of the Coder deployment.
-  
+
     If you find this occurring frequently, you may wish to check your Coder
     deployment against [Coder's Reference Architectures](https://coder.com/docs/v2/latest/admin/architectures).
-  
+
     ## CoderdMemoryUsage
-  
+
     The memory usage of one or more Coder pods has been close to the limit defined
     for the deployment. When the memory usage exceeds the limit, the pod(s) will be
     restarted by Kubernetes. This will interrupt all connections to workspaces being
     handled by the affected pod(s).
-  
+
     To resolve this issue, increase the memory limits of the Coder deployment.
-  
+
     If you find this occurring frequently, check the memory usage over a longer
     period of time. If it appears to be increasing monotonically, this is likely a
     memory leak and should be considered a bug.
-  
+
     ## CoderdRestarts
-  
+
     One or more Coder pods have been restarting multiple times in the last 10
     minutes. This may be due to a number of issues, including:
-  
+
     - Failure to connect to the configured database: Coder requires a reachable
       PostgreSQL database to function. If it fails to connect, you will see an error
       similar to the following:
-  
+
       ```console
       [warn]  ping postgres: retrying  error="dial tcp 10.43.94.60:5432: connect: connection refused"  try=3
       ```
-  
+
     - Out-Of-Memory (OOM) kills due to memory usage (see [above](#codermemoryusage)),
     - An unexpected bug causing the application to exit with an error.
-  
+
     If Coder is not restarting due to excessive memory usage, check the logs:
-  
+
     1. Check the logs of the deployment for any errors,
-  
+
     ```console
     kubectl -n <coder namespace> logs deployment/coder --previous
     ```
-  
+
     2. Check any Kubernetes events related to the deployment,
-  
+
     ```console
     kubectl -n <coder namespace> events --watch
     ```
-  
+
     ## CoderdReplicas
-  
+
     One or more Coderd replicas are down. This may cause availability problems and elevated
     response times for user and agent API calls.
-  
+
     To resolve this issue, review the Coder deployment for possible `CrashLoopBackOff`
     instances or re-adjust alarm levels based on the actual number of replicas.
-  
+
     ## CoderdWorkspaceBuildFailures
-  
+
     A few workspace build errors have been recently observed.
-  
+
     Review Prometheus metrics to identify failed jobs. Check the workspace build logs
     to determine if there is a relationship with a new template version or a buggy
     Terraform plugin.
-  
+
     ## CoderdLicenseSeats
-  
+
     Your Enterprise license is approaching or has exceeded the number of seats purchased.
-  
+
     Please contact your Coder sales contact, or visit https://coder.com/contact/sales.
   postgres.md: |
     # Postgres Runbooks
-  
+
     ## PostgresNotificationQueueFillingUp
-  
+
     Postgres offers asynchronous notification via the `LISTEN` and `NOTIFY`
     commands. Coder depends heavily on this async notification mechanism for routine
     functionality.
-  
+
     This may be due to a session executing `LISTEN()` and entering a long
     transaction. To verify:
-  
+
     - Check active sessions with `SELECT * FROM pg_stat_activity;`,
     - Check the database log for the PID of the session that is preventing cleanup,
     - Kill the query: `SELECT pg_terminate_backend(<pid>);`
-  
+
     For more information, see the PostgreSQL documentation available here:
-  
+
     - [PostgreSQL documentation on `LISTEN`](https://www.postgresql.org/docs/current/sql-listen.html)
     - [PostgreSQL documentation on `NOTIFY`](https://www.postgresql.org/docs/current/sql-notify.html)
-  
+
     ## PostgresDown
-  
+
     Postgres is not currently running, which means the Coder control plane will not be able to read or write any state.
     Workspaces may continue to work normally but it is recommended to get Postgres back up as quickly as possible.
-  
+
     ## PostgresConnectionsRunningLow
-  
+
     PostgreSQL has a `max_connections` setting that determines the maximum number of
     concurrent connections. Once this connection limit is reached, no new
     connections will be possible.
-  
+
     To increase the maximum number of concurrent connections, update the `max_connections`
     configuration option for your PostgreSQL instance. See the PostgreSQL
     documentation for more details.
-  
+
     **Note:** You may also need to adjust `shared_buffers` after increasing
     `max_connections`. Additionally, you may also need to adjust the kernel
     configuration value `kernel.shmmax` in `/etc/sysctl.conf` /
     `/etc/sysctl.conf.d`.
-  
+
     For more information, see:
-  
+
     - [PostgreSQL Documentation: Server Configuration](https://www.postgresql.org/docs/16/runtime-config-file-locations.html)
     - [Tuning your PostgreSQL Server](https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server)
   provisionerd.md: |
     # Provisionerd Runbooks
-  
+
     ## ProvisionerdReplicas
-  
+
     One of more Provisioner replicas is down. Workspace builds may be queued and processed slower.
-  
+
     To resolve this issue, review the Coder deployment (Coder provisioner pods)
     for possible `CrashLoopBackOff` instances or re-adjust alarm levels based on the actual
     number of replicas.
@@ -9790,10 +8837,8 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   finalizers:
     - kubernetes.io/pvc-protection
@@ -9810,11 +8855,8 @@ kind: ClusterRole
 metadata:
   name: grafana-agent
   labels:
-    helm.sh/chart: grafana-agent-0.37.0
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
-    
-    app.kubernetes.io/version: "v0.40.3"
     app.kubernetes.io/managed-by: Helm
 rules:
   # Rules which allow discovery.kubernetes to function.
@@ -9907,10 +8949,8 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -9922,171 +8962,139 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
   name: loki-clusterrole
 rules:
-- apiGroups: [""] # "" indicates the core API group
-  resources: ["configmaps", "secrets"]
-  verbs: ["get", "watch", "list"]
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "watch", "list"]
 ---
 # Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:    
-    helm.sh/chart: kube-state-metrics-5.21.0
+  labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
 rules:
-
-- apiGroups: ["certificates.k8s.io"]
-  resources:
-  - certificatesigningrequests
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - configmaps
-  verbs: ["list", "watch"]
-
-- apiGroups: ["batch"]
-  resources:
-  - cronjobs
-  verbs: ["list", "watch"]
-
-- apiGroups: ["extensions", "apps"]
-  resources:
-  - daemonsets
-  verbs: ["list", "watch"]
-
-- apiGroups: ["extensions", "apps"]
-  resources:
-  - deployments
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - endpoints
-  verbs: ["list", "watch"]
-
-- apiGroups: ["autoscaling"]
-  resources:
-  - horizontalpodautoscalers
-  verbs: ["list", "watch"]
-
-- apiGroups: ["extensions", "networking.k8s.io"]
-  resources:
-  - ingresses
-  verbs: ["list", "watch"]
-
-- apiGroups: ["batch"]
-  resources:
-  - jobs
-  verbs: ["list", "watch"]
-
-- apiGroups: ["coordination.k8s.io"]
-  resources:
-  - leases
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - limitranges
-  verbs: ["list", "watch"]
-
-- apiGroups: ["admissionregistration.k8s.io"]
-  resources:
-    - mutatingwebhookconfigurations
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - namespaces
-  verbs: ["list", "watch"]
-
-- apiGroups: ["networking.k8s.io"]
-  resources:
-  - networkpolicies
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - nodes
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - persistentvolumeclaims
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - persistentvolumes
-  verbs: ["list", "watch"]
-
-- apiGroups: ["policy"]
-  resources:
-    - poddisruptionbudgets
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - pods
-  verbs: ["list", "watch"]
-
-- apiGroups: ["extensions", "apps"]
-  resources:
-  - replicasets
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - replicationcontrollers
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - resourcequotas
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - secrets
-  verbs: ["list", "watch"]
-
-- apiGroups: [""]
-  resources:
-  - services
-  verbs: ["list", "watch"]
-
-- apiGroups: ["apps"]
-  resources:
-  - statefulsets
-  verbs: ["list", "watch"]
-
-- apiGroups: ["storage.k8s.io"]
-  resources:
-    - storageclasses
-  verbs: ["list", "watch"]
-
-- apiGroups: ["admissionregistration.k8s.io"]
-  resources:
-    - validatingwebhookconfigurations
-  verbs: ["list", "watch"]
-
-- apiGroups: ["storage.k8s.io"]
-  resources:
-    - volumeattachments
-  verbs: ["list", "watch"]
+  - apiGroups: ["certificates.k8s.io"]
+    resources:
+      - certificatesigningrequests
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - cronjobs
+    verbs: ["list", "watch"]
+  - apiGroups: ["extensions", "apps"]
+    resources:
+      - daemonsets
+    verbs: ["list", "watch"]
+  - apiGroups: ["extensions", "apps"]
+    resources:
+      - deployments
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - endpoints
+    verbs: ["list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources:
+      - horizontalpodautoscalers
+    verbs: ["list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+    verbs: ["list", "watch"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources:
+      - leases
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - limitranges
+    verbs: ["list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources:
+      - mutatingwebhookconfigurations
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - networkpolicies
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - persistentvolumeclaims
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - persistentvolumes
+    verbs: ["list", "watch"]
+  - apiGroups: ["policy"]
+    resources:
+      - poddisruptionbudgets
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["list", "watch"]
+  - apiGroups: ["extensions", "apps"]
+    resources:
+      - replicasets
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - replicationcontrollers
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - resourcequotas
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - secrets
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - services
+    verbs: ["list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - statefulsets
+    verbs: ["list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources:
+      - storageclasses
+    verbs: ["list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources:
+      - validatingwebhookconfigurations
+    verbs: ["list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources:
+      - volumeattachments
+    verbs: ["list", "watch"]
 ---
 # Source: coder-observability/charts/prometheus/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -10096,8 +9104,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -10146,11 +9152,8 @@ kind: ClusterRoleBinding
 metadata:
   name: grafana-agent
   labels:
-    helm.sh/chart: grafana-agent-0.37.0
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
-    
-    app.kubernetes.io/version: "v0.40.3"
     app.kubernetes.io/managed-by: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -10167,10 +9170,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: grafana-clusterrolebinding
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -10189,10 +9190,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: loki-clusterrolebinding
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 subjects:
   - kind: ServiceAccount
@@ -10207,23 +9206,21 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  labels:    
-    helm.sh/chart: kube-state-metrics-5.21.0
+  labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.12.0"
   name: kube-state-metrics
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: kube-state-metrics
 subjects:
-- kind: ServiceAccount
-  name: kube-state-metrics
-  namespace: default
+  - kind: ServiceAccount
+    name: kube-state-metrics
+    namespace: default
 ---
 # Source: coder-observability/charts/prometheus/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -10233,8 +9230,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -10254,10 +9249,8 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -10270,10 +9263,8 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -10282,9 +9273,9 @@ roleRef:
   kind: Role
   name: grafana
 subjects:
-- kind: ServiceAccount
-  name: grafana
-  namespace: default
+  - kind: ServiceAccount
+    name: grafana
+    namespace: default
 ---
 # Source: coder-observability/charts/grafana-agent/templates/service.yaml
 apiVersion: v1
@@ -10292,11 +9283,8 @@ kind: Service
 metadata:
   name: grafana-agent
   labels:
-    helm.sh/chart: grafana-agent-0.37.0
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
-    
-    app.kubernetes.io/version: "v0.40.3"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -10317,10 +9305,8 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -10467,10 +9453,8 @@ metadata:
   name: loki-backend
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: backend
   annotations:
@@ -10496,14 +9480,11 @@ kind: Service
 metadata:
   name: loki-chunks-cache
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-chunks-cache"
-  annotations:
-    {}
+  annotations: {}
   namespace: "default"
 spec:
   type: ClusterIP
@@ -10515,7 +9496,6 @@ spec:
     - name: http-metrics
       port: 9150
       targetPort: 9150
-    
   selector:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -10528,10 +9508,8 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
   annotations:
@@ -10554,10 +9532,8 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
   annotations:
@@ -10611,10 +9587,8 @@ metadata:
   name: loki-read
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: read
   annotations:
@@ -10640,14 +9614,11 @@ kind: Service
 metadata:
   name: loki-results-cache
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-results-cache"
-  annotations:
-    {}
+  annotations: {}
   namespace: "default"
 spec:
   type: ClusterIP
@@ -10659,7 +9630,6 @@ spec:
     - name: http-metrics
       port: 9150
       targetPort: 9150
-    
   selector:
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
@@ -10672,10 +9642,8 @@ metadata:
   name: loki-memberlist
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -10728,10 +9696,8 @@ metadata:
   name: loki-write
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: write
   annotations:
@@ -10757,10 +9723,8 @@ kind: Service
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "v0.27.0"
     app.kubernetes.io/managed-by: Helm
   namespace: default
 spec:
@@ -10780,10 +9744,8 @@ kind: Service
 metadata:
   name: alertmanager-headless
   labels:
-    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "v0.27.0"
     app.kubernetes.io/managed-by: Helm
   namespace: default
 spec:
@@ -10803,25 +9765,22 @@ kind: Service
 metadata:
   name: kube-state-metrics
   namespace: default
-  labels:    
-    helm.sh/chart: kube-state-metrics-5.21.0
+  labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.12.0"
   annotations:
     prometheus.io/scrape: 'true'
 spec:
   type: "ClusterIP"
   ports:
-  - name: "http"
-    protocol: TCP
-    port: 8080
-    targetPort: 8080
-  
-  selector:    
+    - name: "http"
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
 ---
@@ -10832,13 +9791,11 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.8.1"
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -10860,8 +9817,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus-headless
@@ -10873,7 +9828,6 @@ spec:
       port: 80
       protocol: TCP
       targetPort: 9090
-
   selector:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
@@ -10887,8 +9841,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -10925,11 +9877,8 @@ kind: DaemonSet
 metadata:
   name: grafana-agent
   labels:
-    helm.sh/chart: grafana-agent-0.37.0
     app.kubernetes.io/name: grafana-agent
     app.kubernetes.io/instance: coder-observability
-    
-    app.kubernetes.io/version: "v0.40.3"
     app.kubernetes.io/managed-by: Helm
 spec:
   minReadySeconds: 10
@@ -10949,7 +9898,6 @@ spec:
       serviceAccountName: grafana-agent
       containers:
         - name: grafana-agent
-          image: docker.io/grafana/agent:v0.40.3
           imagePullPolicy: IfNotPresent
           args:
             - run
@@ -10987,7 +9935,6 @@ spec:
               mountPath: /var/lib/docker/containers
               readOnly: true
         - name: config-reloader
-          image: ghcr.io/jimmidyson/configmap-reload:v0.12.0
           args:
             - --volume-dir=/etc/agent
             - --webhook-url=http://localhost:80/-/reload
@@ -11017,10 +9964,8 @@ metadata:
   name: loki-canary
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: canary
 spec:
@@ -11043,7 +9988,6 @@ spec:
         app.kubernetes.io/component: canary
     spec:
       serviceAccountName: loki-canary
-      
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
@@ -11051,7 +9995,6 @@ spec:
         runAsUser: 10001
       containers:
         - name: loki-canary
-          image: docker.io/grafana/loki-canary:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -addr=loki-gateway.default.svc.cluster.local.:80
@@ -11062,7 +10005,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           volumeMounts:
           ports:
@@ -11074,7 +10017,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            
           readinessProbe:
             httpGet:
               path: /metrics
@@ -11090,13 +10032,11 @@ metadata:
   name: node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.37.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "1.8.1"
 spec:
   selector:
     matchLabels:
@@ -11130,7 +10070,6 @@ spec:
       serviceAccountName: node-exporter
       containers:
         - name: node-exporter
-          image: quay.io/prometheus/node-exporter:v1.8.1
           imagePullPolicy: IfNotPresent
           args:
             - --path.procfs=/host/proc
@@ -11173,7 +10112,7 @@ spec:
           volumeMounts:
             - name: proc
               mountPath: /host/proc
-              readOnly:  true
+              readOnly: true
             - name: sys
               mountPath: /host/sys
               readOnly: true
@@ -11206,10 +10145,8 @@ metadata:
   name: loki-gateway
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: gateway
 spec:
@@ -11233,7 +10170,6 @@ spec:
     spec:
       serviceAccountName: loki
       enableServiceLinks: true
-      
       securityContext:
         fsGroup: 101
         runAsGroup: 101
@@ -11242,7 +10178,6 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: nginx
-          image: docker.io/nginxinc/nginx-unprivileged:1.24-alpine
           imagePullPolicy: IfNotPresent
           ports:
             - name: http-metrics
@@ -11258,7 +10193,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           volumeMounts:
             - name: config
@@ -11267,15 +10202,14 @@ spec:
               mountPath: /tmp
             - name: docker-entrypoint-d-override
               mountPath: /docker-entrypoint.d
-          resources:
-            {}
+          resources: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/component: gateway
-            topologyKey: kubernetes.io/hostname
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: gateway
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: config
           configMap:
@@ -11293,10 +10227,8 @@ metadata:
   namespace: default
   labels:
     app.kubernetes.io/part-of: memberlist
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: read
 spec:
@@ -11324,7 +10256,6 @@ spec:
     spec:
       serviceAccountName: loki
       automountServiceAccountToken: true
-      
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
@@ -11333,7 +10264,6 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -11354,7 +10284,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           readinessProbe:
             httpGet:
@@ -11371,15 +10301,14 @@ spec:
               mountPath: /tmp
             - name: data
               mountPath: /var/loki
-          resources:
-            {}
+          resources: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/component: read
-            topologyKey: kubernetes.io/hostname
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: read
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: tmp
           emptyDir: {}
@@ -11401,17 +10330,15 @@ kind: Deployment
 metadata:
   name: kube-state-metrics
   namespace: default
-  labels:    
-    helm.sh/chart: kube-state-metrics-5.21.0
+  labels:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: kube-state-metrics
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "2.12.0"
 spec:
   selector:
-    matchLabels:      
+    matchLabels:
       app.kubernetes.io/name: kube-state-metrics
       app.kubernetes.io/instance: coder-observability
   replicas: 1
@@ -11420,7 +10347,7 @@ spec:
   revisionHistoryLimit: 10
   template:
     metadata:
-      labels:        
+      labels:
         helm.sh/chart: kube-state-metrics-5.21.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
@@ -11442,45 +10369,43 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-      - name: kube-state-metrics
-        args:
-        - --port=8080
-        - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-        imagePullPolicy: IfNotPresent
-        image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.12.0
-        ports:
-        - containerPort: 8080
-          name: "http"
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            httpHeaders:
-            path: /healthz
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 5
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            httpHeaders:
-            path: /
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 5
-        resources:
-          {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
+        - name: kube-state-metrics
+          args:
+            - --port=8080
+            - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: "http"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              httpHeaders:
+              path: /healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              httpHeaders:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
 ---
 # Source: coder-observability/charts/grafana/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -11489,10 +10414,8 @@ metadata:
   name: grafana
   namespace: default
   labels:
-    helm.sh/chart: grafana-7.3.12
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "10.4.3"
     app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
@@ -11514,7 +10437,6 @@ spec:
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
-      
       serviceAccountName: grafana
       automountServiceAccountToken: true
       securityContext:
@@ -11529,7 +10451,7 @@ spec:
           securityContext:
             capabilities:
               add:
-              - CHOWN
+                - CHOWN
             runAsNonRoot: false
             runAsUser: 0
             seccompProfile:
@@ -11546,13 +10468,13 @@ spec:
           image: "docker.io/curlimages/curl:7.85.0"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
-          args: [ "-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh" ]
+          args: ["-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"]
           env:
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
@@ -11564,13 +10486,12 @@ spec:
       enableServiceLinks: true
       containers:
         - name: grafana
-          image: "docker.io/grafana/grafana:10.4.3"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
@@ -11579,23 +10500,23 @@ spec:
               subPath: grafana.ini
             - name: dashboards-status
               mountPath: /var/lib/grafana/dashboards/coder/0
-              subPath: 
+              subPath:
               readOnly: false
             - name: dashboards-coderd
               mountPath: /var/lib/grafana/dashboards/coder/1
-              subPath: 
+              subPath:
               readOnly: false
             - name: dashboards-provisionerd
               mountPath: /var/lib/grafana/dashboards/coder/2
-              subPath: 
+              subPath:
               readOnly: false
             - name: dashboards-workspaces
               mountPath: /var/lib/grafana/dashboards/coder/3
-              subPath: 
+              subPath:
               readOnly: false
             - name: dashboards-workspace-detail
               mountPath: /var/lib/grafana/dashboards/coder/4
-              subPath: 
+              subPath:
               readOnly: false
             - name: storage
               mountPath: "/var/lib/grafana"
@@ -11673,14 +10594,14 @@ spec:
           persistentVolumeClaim:
             claimName: grafana
   volumeClaimTemplates:
-  - metadata:
-      name: storage
-    spec:
-      accessModes: [ReadWriteOnce]
-      storageClassName: 
-      resources:
-        requests:
-          storage: 10Gi
+    - metadata:
+        name: storage
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName:
+        resources:
+          requests:
+            storage: 10Gi
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/statefulset.yaml
 apiVersion: apps/v1
@@ -11721,21 +10642,16 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
-
       serviceAccountName: minio-sa
       containers:
         - name: minio
-          image: quay.io/minio/minio:RELEASE.2022-09-17T00-09-45Z
           imagePullPolicy: IfNotPresent
-
-          command: [ "/bin/sh",
-            "-ce",
-            "/usr/bin/docker-entrypoint.sh minio server  http://loki-storage-{0...0}.loki-storage-svc.default.svc.cluster.local/export-{0...1} -S /etc/minio/certs/ --address :9000 --console-address :9001" ]
+          command: ["/bin/sh", "-ce", "/usr/bin/docker-entrypoint.sh minio server  http://loki-storage-{0...0}.loki-storage-svc.default.svc.cluster.local/export-{0...1} -S /etc/minio/certs/ --address :9000 --console-address :9001"]
           volumeMounts:
             - name: export-0
               mountPath: /export-0
             - name: export-1
-              mountPath: /export-1            
+              mountPath: /export-1
           ports:
             - name: http
               containerPort: 9000
@@ -11757,23 +10673,23 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi      
+              memory: 128Mi
       volumes:
         - name: minio-user
           secret:
-            secretName: loki-storage        
+            secretName: loki-storage
   volumeClaimTemplates:
     - metadata:
         name: export-0
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 5Gi
     - metadata:
         name: export-1
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         resources:
           requests:
             storage: 5Gi
@@ -11785,10 +10701,8 @@ metadata:
   name: loki-backend
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: memberlist
@@ -11800,7 +10714,6 @@ spec:
       partition: 0
   serviceName: loki-backend-headless
   revisionHistoryLimit: 10
-  
   persistentVolumeClaimRetentionPolicy:
     whenDeleted: Delete
     whenScaled: Delete
@@ -11822,7 +10735,6 @@ spec:
     spec:
       serviceAccountName: loki
       automountServiceAccountToken: true
-      
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
@@ -11831,7 +10743,6 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: loki-sc-rules
-          image: "kiwigrid/k8s-sidecar:1.24.3"
           imagePullPolicy: IfNotPresent
           env:
             - name: METHOD
@@ -11852,7 +10763,6 @@ spec:
             - name: sc-rules-volume
               mountPath: "/rules/fake"
         - name: loki
-          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -11873,7 +10783,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           readinessProbe:
             httpGet:
@@ -11894,15 +10804,14 @@ spec:
               mountPath: "/rules/fake"
             - mountPath: /var/loki-ruler-wal
               name: ruler-wal
-          resources:
-            {}
+          resources: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/component: backend
-            topologyKey: kubernetes.io/hostname
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: backend
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: tmp
           emptyDir: {}
@@ -11937,15 +10846,12 @@ kind: StatefulSet
 metadata:
   name: loki-chunks-cache
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-chunks-cache"
     name: "memcached-chunks-cache"
-  annotations:
-    {}
+  annotations: {}
   namespace: "default"
 spec:
   podManagementPolicy: Parallel
@@ -11959,7 +10865,6 @@ spec:
   updateStrategy:
     type: RollingUpdate
   serviceName: loki-chunks-cache
-
   template:
     metadata:
       labels:
@@ -11968,25 +10873,17 @@ spec:
         app.kubernetes.io/component: "memcached-chunks-cache"
         name: "memcached-chunks-cache"
       annotations:
-
     spec:
       serviceAccountName: loki
-      securityContext:
-        {}
-      initContainers:
-        []
-      nodeSelector:
-        {}
-      affinity:
-        {}
-      topologySpreadConstraints:
-        []
-      tolerations:
-        []
+      securityContext: {}
+      initContainers: []
+      nodeSelector: {}
+      affinity: {}
+      topologySpreadConstraints: []
+      tolerations: []
       terminationGracePeriodSeconds: 60
       containers:
         - name: memcached
-          image: memcached:1.6.23-alpine
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -12010,10 +10907,9 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
         - name: exporter
-          image: prom/memcached-exporter:v0.14.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9150
@@ -12028,7 +10924,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
 ---
 # Source: coder-observability/charts/loki/templates/results-cache/statefulset-results-cache.yaml
@@ -12037,15 +10933,12 @@ kind: StatefulSet
 metadata:
   name: loki-results-cache
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: "memcached-results-cache"
     name: "memcached-results-cache"
-  annotations:
-    {}
+  annotations: {}
   namespace: "default"
 spec:
   podManagementPolicy: Parallel
@@ -12059,7 +10952,6 @@ spec:
   updateStrategy:
     type: RollingUpdate
   serviceName: loki-results-cache
-
   template:
     metadata:
       labels:
@@ -12068,25 +10960,17 @@ spec:
         app.kubernetes.io/component: "memcached-results-cache"
         name: "memcached-results-cache"
       annotations:
-
     spec:
       serviceAccountName: loki
-      securityContext:
-        {}
-      initContainers:
-        []
-      nodeSelector:
-        {}
-      affinity:
-        {}
-      topologySpreadConstraints:
-        []
-      tolerations:
-        []
+      securityContext: {}
+      initContainers: []
+      nodeSelector: {}
+      affinity: {}
+      topologySpreadConstraints: []
+      tolerations: []
       terminationGracePeriodSeconds: 60
       containers:
         - name: memcached
-          image: memcached:1.6.23-alpine
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -12110,10 +10994,9 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
         - name: exporter
-          image: prom/memcached-exporter:v0.14.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 9150
@@ -12128,7 +11011,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
 ---
 # Source: coder-observability/charts/loki/templates/write/statefulset-write.yaml
@@ -12138,10 +11021,8 @@ metadata:
   name: loki-write
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: write
     app.kubernetes.io/part-of: memberlist
@@ -12172,7 +11053,6 @@ spec:
       serviceAccountName: loki
       automountServiceAccountToken: true
       enableServiceLinks: true
-      
       securityContext:
         fsGroup: 10001
         runAsGroup: 10001
@@ -12181,7 +11061,6 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: loki
-          image: docker.io/grafana/loki:3.1.0
           imagePullPolicy: IfNotPresent
           args:
             - -config.file=/etc/loki/config/config.yaml
@@ -12201,7 +11080,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
           readinessProbe:
             httpGet:
@@ -12216,15 +11095,14 @@ spec:
               mountPath: /etc/loki/runtime-config
             - name: data
               mountPath: /var/loki
-          resources:
-            {}
+          resources: {}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/component: write
-            topologyKey: kubernetes.io/hostname
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: write
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: config
           configMap:
@@ -12253,10 +11131,8 @@ kind: StatefulSet
 metadata:
   name: alertmanager
   labels:
-    helm.sh/chart: alertmanager-1.11.0
     app.kubernetes.io/name: alertmanager
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "v0.27.0"
     app.kubernetes.io/managed-by: Helm
   namespace: default
 spec:
@@ -12290,7 +11166,6 @@ spec:
             runAsGroup: 65534
             runAsNonRoot: true
             runAsUser: 65534
-          image: "quay.io/prometheus/alertmanager:v0.27.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -12313,8 +11188,7 @@ spec:
             httpGet:
               path: /
               port: http
-          resources:
-            {}
+          resources: {}
           volumeMounts:
             - name: config
               mountPath: /etc/alertmanager
@@ -12342,8 +11216,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: v2.53.1
-    helm.sh/chart: prometheus-25.24.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
@@ -12364,7 +11236,6 @@ spec:
   template:
     metadata:
       annotations:
-        
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/component: server
@@ -12379,7 +11250,6 @@ spec:
       serviceAccountName: prometheus
       containers:
         - name: prometheus-server-configmap-reload
-          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.74.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --watched-dir=/etc/config
@@ -12416,11 +11286,9 @@ spec:
               readOnly: true
             - name: configmap-reload-alerts
               mountPath: /etc/config/alerts
-              subPath: 
-              readOnly: 
-
+              subPath:
+              readOnly:
         - name: prometheus-server
-          image: "quay.io/prometheus/prometheus:v2.53.1"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=15d
@@ -12462,8 +11330,8 @@ spec:
               subPath: ""
             - name: server-alerts
               mountPath: /etc/config/alerts
-              subPath: 
-              readOnly: 
+              subPath:
+              readOnly:
       hostNetwork: false
       dnsPolicy: ClusterFirst
       securityContext:
@@ -12486,8 +11354,8 @@ spec:
           configMap:
             name: metrics-alerts
   volumeClaimTemplates:
-    - apiVersion: v1	
-      kind: PersistentVolumeClaim	
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
       metadata:
         name: storage-volume
       spec:
@@ -12519,7 +11387,6 @@ spec:
     spec:
       containers:
         - name: postgres-exporter
-          image: quay.io/prometheuscommunity/postgres-exporter
           args:
             - --collector.long_running_transactions
           ports:
@@ -12528,8 +11395,6 @@ spec:
           env:
             - name: DATA_SOURCE_NAME
               value: 'postgresql://coder@localhost:5432/postgres?sslmode=disable'
-          
-          
           envFrom:
             - secretRef:
                 name: secret-postgres
@@ -12555,7 +11420,6 @@ spec:
     spec:
       containers:
         - name: madness
-          image: dannyben/madness
           ports:
             - containerPort: 3000
               name: madness
@@ -12592,7 +11456,6 @@ spec:
     spec:
       containers:
         - name: sql-exporter
-          image: burningalchemist/sql_exporter
           args:
             - -config.file=/cfg/config.yaml
           ports:
@@ -12601,12 +11464,9 @@ spec:
           volumeMounts:
             - mountPath: /cfg/
               name: config
-          
-          
           envFrom:
             - secretRef:
                 name: secret-postgres
-          
       volumes:
         - name: config
           configMap:
@@ -12619,10 +11479,8 @@ metadata:
   name: "loki-helm-test"
   namespace: default
   labels:
-    helm.sh/chart: loki-6.7.1
     app.kubernetes.io/name: loki
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/version: "3.1.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: helm-test
   annotations:
@@ -12664,33 +11522,31 @@ spec:
         release: coder-observability
         app.kubernetes.io/name: loki-storage
     spec:
-      restartPolicy: OnFailure      
+      restartPolicy: OnFailure
       volumes:
         - name: minio-configuration
           projected:
             sources:
-            - configMap:
-                name: loki-storage
-            - secret:
-                name: loki-storage
-
+              - configMap:
+                  name: loki-storage
+              - secret:
+                  name: loki-storage
       serviceAccountName: minio-sa
       containers:
-      - name: minio-mc
-        image: "quay.io/minio/mc:RELEASE.2022-09-16T09-16-47Z"
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "/config/initialize"]
-        env:
-          - name: MINIO_ENDPOINT
-            value: loki-storage
-          - name: MINIO_PORT
-            value: "9000"
-        volumeMounts:
-          - name: minio-configuration
-            mountPath: /config
-        resources:
-          requests:
-            memory: 128Mi
+        - name: minio-mc
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "/config/initialize"]
+          env:
+            - name: MINIO_ENDPOINT
+              value: loki-storage
+            - name: MINIO_PORT
+              value: "9000"
+          volumeMounts:
+            - name: minio-configuration
+              mountPath: /config
+          resources:
+            requests:
+              memory: 128Mi
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/post-install-create-user-job.yaml
 apiVersion: batch/v1
@@ -12714,30 +11570,28 @@ spec:
         release: coder-observability
         app.kubernetes.io/name: loki-storage
     spec:
-      restartPolicy: OnFailure      
+      restartPolicy: OnFailure
       volumes:
         - name: minio-configuration
           projected:
             sources:
-            - configMap:
-                name: loki-storage
-            - secret:
-                name: loki-storage
-
+              - configMap:
+                  name: loki-storage
+              - secret:
+                  name: loki-storage
       serviceAccountName: minio-sa
       containers:
-      - name: minio-mc
-        image: "quay.io/minio/mc:RELEASE.2022-09-16T09-16-47Z"
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "/config/add-user"]
-        env:
-          - name: MINIO_ENDPOINT
-            value: loki-storage
-          - name: MINIO_PORT
-            value: "9000"
-        volumeMounts:
-          - name: minio-configuration
-            mountPath: /config
-        resources:
-          requests:
-            memory: 128Mi
+        - name: minio-mc
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "/config/add-user"]
+          env:
+            - name: MINIO_ENDPOINT
+              value: loki-storage
+            - name: MINIO_PORT
+              value: "9000"
+          volumeMounts:
+            - name: minio-configuration
+              mountPath: /config
+          resources:
+            requests:
+              memory: 128Mi

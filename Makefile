@@ -11,10 +11,7 @@ all: lint
 .PHONY: all
 
 lint: build lint/helm lint/rules readme
-	@if ! git diff; then \
-		echo "Error: uncommitted changes."; \
-		exit 1; \
-	fi;
+	./scripts/check-unstaged.sh
 .PHONY: lint
 
 lint/helm: lint/helm/coder-observability
@@ -25,20 +22,7 @@ lint/helm/coder-observability:
 .PHONY: lint/helm/coder-observability
 
 build:
-	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-	helm repo add grafana https://grafana.github.io/helm-charts
-	helm --repository-cache /tmp/cache repo update
-	helm dependency update coder-observability/
-	helm template -f coder-observability/values.yaml coder-observability coder-observability/ > compiled/resources.yaml
-	# Check for unexpected changes.
-	# Helm dependencies are versioned using ^ which accepts minor & patch changes:
-	# 	e.g. ^1.2.3 is equivalent to >= 1.2.3 < 2.0.0
-	# We *expect* that the versions will change in the rendered template output, so we ignore those, but
-	# if there are changes to the manifests themselves then we need to fail the build to force manual review.
-	@if git diff -- compiled/resources.yaml | grep -ve 'helm.sh/chart' -e 'app.kubernetes.io/version' -e 'image:' | egrep '^(\+|\-)[^\+|\-]'; then \
-		echo "Error: uncommitted changes in 'compiled/resources.yaml'."; \
-		exit 1; \
-	fi;
+	./scripts/compile.sh
 .PHONY: build
 
 lint/rules: lint/helm/prometheus-rules
