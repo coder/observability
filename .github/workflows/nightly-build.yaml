@@ -1,0 +1,34 @@
+name: Nightly build
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  nightly-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: make build
+        run: |
+          make build > output.log 2>&1
+        continue-on-error: true
+
+      - name: Upload script output
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: script-output
+          path: output.log
+
+      - name: Create issue from file on failure
+        if: failure()
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: nightly build failure
+          content-filepath: output.log
+          assignees: dannykopping
