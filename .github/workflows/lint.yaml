@@ -29,10 +29,5 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 -O /usr/bin/yq &&\
           sudo chmod +x /usr/bin/yq
 
-      - name: Set up helm repos
-        working-directory: coder-observability
-        run: |
-          helm dependency update
-
       - name: Lint Helm chart and rules
         run: make lint
