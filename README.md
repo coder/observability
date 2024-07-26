@@ -433,7 +433,6 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.alertmanager.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | prometheus.alertmanager.service.port | int | `80` |  |
 | prometheus.configmapReload.prometheus.containerPort | int | `9091` |  |
-| prometheus.configmapReload.prometheus.extraArgs.listen-address | string | `"0.0.0.0:9091"` |  |
 | prometheus.configmapReload.prometheus.extraArgs.log-level | string | `"all"` |  |
 | prometheus.configmapReload.prometheus.extraArgs.watch-interval | string | `"15s"` |  |
 | prometheus.configmapReload.prometheus.extraConfigmapMounts[0].configMap | string | `"metrics-alerts"` |  |
