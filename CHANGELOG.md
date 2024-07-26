@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.2.1
+
+- Upgraded subcharts
+  - Loki: upgraded to v6.7.1 -> v6.7.3
+- FIX: `listen-address` duplicate removed in `prometheus-config-reloader`
+
 ## v0.2.0
 
 - Upgraded subcharts

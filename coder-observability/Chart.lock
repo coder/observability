@@ -7,9 +7,9 @@ dependencies:
   version: 25.24.1
 - name: loki
   repository: https://grafana.github.io/helm-charts
-  version: 6.7.1
+  version: 6.7.3
 - name: grafana-agent
   repository: https://grafana.github.io/helm-charts
   version: 0.37.0
-digest: sha256:281e36cc647d94dbf3d61e6cf237c2cee6c1a4a3a663b56bd1acba6a35cdb921
-generated: "2024-07-22T11:48:40.953894+02:00"
+digest: sha256:10a5d2b617b691e0ed87ca9e31c86618e05ca3b8031ddb3b417610f47e8bb069
+generated: "2024-07-26T10:52:20.819468+02:00"

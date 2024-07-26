@@ -457,7 +457,6 @@ prometheus:
     prometheus:
       extraArgs:
         log-level: all
-        listen-address: 0.0.0.0:9091
         watch-interval: 15s
       containerPort: 9091
       extraConfigmapMounts:
