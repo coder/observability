@@ -11255,7 +11255,6 @@ spec:
             - --watched-dir=/etc/config
             - --listen-address=0.0.0.0:9091
             - --reload-url=http://127.0.0.1:9090/-/reload
-            - --listen-address=0.0.0.0:9091
             - --log-level=all
             - --watch-interval=15s
           ports:
