@@ -203,10 +203,10 @@ stringData:
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://grafana.github.io/helm-charts | grafana | ^v7.3.7 |
-| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ^0.37.0 |
-| https://grafana.github.io/helm-charts | loki | ^v6.3.4 |
-| https://prometheus-community.github.io/helm-charts | prometheus | ^v25.18.0 |
+| https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
+| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
+| https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
+| https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
