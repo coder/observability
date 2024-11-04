@@ -34,7 +34,6 @@ jobs:
         continue-on-error: true
 
       - name: Upload script output
-        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: script-output
