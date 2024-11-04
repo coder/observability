@@ -10162,7 +10162,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 308677931777ae343a565387f5edecd66c53876ef7d120e9df3c6196c1884b30
+        checksum/config: bc7add19cdc0df1566dec1bf8f9421082357d4393124d6ea2df28d7e5888cc8a
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: coder-observability
@@ -10246,7 +10246,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 616b4c9b39f90d71edfd156f86c7f57751f662542a83f3e345c30496c3da7d27
+        checksum/config: 4dbe50185304244ab527314b7723d048ea4544f97d0a4d8e0192863861811005
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/part-of: memberlist
@@ -10725,7 +10725,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 616b4c9b39f90d71edfd156f86c7f57751f662542a83f3e345c30496c3da7d27
+        checksum/config: 4dbe50185304244ab527314b7723d048ea4544f97d0a4d8e0192863861811005
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -11042,7 +11042,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 616b4c9b39f90d71edfd156f86c7f57751f662542a83f3e345c30496c3da7d27
+        checksum/config: 4dbe50185304244ab527314b7723d048ea4544f97d0a4d8e0192863861811005
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: loki
@@ -11242,7 +11242,7 @@ spec:
         app.kubernetes.io/name: prometheus
         app.kubernetes.io/instance: coder-observability
         app.kubernetes.io/version: v2.53.1
-        helm.sh/chart: prometheus-25.24.1
+        helm.sh/chart: prometheus-25.24.2
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/part-of: prometheus
     spec:
