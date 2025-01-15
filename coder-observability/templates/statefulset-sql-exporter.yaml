@@ -20,8 +20,8 @@ spec:
         app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: sql-exporter
-          image: burningalchemist/sql_exporter
+        - name: {{ .Values.sqlExporter.containerName }}
+          image: {{ .Values.sqlExporter.image }}
           args:
             - -config.file=/cfg/config.yaml
           ports:

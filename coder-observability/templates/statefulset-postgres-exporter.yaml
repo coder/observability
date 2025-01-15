@@ -19,8 +19,8 @@ spec:
         app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: postgres-exporter
-          image: quay.io/prometheuscommunity/postgres-exporter
+        - name: {{ .Values.global.postgres.exporter.containerName }}
+          image: {{ .Values.global.postgres.exporter.image }}
           args:
             - --collector.long_running_transactions
           ports:
