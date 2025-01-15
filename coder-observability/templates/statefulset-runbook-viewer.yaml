@@ -18,8 +18,8 @@ spec:
         app: runbook-viewer
     spec:
       containers:
-        - name: {{ .Values.runbook.containerName }}
-          image: {{ .Values.runbook.image }}
+        - name: madness
+          image: {{ .Values.runbookViewer.image }}
           ports:
             - containerPort: 3000
               name: madness

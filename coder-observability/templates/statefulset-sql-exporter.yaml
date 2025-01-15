@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: {{ .Values.sqlExporter.containerName }}
+        - name: sql-exporter
           image: {{ .Values.sqlExporter.image }}
           args:
             - -config.file=/cfg/config.yaml

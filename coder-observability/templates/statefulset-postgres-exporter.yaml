@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: "database-stats"
     spec:
       containers:
-        - name: {{ .Values.global.postgres.exporter.containerName }}
+        - name: postgres-exporter
           image: {{ .Values.global.postgres.exporter.image }}
           args:
             - --collector.long_running_transactions

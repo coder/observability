@@ -116,7 +116,6 @@ global:
     # ensure that your secret has a field named `PGPASSWORD`
     mountSecret: "secret-postgres"
     exporter:
-      containerName: "postgres-exporter"
       image: "quay.io/prometheuscommunity/postgres-exporter"
 
     # global.postgres.alerts -- alerts for postgres
@@ -149,12 +148,10 @@ global:
     # global.dashboards.queryTimeout -- how long until a query in Grafana will timeout after
     queryTimeout: 900
 
-runbook:
-  containerName: "madness"
+runbookViewer:
   image: "dannyben/madness"
 
 sqlExporter:
-  containerName: "sql-exporter"
   image: "burningalchemist/sql_exporter"
 
 grafana-agent:
