@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: madness
-          image: dannyben/madness
+          image: {{ .Values.runbookViewer.image }}
           ports:
             - containerPort: 3000
               name: madness

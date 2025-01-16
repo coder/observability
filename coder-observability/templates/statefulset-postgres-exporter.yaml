@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: postgres-exporter
-          image: quay.io/prometheuscommunity/postgres-exporter
+          image: {{ .Values.global.postgres.exporter.image }}
           args:
             - --collector.long_running_transactions
           ports:
