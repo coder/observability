@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards-prebuilds
+  namespace: {{ .Release.Namespace }}
+data:
+  prebuilds.json: |- {{- include "prebuilds-dashboard.json" . | trim | nindent 4 }}

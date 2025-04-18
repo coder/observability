@@ -414,6 +414,10 @@ grafana:
       mountPath: /var/lib/grafana/dashboards/coder/4
       configMap: dashboards-workspace-detail
       readOnly: false
+    - name: dashboards-prebuilds
+      mountPath: /var/lib/grafana/dashboards/coder/5
+      configMap: dashboards-prebuilds
+      readOnly: false
 
 prometheus:
   enabled: true
