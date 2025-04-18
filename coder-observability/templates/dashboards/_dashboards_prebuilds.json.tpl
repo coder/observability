@@ -286,7 +286,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_created_total) or vector(0)",
+          "expr": "sum(max by (template_name, preset_name) (coderd_prebuilds_created_total)) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -301,7 +301,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_failed_total) or vector(0)",
+          "expr": "sum(max by (template_name, preset_name) (coderd_prebuilds_failed_total)) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -316,7 +316,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_claimed_total) or vector(0)",
+          "expr": "sum(max by (template_name, preset_name) (coderd_prebuilds_claimed_total)) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -938,7 +938,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_created_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "max(coderd_prebuilds_created_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -953,7 +953,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_failed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "max(coderd_prebuilds_failed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -968,7 +968,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(coderd_prebuilds_claimed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "max(coderd_prebuilds_claimed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -988,11 +988,6 @@
     "list": [
       {
         "allValue": "",
-        "current": {
-          "selected": false,
-          "text": "k8s",
-          "value": "k8s"
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
@@ -1017,15 +1012,6 @@
       },
       {
         "allValue": "",
-        "current": {
-          "selected": false,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
