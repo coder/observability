@@ -76,3 +76,10 @@ Terraform plugin.
 Your Enterprise license is approaching or has exceeded the number of seats purchased.
 
 Please contact your Coder sales contact, or visit https://coder.com/contact/sales.
+
+## CoderdIneligiblePrebuilds
+
+Prebuilds only become eligible to be claimed by users once the workspace's agent is a) running and b) all of its startup
+scripts have completed.
+
+If a prebuilt workspace is not eligible, view its agent logs to diagnose the problem.
