@@ -4,7 +4,7 @@ metadata:
   name: metrics-alerts
   namespace: {{ .Release.Namespace }}
 data:
-  {{- $service := dict "service" "coder" -}}
+  {{- $service := dict "service" "coderd" -}}
 
   {{- with .Values.global.coder.alerts.coderd }} {{/* start-section */}}
   coderd.yaml: |-
@@ -97,6 +97,27 @@ data:
         for: {{ $group.delay }}
         annotations:
           summary: Workspace builds have failed multiple times in the last {{ $group.period -}}, which may indicate a broken Coder template.
+        labels:
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+
+  {{- with .groups.IneligiblePrebuilds }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Coderd Ineligible Prebuilds
+      rules:
+      {{ $alert := "CoderdIneligiblePrebuilds" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: max by (template_name, preset_name) (coderd_prebuilds_running - coderd_prebuilds_eligible) > 0
+        for: {{ $group.delay }}
+        annotations:
+          summary: >
+            {{ `{{ $value }}` }} prebuilt workspace(s) are currently ineligible for claiming for the "{{ `{{ $labels.template_name }}` }}" template and "{{ `{{ $labels.preset_name }}` }}" preset.
+            This usually indicates that the agent has not started correctly, or is still running its startup scripts after an extended period of time.
         labels:
           severity: {{ $severity }}
           runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}

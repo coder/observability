@@ -76,6 +76,11 @@ global:
               notify: 2
               warning: 5
               critical: 10
+          IneligiblePrebuilds:
+            enabled: true
+            delay: 10m
+            thresholds:
+              notify: 1
       provisionerd:
         groups:
           Replicas:
