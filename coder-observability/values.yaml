@@ -452,7 +452,7 @@ prometheus:
   serverFiles:
     prometheus.yml:
       # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
-      scrape_configs:
+      scrape_configs: []
       # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
       rule_files:
         - /etc/config/alerts/*.yaml

@@ -464,7 +464,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.server.service.type | string | `"ClusterIP"` |  |
 | prometheus.server.statefulSet.enabled | bool | `true` |  |
 | prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
-| prometheus.serverFiles."prometheus.yml".scrape_configs | string | `nil` |  |
+| prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
