@@ -360,6 +360,10 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.extraConfigmapMounts[4].mountPath | string | `"/var/lib/grafana/dashboards/coder/4"` |  |
 | grafana.extraConfigmapMounts[4].name | string | `"dashboards-workspace-detail"` |  |
 | grafana.extraConfigmapMounts[4].readOnly | bool | `false` |  |
+| grafana.extraConfigmapMounts[5].configMap | string | `"dashboards-prebuilds"` |  |
+| grafana.extraConfigmapMounts[5].mountPath | string | `"/var/lib/grafana/dashboards/coder/5"` |  |
+| grafana.extraConfigmapMounts[5].name | string | `"dashboards-prebuilds"` |  |
+| grafana.extraConfigmapMounts[5].readOnly | bool | `false` |  |
 | grafana.fullnameOverride | string | `"grafana"` |  |
 | grafana.persistence.enabled | bool | `true` |  |
 | grafana.persistence.size | string | `"10Gi"` |  |
