@@ -111,9 +111,9 @@
           },
           "editorMode": "code",
           "expr": "min(coderd_experiments{experiment=\"workspace-prebuilds\"})",
-          "instant": false,
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
