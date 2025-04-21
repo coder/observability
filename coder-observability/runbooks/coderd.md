@@ -83,3 +83,53 @@ Prebuilds only become eligible to be claimed by users once the workspace's agent
 scripts have completed.
 
 If a prebuilt workspace is not eligible, view its agent logs to diagnose the problem.
+
+## CoderdUnprovisionedPrebuiltWorkspaces
+
+The number of running prebuilt workspaces is lower than the desired instances. This could be for several reasons,
+ordered by likehood:
+
+### Experiment/License
+
+The prebuilds feature is currently gated behind an experiment *and* a premium license.
+
+Ensure that the prebuilds experiment is enabled with `CODER_EXPERIMENTS=workspace-prebuilds`, and that you have a premium
+license added.
+
+### Preset Validation Issue
+
+Templates which have prebuilds configured will require a configured preset defined, with ALL of the required parameters
+set in the preset. If any of these are missing, or any of the parameters - as defined - fail validation, then the prebuilds
+subsystem will refuse to attempt a workspace build.
+
+Consult the coderd logs for more information; look out for errors or warnings from the prebuilds subsystem.
+
+### Template Misconfiguration or Error
+
+Prebuilt workspaces cannot be provisioned due to some issue at `terraform apply`-time. This could be due to misconfigured
+cloud resources, improper authorization, or any number of other issues.
+
+Visit the Workspaces page, change the search term to `owner:prebuilds`, and view on the previously failed builds. The
+error will likely be quite obvious.
+
+### Provisioner Latency
+
+If your provisioners are overloaded and cannot process provisioner jobs quickly enough, prebuilt workspaces may be affected.
+There is no prioritization at present for prebuilt workspace jobs.
+
+Ensure your provisioners are appropriately resources (i.e. you have enough instances) to handle the concurrent build demand.
+
+### Use of Workspace Tags
+
+If you are using `coder_workspace_tags` ([docs](https://coder.com/docs/admin/templates/extending-templates/workspace-tags))
+in your template, chances are you do not have any provisioners running or they are under-resourced (see **Provisioner Latency**).
+
+Ensure your running provisioners are configured with your desired tags.
+
+### Reconciliation Loop Issue
+
+The prebuilds subsystem runs a _reconciliation loop_ which monitors the state of prebuilt workspaces to ensure the desired
+number of instances are present at all times. Workspace Prebuilds is currently a BETA feature and so there could be a bug
+in this _reconciliation loop_, which should be reported to Coder.
+
+Examine your coderd logs for any errors or warnings relating to prebuilds.
