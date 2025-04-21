@@ -3147,7 +3147,7 @@ data:
               "refId": "E"
             }
           ],
-          "title": "Change over range: $preset",
+          "title": "Pool Capacity: $preset",
           "type": "timeseries"
         },
         {
@@ -3373,7 +3373,7 @@ data:
               "refId": "F"
             }
           ],
-          "title": "Change over range: $preset",
+          "title": "Pool Operations: $preset",
           "type": "timeseries"
         },
         {
