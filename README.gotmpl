@@ -199,6 +199,22 @@ stringData:
   password: "<your password>" # this matches the "passwordKey" field above
 ```
 
+To add an Ingress for Grafana, define this in your `values.yaml`:
+
+```yaml
+grafana:
+  grafana.ini:
+    server:
+      domain: observability.example.com
+      root_url: "%(protocol)s://%(domain)s/grafana"
+      serve_from_sub_path: true
+  ingress:
+    enabled: true
+    hosts:
+      - "observability.example.com"
+    path: "/"
+```
+
 ## Subcharts
 
 {{ template "chart.requirementsTable" . }}
