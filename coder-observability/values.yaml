@@ -81,6 +81,11 @@ global:
             delay: 10m
             thresholds:
               notify: 1
+          UnprovisionedPrebuiltWorkspaces:
+            enabled: true
+            delay: 10m
+            thresholds:
+              warn: 1
       provisionerd:
         groups:
           Replicas:

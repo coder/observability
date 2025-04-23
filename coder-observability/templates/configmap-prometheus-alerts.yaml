@@ -125,6 +125,26 @@ data:
   {{- end }}
   {{- end }}
 
+  {{- with .groups.UnprovisionedPrebuiltWorkspaces }}
+  {{- $group := . }}
+  {{- if .enabled }}
+    - name: Coderd Unprovisioned Prebuilt Workspaces
+      rules:
+      {{ $alert := "CoderdUnprovisionedPrebuiltWorkspaces" }}
+      {{- range $severity, $threshold := .thresholds }}
+      - alert: {{ $alert }}
+        expr: max by (template_name, preset_name) (coderd_prebuilds_desired - coderd_prebuilds_running) > 0
+        for: {{ $group.delay }}
+        annotations:
+          summary: >
+            {{ `{{ $value }}` }} prebuilt workspace(s) not yet been provisioned for the "{{ `{{ $labels.template_name }}` }}" template and "{{ `{{ $labels.preset_name }}` }}" preset.
+        labels:
+          severity: {{ $severity }}
+          runbook_url: {{ template "runbook-url" (deepCopy $ | merge (dict "alert" $alert) $service) }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+
   {{- end }} {{/* end-section */}}
 
 
