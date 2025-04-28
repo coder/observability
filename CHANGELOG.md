@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.0
+
+- Adding prebuilt workspace dashboard & alerts
+
 ## v0.2.1
 
 - Upgraded subcharts
