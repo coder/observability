@@ -112,7 +112,7 @@ data:
       {{ $alert := "CoderdIneligiblePrebuilds" }}
       {{- range $severity, $threshold := .thresholds }}
       - alert: {{ $alert }}
-        expr: max by (template_name, preset_name) (coderd_prebuilds_running - coderd_prebuilds_eligible) > 0
+        expr: max by (template_name, preset_name) (coderd_prebuilt_workspaces_running - coderd_prebuilt_workspaces_eligible) > 0
         for: {{ $group.delay }}
         annotations:
           summary: >
@@ -133,7 +133,7 @@ data:
       {{ $alert := "CoderdUnprovisionedPrebuiltWorkspaces" }}
       {{- range $severity, $threshold := .thresholds }}
       - alert: {{ $alert }}
-        expr: max by (template_name, preset_name) (coderd_prebuilds_desired - coderd_prebuilds_running) > 0
+        expr: max by (template_name, preset_name) (coderd_prebuilt_workspaces_desired - coderd_prebuilt_workspaces_running) > 0
         for: {{ $group.delay }}
         annotations:
           summary: >

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # check versions
-HELM_VERSION=3.14
+HELM_VERSION=3.17
 YQ_VERSION=4.42
 [[ "$(helm version)" == *v${HELM_VERSION}* ]] || { echo "Expected helm version v${HELM_VERSION} but got $(helm version)" >&2; exit 1; }
 [[ "$(yq --version)" == *v${YQ_VERSION}* ]] || { echo "Expected yq version v${YQ_VERSION} but got $(yq --version)" >&2; exit 1; }
