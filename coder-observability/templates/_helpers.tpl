@@ -64,9 +64,9 @@ Create the name of the service account to use
 {{/* Postgres connector string */}}
 {{- define "postgres-connector-string" -}}
 {{- if .Values.global.postgres.password -}}
-postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
 {{- else if .Values.global.postgres.mountSecret -}}
-postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/postgres?sslmode={{ .Values.global.postgres.sslmode }}
+postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
 {{- else -}}
 {{ fail "either postgres.password or postgres.mountSecret must be defined" }}
 {{- end -}}

@@ -994,7 +994,7 @@ data:
     global:
     target:
       name: postgres
-      data_source_name: 'postgresql://coder@localhost:5432/postgres?sslmode=disable'
+      data_source_name: 'postgresql://coder@localhost:5432/coder?sslmode=disable'
       collectors:
         - notify
     collectors:
@@ -12215,7 +12215,7 @@ spec:
               name: exporter
           env:
             - name: DATA_SOURCE_NAME
-              value: 'postgresql://coder@localhost:5432/postgres?sslmode=disable'
+              value: 'postgresql://coder@localhost:5432/coder?sslmode=disable'
           envFrom:
             - secretRef:
                 name: secret-postgres
@@ -12270,7 +12270,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
-        checksum/config: e12c0044ef2cab3438ffdc8f5e16c24c5acf5ee36dcc8bee77294f27e53ce4a2
+        checksum/config: 71bb9e7579b6e138ae28c623aa29d72025be00387da6c1b8dd5aa168c96ca1e0
       labels:
         app: sql-exporter
         app.kubernetes.io/name: "database-stats"
