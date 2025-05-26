@@ -381,6 +381,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.extraConfigmapMounts[5].name | string | `"dashboards-prebuilds"` |  |
 | grafana.extraConfigmapMounts[5].readOnly | bool | `false` |  |
 | grafana.fullnameOverride | string | `"grafana"` |  |
+| grafana.image.tag | string | `"10.4.19"` |  |
 | grafana.persistence.enabled | bool | `true` |  |
 | grafana.persistence.size | string | `"10Gi"` |  |
 | grafana.replicas | int | `1` |  |
