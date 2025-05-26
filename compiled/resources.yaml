@@ -11247,8 +11247,8 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 4b5f6512e962f90e1dcdfbecb3713a10f3a998745141a4fc1adfcbb4cff23282
-        checksum/dashboards-json-config: 3f59a9bfe9e7e9b7e6ca4ea81afd7bac7a8d78eadb7edbb44be4a327efd1d931
+        checksum/config: 2828a490315379b00f2116ebe6a20dd3ca9a4d5ce5839f037c1eb0a4501ecb18
+        checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
