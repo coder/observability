@@ -63,10 +63,14 @@ Create the name of the service account to use
 
 {{/* Postgres connector string */}}
 {{- define "postgres-connector-string" -}}
-{{- if .Values.global.postgres.password -}}
+{{- if and .Values.global.postgres.password (eq .Values.global.postgres.sslmode "disable") -}}
 postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
-{{- else if .Values.global.postgres.mountSecret -}}
+{{- else if and .Values.global.postgres.password (ne .Values.global.postgres.sslmode "disable") -}}
+postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}&sslrootcert={{ .Values.global.postgres.sslrootcert }}
+{{- else if and .Values.global.postgres.mountSecret (eq .Values.global.postgres.sslmode "disable") -}}
 postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
+{{- else if and .Values.global.postgres.mountSecret (ne .Values.global.postgres.sslmode "disable") -}}
+postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}&sslrootcert={{ .Values.global.postgres.sslrootcert }}
 {{- else -}}
 {{ fail "either postgres.password or postgres.mountSecret must be defined" }}
 {{- end -}}
