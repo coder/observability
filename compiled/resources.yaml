@@ -12219,6 +12219,14 @@ spec:
           envFrom:
             - secretRef:
                 name: secret-postgres
+          volumeMounts:
+            - mountPath: /home/coder/.postgresql
+              name: pg-certs-mount
+              readOnly: true
+      volumes:
+        - configMap:
+            name: pg-certs-mount-config-map
+          name: pg-certs-mount
 ---
 # Source: coder-observability/templates/statefulset-runbook-viewer.yaml
 apiVersion: apps/v1

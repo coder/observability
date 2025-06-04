@@ -30,3 +30,9 @@ spec:
             - name: DATA_SOURCE_NAME
               value: '{{ include "postgres-connector-string" . }}'
           {{ include "postgres-secret-mount" . | nindent 10 }}
+
+          volumeMounts:
+          {{ toYaml .Values.global.postgres.volumeMounts | nindent 12 }}
+
+      volumes:
+      {{ toYaml .Values.global.postgres.volumes | nindent 8 }}
