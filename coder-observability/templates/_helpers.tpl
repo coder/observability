@@ -66,11 +66,19 @@ Create the name of the service account to use
 {{- if and .Values.global.postgres.password (eq .Values.global.postgres.sslmode "disable") -}}
 postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
 {{- else if and .Values.global.postgres.password (ne .Values.global.postgres.sslmode "disable") -}}
+{{- if .Values.global.postgres.sslrootcert -}}
 postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}&sslrootcert={{ .Values.global.postgres.sslrootcert }}
+{{- else -}}
+postgresql://{{ .Values.global.postgres.username }}:{{ urlquery .Values.global.postgres.password }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
+{{- end -}}
 {{- else if and .Values.global.postgres.mountSecret (eq .Values.global.postgres.sslmode "disable") -}}
 postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
 {{- else if and .Values.global.postgres.mountSecret (ne .Values.global.postgres.sslmode "disable") -}}
+{{- if .Values.global.postgres.sslrootcert -}}
 postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}&sslrootcert={{ .Values.global.postgres.sslrootcert }}
+{{- else -}}
+postgresql://{{ .Values.global.postgres.username }}@{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}/{{ .Values.global.postgres.database }}?sslmode={{ .Values.global.postgres.sslmode }}
+{{- end -}}
 {{- else -}}
 {{ fail "either postgres.password or postgres.mountSecret must be defined" }}
 {{- end -}}

@@ -123,23 +123,28 @@ global:
     password:
     database: coder
     sslmode: disable
-    # add root cert path if using SSL
-    sslrootcert: /home/coder/.postgresql/rootcert.pem
+    # SSL root certificate path - only required when sslmode != "disable"
+    # Example: /path/to/certs/rootcert.pem
+    sslrootcert:
 
     # ensure that your secret has a field named `PGPASSWORD`
     mountSecret: "secret-postgres"
     exporter:
       image: "quay.io/prometheuscommunity/postgres-exporter"
 
-    volumes:
-      - name: "pg-certs-mount"
-        configMap:
-          name: "pg-certs-mount-config-map"
-
-    volumeMounts:
-      - name: "pg-certs-mount"
-        mountPath: "/home/coder/.postgresql"
-        readOnly: true
+    # volumes and volumeMounts for SSL certificates
+    # Only required when using SSL connections (sslmode != "disable")
+    # Example configuration:
+    # volumes:
+    #   - name: "pg-certs-mount"
+    #     configMap:
+    #       name: "pg-certs-mount-config-map"
+    # volumeMounts:
+    #   - name: "pg-certs-mount"
+    #     mountPath: "/path/to/certs"
+    #     readOnly: true
+    volumes: []
+    volumeMounts: []
 
     # global.postgres.alerts -- alerts for postgres
     alerts:
