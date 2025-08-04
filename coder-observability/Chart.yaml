@@ -22,6 +22,14 @@ dependencies:
     condition: grafana-agent.enabled
     repository: https://grafana.github.io/helm-charts
     version: '~0.37.0'
+  - name: pyroscope
+    condition: pyroscope.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: '~1.7.1'
+  - name: alloy
+    condition: alloy.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: '~0.9.2'
 maintainers:
   - name: Coder Technologies, Inc.
     url: https://github.com/coder/observability/issues

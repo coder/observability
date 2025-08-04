@@ -215,6 +215,54 @@ grafana:
     path: "/"
 ```
 
+## Continuous Profiling
+
+This chart includes optional support for continuous profiling using Pyroscope and Grafana Alloy.
+
+### Prerequisites
+
+To enable continuous profiling, Coder must be configured with pprof enabled:
+
+```bash
+# Enable pprof in Coder
+export CODER_PPROF_ENABLE=true
+# Set the pprof address (default: 127.0.0.1:6060)
+export CODER_PPROF_ADDRESS=0.0.0.0:6060
+```
+
+### Enabling Profiling
+
+To enable continuous profiling, set the following values:
+
+```yaml
+# Enable Pyroscope for storing profiling data
+pyroscope:
+  enabled: true
+
+# Enable Alloy for scraping pprof data from Coder
+alloy:
+  enabled: true
+
+# Configure the pprof port (should match CODER_PPROF_ADDRESS)
+global:
+  coder:
+    pprofPort: 6060
+```
+
+### How it Works
+
+1. **Coder** exposes pprof endpoints when `CODER_PPROF_ENABLE=true`
+2. **Grafana Alloy** scrapes profiling data from Coder's pprof endpoints
+3. **Pyroscope** stores the profiling data
+4. **Grafana** uses Pyroscope as a datasource to visualize profiling data
+
+The profiling data includes:
+- CPU profiles
+- Memory (heap) profiles
+- Goroutine profiles
+- Block profiles
+- Mutex profiles
+
 ## Subcharts
 
 | Repository | Name | Version |
@@ -223,15 +271,19 @@ grafana:
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
+| https://grafana.github.io/helm-charts | pyroscope | ~1.7.1 |
+| https://grafana.github.io/helm-charts | alloy | ~0.9.2 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
 | Subchart        | Setting                 |
 |-----------------|-------------------------|
+| `alloy`         | `alloy.enabled`         |
 | `grafana`       | `grafana.enabled`       |
 | `grafana-agent` | `grafana-agent.enabled` |
 | `loki`          | `loki.enabled`          |
 | `prometheus`    | `prometheus.enabled`    |
+| `pyroscope`     | `pyroscope.enabled`     |
 
 ## Values
 

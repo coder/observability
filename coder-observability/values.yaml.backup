@@ -384,6 +384,18 @@ grafana:
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
           timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: postgres
+        {{- if .Values.pyroscope.enabled }}
+        - name: pyroscope
+          type: pyroscope
+          url: http://{{ .Values.pyroscope.fullnameOverride }}:{{ .Values.pyroscope.service.port }}
+          access: proxy
+          isDefault: false
+          editable: false
+          # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
+          uid: pyroscope
+        {{- end }}
+  admin:
     existingSecret: ""
   env:
     GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: true
