@@ -5,6 +5,10 @@ description: Gain insights into your Coder deployment
 type: application
 version: 0.1.0
 dependencies:
+  - name: pyroscope
+    condition: pyroscope.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: '~v1.14.1'
   - name: grafana
     condition: grafana.enabled
     repository: https://grafana.github.io/helm-charts

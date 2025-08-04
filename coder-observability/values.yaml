@@ -113,6 +113,11 @@ global:
       scrape_interval: 15s
       # global.telemetry.metrics.scrape_timeout -- how long a request will be allowed to wait before being canceled
       scrape_timeout: 12s
+    pprof:
+      # global.telemetry.pprof.scrape_interval -- how often the collector will scrape pprof endpoints
+      scrape_interval: 15s
+      # global.telemetry.pprof.scrape_timeout -- how long a request will be allowed to wait before being canceled
+      scrape_timeout: 18s
 
   # global.postgres -- postgres connection information
   # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
@@ -517,6 +522,10 @@ prometheus:
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
+
+pyroscope:
+  enabled: true
+  fullnameOverride: pyroscope
 
 loki:
   enabled: true
