@@ -673,24 +673,4 @@ pyroscope:
   serviceMonitor:
     enabled: true
 
-# Grafana Alloy for scraping pprof data
-alloy:
-  enabled: false
-  fullnameOverride: alloy
-  alloy:
-    mode: flow
-    configMap:
-      name: alloy-config
-      key: config.alloy
-      create: false
-    clustering:
-      enabled: false
-    extraArgs:
-      - --disable-reporting=true
-  controller:
-    type: deployment
-    replicas: 1
-  service:
-    type: ClusterIP
-  serviceMonitor:
-    enabled: true
+

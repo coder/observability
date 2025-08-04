@@ -219,7 +219,6 @@ grafana:
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://grafana.github.io/helm-charts | alloy | ~0.9.2 |
 | https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
@@ -246,18 +245,6 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| alloy.alloy.clustering.enabled | bool | `false` |  |
-| alloy.alloy.configMap.create | bool | `false` |  |
-| alloy.alloy.configMap.key | string | `"config.alloy"` |  |
-| alloy.alloy.configMap.name | string | `"alloy-config"` |  |
-| alloy.alloy.extraArgs[0] | string | `"--disable-reporting=true"` |  |
-| alloy.alloy.mode | string | `"flow"` |  |
-| alloy.controller.replicas | int | `1` |  |
-| alloy.controller.type | string | `"deployment"` |  |
-| alloy.enabled | bool | `false` |  |
-| alloy.fullnameOverride | string | `"alloy"` |  |
-| alloy.service.type | string | `"ClusterIP"` |  |
-| alloy.serviceMonitor.enabled | bool | `true` |  |
 | global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"IneligiblePrebuilds":{"delay":"10m","enabled":true,"thresholds":{"notify":1}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}},"UnprovisionedPrebuiltWorkspaces":{"delay":"10m","enabled":true,"thresholds":{"warn":1}},"WorkspaceBuildFailures":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":10,"notify":2,"warning":5}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}},"provisionerd":{"groups":{"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}}}}}` | alerts for the various aspects of Coder |
 | global.coder.coderdSelector | string | `"pod=~`coder.*`, pod!~`.*provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. ensure this uses backticks for quotes! |
 | global.coder.controlPlaneNamespace | string | `"coder"` | the namespace into which the control plane has been deployed. |

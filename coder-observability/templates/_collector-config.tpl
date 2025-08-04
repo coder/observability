@@ -328,6 +328,101 @@ prometheus.scrape "coder_metrics" {
   scrape_interval = "{{ .scrapeInterval }}"
 }
 {{- end }}
+
+{{- if .Values.pyroscope.enabled }}
+// Discovery for Coder pods for profiling
+discovery.relabel "coder_pprof" {
+  targets = discovery.kubernetes.pods.targets
+  {{ $agent.commonRelabellings | nindent 2 }}
+  
+  // Keep only pods that match the coder selector
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    regex         = "coder.*"
+    action        = "keep"
+  }
+  
+  // Skip provisioner pods
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    regex         = ".*provisioner.*"
+    action        = "drop"
+  }
+  
+  // Set the pprof port and path
+  rule {
+    target_label = "__address__"
+    replacement  = "${1}:{{ .Values.global.coder.pprofPort | default "6060" }}"
+    source_labels = ["__meta_kubernetes_pod_ip"]
+  }
+  
+  // Add service label
+  rule {
+    target_label = "service_name"
+    replacement  = "coder"
+  }
+  
+  // Add pod name as instance
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "instance"
+  }
+  
+  // Add namespace
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+}
+
+// Scrape pprof profiles
+pyroscope.scrape "coder_profiles" {
+  targets    = discovery.relabel.coder_pprof.output
+  forward_to = [pyroscope.write.pyroscope.receiver]
+  
+  profiling_config {
+    profile.process_cpu {
+      enabled = true
+      path    = "/debug/pprof/profile"
+      delta   = false
+    }
+    
+    profile.memory {
+      enabled = true
+      path    = "/debug/pprof/heap"
+      delta   = false
+    }
+    
+    profile.goroutine {
+      enabled = true
+      path    = "/debug/pprof/goroutine"
+      delta   = false
+    }
+    
+    profile.block {
+      enabled = true
+      path    = "/debug/pprof/block"
+      delta   = true
+    }
+    
+    profile.mutex {
+      enabled = true
+      path    = "/debug/pprof/mutex"
+      delta   = true
+    }
+  }
+  
+  scrape_interval = "15s"
+  scrape_timeout  = "10s"
+}
+
+// Write profiles to Pyroscope
+pyroscope.write "pyroscope" {
+  endpoint {
+    url = "http://{{ .Values.pyroscope.fullnameOverride }}:{{ .Values.pyroscope.service.port }}"
+  }
+}
+{{- end }}
 {{- end }}
 
 {{- define "collector-labels" -}}
