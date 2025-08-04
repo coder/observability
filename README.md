@@ -215,75 +215,25 @@ grafana:
     path: "/"
 ```
 
-## Continuous Profiling
-
-This chart includes optional support for continuous profiling using Pyroscope and Grafana Alloy.
-
-### Prerequisites
-
-To enable continuous profiling, Coder must be configured with pprof enabled:
-
-```bash
-# Enable pprof in Coder
-export CODER_PPROF_ENABLE=true
-# Set the pprof address (default: 127.0.0.1:6060)
-export CODER_PPROF_ADDRESS=0.0.0.0:6060
-```
-
-### Enabling Profiling
-
-To enable continuous profiling, set the following values:
-
-```yaml
-# Enable Pyroscope for storing profiling data
-pyroscope:
-  enabled: true
-
-# Enable Alloy for scraping pprof data from Coder
-alloy:
-  enabled: true
-
-# Configure the pprof port (should match CODER_PPROF_ADDRESS)
-global:
-  coder:
-    pprofPort: 6060
-```
-
-### How it Works
-
-1. **Coder** exposes pprof endpoints when `CODER_PPROF_ENABLE=true`
-2. **Grafana Alloy** scrapes profiling data from Coder's pprof endpoints
-3. **Pyroscope** stores the profiling data
-4. **Grafana** uses Pyroscope as a datasource to visualize profiling data
-
-The profiling data includes:
-- CPU profiles
-- Memory (heap) profiles
-- Goroutine profiles
-- Block profiles
-- Mutex profiles
-
 ## Subcharts
 
 | Repository | Name | Version |
 |------------|------|---------|
+| https://grafana.github.io/helm-charts | alloy | ~0.9.2 |
 | https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
-| https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 | https://grafana.github.io/helm-charts | pyroscope | ~1.7.1 |
-| https://grafana.github.io/helm-charts | alloy | ~0.9.2 |
+| https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
 | Subchart        | Setting                 |
 |-----------------|-------------------------|
-| `alloy`         | `alloy.enabled`         |
 | `grafana`       | `grafana.enabled`       |
 | `grafana-agent` | `grafana-agent.enabled` |
 | `loki`          | `loki.enabled`          |
 | `prometheus`    | `prometheus.enabled`    |
-| `pyroscope`     | `pyroscope.enabled`     |
 
 ## Values
 
@@ -296,11 +246,24 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| alloy.alloy.clustering.enabled | bool | `false` |  |
+| alloy.alloy.configMap.create | bool | `false` |  |
+| alloy.alloy.configMap.key | string | `"config.alloy"` |  |
+| alloy.alloy.configMap.name | string | `"alloy-config"` |  |
+| alloy.alloy.extraArgs[0] | string | `"--disable-reporting=true"` |  |
+| alloy.alloy.mode | string | `"flow"` |  |
+| alloy.controller.replicas | int | `1` |  |
+| alloy.controller.type | string | `"deployment"` |  |
+| alloy.enabled | bool | `false` |  |
+| alloy.fullnameOverride | string | `"alloy"` |  |
+| alloy.service.type | string | `"ClusterIP"` |  |
+| alloy.serviceMonitor.enabled | bool | `true` |  |
 | global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"IneligiblePrebuilds":{"delay":"10m","enabled":true,"thresholds":{"notify":1}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}},"UnprovisionedPrebuiltWorkspaces":{"delay":"10m","enabled":true,"thresholds":{"warn":1}},"WorkspaceBuildFailures":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":10,"notify":2,"warning":5}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}},"provisionerd":{"groups":{"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}}}}}` | alerts for the various aspects of Coder |
 | global.coder.coderdSelector | string | `"pod=~`coder.*`, pod!~`.*provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. ensure this uses backticks for quotes! |
 | global.coder.controlPlaneNamespace | string | `"coder"` | the namespace into which the control plane has been deployed. |
 | global.coder.externalProvisionersNamespace | string | `"coder"` | the namespace into which any external provisioners have been deployed. |
 | global.coder.logFormat | string | `"human"` |  |
+| global.coder.pprofPort | int | `6060` | the port on which Coder exposes pprof endpoints This should match CODER_PPROF_ADDRESS port (default: 6060) |
 | global.coder.provisionerdSelector | string | `"pod=~`coder-provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. https://coder.com/docs/v2/latest/admin/provisioners TODO: rename container label in provisioner helm chart to be "provisioner" not "coder" ensure this uses backticks for quotes! |
 | global.coder.scrapeMetrics | string | `nil` | use this to scrape metrics from a standalone (set of) coder deployment(s) if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped; set this value to null and configure coderdSelector to target your coder pods |
 | global.coder.workspacesSelector | string | `"namespace=`coder-workspaces`"` | the namespace into which any external provisioners have been deployed. |
@@ -539,6 +502,21 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
 | prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
+| pyroscope.enabled | bool | `false` |  |
+| pyroscope.fullnameOverride | string | `"pyroscope"` |  |
+| pyroscope.persistence.enabled | bool | `true` |  |
+| pyroscope.persistence.size | string | `"10Gi"` |  |
+| pyroscope.pyroscope.config.compactor.data_dir | string | `"/data/compactor"` |  |
+| pyroscope.pyroscope.config.distributor.ring.kvstore.store | string | `"memberlist"` |  |
+| pyroscope.pyroscope.config.ingester.ring.kvstore.store | string | `"memberlist"` |  |
+| pyroscope.pyroscope.config.memberlist.join_members[0] | string | `"pyroscope-memberlist"` |  |
+| pyroscope.pyroscope.config.querier.max_concurrent | int | `4` |  |
+| pyroscope.pyroscope.config.query_frontend.max_outstanding_per_tenant | int | `4096` |  |
+| pyroscope.pyroscope.config.server.http_listen_port | int | `4040` |  |
+| pyroscope.pyroscope.config.store_gateway.sharding_ring.kvstore.store | string | `"memberlist"` |  |
+| pyroscope.service.port | int | `4040` |  |
+| pyroscope.service.type | string | `"ClusterIP"` |  |
+| pyroscope.serviceMonitor.enabled | bool | `true` |  |
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
 
