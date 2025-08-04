@@ -384,6 +384,7 @@ grafana:
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
           timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: postgres
+  admin:
     existingSecret: ""
   env:
     GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: true
