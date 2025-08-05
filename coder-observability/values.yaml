@@ -113,6 +113,11 @@ global:
       scrape_interval: 15s
       # global.telemetry.metrics.scrape_timeout -- how long a request will be allowed to wait before being canceled
       scrape_timeout: 12s
+    profiling:
+      # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
+      scrape_interval: 60s
+      # global.telemetry.profiling.scrape_timeout -- how long a request will be allowed to wait before being canceled
+      scrape_timeout: 60s
 
   # global.postgres -- postgres connection information
   # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
@@ -350,6 +355,14 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+        - name: pyroscope
+          type: grafana-pyroscope-datasource
+          url: http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
+          isDefault: false
+          editable: false
+          access: proxy
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
+          uid: pyroscope
         - name: metrics
           type: prometheus
           url: http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
@@ -517,6 +530,22 @@ prometheus:
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
+
+pyroscope:
+  enabled: true
+  alloy:
+    enabled: false
+  pyroscope:
+    fullnameOverride: pyroscope
+    service:
+      port: 80
+      type: ClusterIP
+    extraArgs:
+      log.level: info
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 10Gi
 
 loki:
   enabled: true

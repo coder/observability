@@ -222,6 +222,7 @@ grafana:
 | https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
+| https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
@@ -260,10 +261,12 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.externalZone | string | `"svc.cluster.local"` |  |
 | global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","exporter":{"image":"quay.io/prometheuscommunity/postgres-exporter"},"hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","sslrootcert":null,"username":"coder","volumeMounts":[],"volumes":[]}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
 | global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
-| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"}}` | control telemetry collection |
+| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"scrape_interval":"60s","scrape_timeout":"60s"}}` | control telemetry collection |
 | global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
+| global.telemetry.profiling.scrape_interval | string | `"60s"` | how often the collector will scrape pprof endpoints |
+| global.telemetry.profiling.scrape_timeout | string | `"60s"` | how long a request will be allowed to wait before being canceled |
 | global.zone | string | `"svc"` |  |
 | grafana-agent.agent.clustering.enabled | bool | `false` |  |
 | grafana-agent.agent.configMap.create | bool | `false` |  |
@@ -329,30 +332,38 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.datasources."datasources.yaml".apiVersion | int | `1` |  |
 | grafana.datasources."datasources.yaml".datasources[0].access | string | `"proxy"` |  |
 | grafana.datasources."datasources.yaml".datasources[0].editable | bool | `false` |  |
-| grafana.datasources."datasources.yaml".datasources[0].isDefault | bool | `true` |  |
-| grafana.datasources."datasources.yaml".datasources[0].name | string | `"metrics"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[0].name | string | `"pyroscope"` |  |
 | grafana.datasources."datasources.yaml".datasources[0].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[0].type | string | `"prometheus"` |  |
-| grafana.datasources."datasources.yaml".datasources[0].uid | string | `"prometheus"` |  |
-| grafana.datasources."datasources.yaml".datasources[0].url | string | `"http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].type | string | `"grafana-pyroscope-datasource"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].uid | string | `"pyroscope"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].url | string | `"http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[1].access | string | `"proxy"` |  |
 | grafana.datasources."datasources.yaml".datasources[1].editable | bool | `false` |  |
-| grafana.datasources."datasources.yaml".datasources[1].isDefault | bool | `false` |  |
-| grafana.datasources."datasources.yaml".datasources[1].name | string | `"logs"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].isDefault | bool | `true` |  |
+| grafana.datasources."datasources.yaml".datasources[1].name | string | `"metrics"` |  |
 | grafana.datasources."datasources.yaml".datasources[1].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[1].type | string | `"loki"` |  |
-| grafana.datasources."datasources.yaml".datasources[1].uid | string | `"loki"` |  |
-| grafana.datasources."datasources.yaml".datasources[1].url | string | `"http://loki-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].type | string | `"prometheus"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].uid | string | `"prometheus"` |  |
+| grafana.datasources."datasources.yaml".datasources[1].url | string | `"http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].access | string | `"proxy"` |  |
 | grafana.datasources."datasources.yaml".datasources[2].editable | bool | `false` |  |
 | grafana.datasources."datasources.yaml".datasources[2].isDefault | bool | `false` |  |
-| grafana.datasources."datasources.yaml".datasources[2].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].name | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].name | string | `"logs"` |  |
 | grafana.datasources."datasources.yaml".datasources[2].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].type | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].uid | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].url | string | `"{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[2].user | string | `"{{ .Values.global.postgres.username }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].type | string | `"loki"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].uid | string | `"loki"` |  |
+| grafana.datasources."datasources.yaml".datasources[2].url | string | `"http://loki-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].editable | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[3].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[3].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].name | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].type | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].uid | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].url | string | `"{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].user | string | `"{{ .Values.global.postgres.username }}"` |  |
 | grafana.deploymentStrategy.type | string | `"Recreate"` |  |
 | grafana.enabled | bool | `true` |  |
 | grafana.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION | bool | `true` |  |
@@ -487,6 +498,15 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
 | prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
+| pyroscope.alloy.enabled | bool | `false` |  |
+| pyroscope.enabled | bool | `true` |  |
+| pyroscope.pyroscope.extraArgs."log.level" | string | `"info"` |  |
+| pyroscope.pyroscope.fullnameOverride | string | `"pyroscope"` |  |
+| pyroscope.pyroscope.persistence.enabled | bool | `true` |  |
+| pyroscope.pyroscope.persistence.size | string | `"10Gi"` |  |
+| pyroscope.pyroscope.replicaCount | int | `1` |  |
+| pyroscope.pyroscope.service.port | int | `80` |  |
+| pyroscope.pyroscope.service.type | string | `"ClusterIP"` |  |
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
 
