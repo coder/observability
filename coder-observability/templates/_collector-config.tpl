@@ -85,8 +85,6 @@ discovery.relabel "pod_pprof" {
   // * `pyroscope.io/scheme`: If the metrics endpoint is secured then you will need
   // to set this to `https` & most likely set the `tls_config` of the scrape config.
   // * `pyroscope.io/port`: Scrape the pod on the indicated port.
-  // * `pyroscope.io/profile-{profile_name}-path`: Specifies URL path exposing pprof profile.
-  // * `pyroscope.io/profile-{profile_name}-param-{param_key}`: Overrides scrape URL parameters.
   //
   // Kubernetes labels will be added as Pyroscope labels on metrics via the
   // `labelmap` relabeling action.
@@ -119,13 +117,6 @@ discovery.relabel "pod_pprof" {
     regex = "(\\d+);((([0-9]+?)(\\.|$)){4})"
     replacement = "$2:$1"
     target_label = "__address__"
-  }
-  // Labels will exists to turn on various profiling types, e.g.:
-  //   pyroscope.io/profile-mem-enabled: 'true'
-  rule {
-    action = "labelmap"
-    regex = "__meta_kubernetes_pod_annotation_pyroscope_io_profile_(.+)"
-    replacement = "__profile_$1"
   }
   {{- if $agent.podMetricsRelabelRules -}}
   {{ $agent.podMetricsRelabelRules | trim | nindent 2 }}
