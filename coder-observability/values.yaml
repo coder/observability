@@ -115,9 +115,9 @@ global:
       scrape_timeout: 12s
     pprof:
       # global.telemetry.pprof.scrape_interval -- how often the collector will scrape pprof endpoints
-      scrape_interval: 15s
+      scrape_interval: 60s
       # global.telemetry.pprof.scrape_timeout -- how long a request will be allowed to wait before being canceled
-      scrape_timeout: 18s
+      scrape_timeout: 60s
 
   # global.postgres -- postgres connection information
   # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
@@ -534,6 +534,8 @@ prometheus:
 
 pyroscope:
   enabled: true
+  alloy:
+    enabled: false
   pyroscope:
     fullnameOverride: pyroscope
     service:
