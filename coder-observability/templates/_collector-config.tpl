@@ -207,8 +207,8 @@ pyroscope.scrape "pods" {
   targets = discovery.relabel.pod_pprof.output
   forward_to = [pyroscope.write.pods.receiver]
 
-  scrape_interval = "{{ .Values.global.telemetry.pprof.scrape_interval }}"
-  scrape_timeout = "{{ .Values.global.telemetry.pprof.scrape_timeout }}"
+  scrape_interval = "{{ .Values.global.telemetry.profiling.scrape_interval }}"
+  scrape_timeout = "{{ .Values.global.telemetry.profiling.scrape_timeout }}"
 }
 
 pyroscope.write "pods" {

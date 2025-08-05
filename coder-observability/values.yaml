@@ -113,10 +113,10 @@ global:
       scrape_interval: 15s
       # global.telemetry.metrics.scrape_timeout -- how long a request will be allowed to wait before being canceled
       scrape_timeout: 12s
-    pprof:
-      # global.telemetry.pprof.scrape_interval -- how often the collector will scrape pprof endpoints
+    profiling:
+      # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s
-      # global.telemetry.pprof.scrape_timeout -- how long a request will be allowed to wait before being canceled
+      # global.telemetry.profiling.scrape_timeout -- how long a request will be allowed to wait before being canceled
       scrape_timeout: 60s
 
   # global.postgres -- postgres connection information
@@ -357,8 +357,7 @@ grafana:
       datasources:
         - name: pyroscope
           type: grafana-pyroscope-datasource
-          # Unsure how to make the 4040 reference the value in pyroscope.
-          url: http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:4040
+          url: http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
           isDefault: false
           editable: false
           access: proxy
@@ -539,7 +538,7 @@ pyroscope:
   pyroscope:
     fullnameOverride: pyroscope
     service:
-      port: 4040
+      port: 80
       type: ClusterIP
     extraArgs:
       log.level: info
