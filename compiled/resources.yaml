@@ -251,6 +251,14 @@ data:
     datasources:
     - access: proxy
       editable: false
+      isDefault: false
+      name: pyroscope
+      timeout: '905'
+      type: grafana-pyroscope-datasource
+      uid: pyroscope
+      url: http://pyroscope.coder-observability.svc:4040
+    - access: proxy
+      editable: false
       isDefault: true
       name: metrics
       timeout: '905'
@@ -12421,7 +12429,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 2828a490315379b00f2116ebe6a20dd3ca9a4d5ce5839f037c1eb0a4501ecb18
+        checksum/config: 8143dd78a48b90e972a84c3078e9812a2536a4efff7ca13f404626d5eae08ab2
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
@@ -13502,7 +13510,7 @@ spec:
             - "-memberlist.join=dns+pyroscope-memberlist.coder-observability.svc.cluster.local.:7946"
             - "-config.file=/etc/pyroscope/config.yaml"
             - "-runtime-config.file=/etc/pyroscope/overrides/overrides.yaml"
-            - "-log.level=debug"
+            - "-log.level=info"
           env:
             - name: POD_NAME
               valueFrom:
@@ -13538,8 +13546,17 @@ spec:
         - name: overrides-config
           configMap:
             name: pyroscope-overrides-config
-        - name: data
-          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        annotations: {}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "10Gi"
+        storageClassName:
 ---
 # Source: coder-observability/templates/statefulset-postgres-exporter.yaml
 apiVersion: apps/v1

@@ -2,6 +2,12 @@
 
 To test the observability chart locally without a kubernetes cluster, you can use [`kind` (Kubernetes in Docker)](https://kind.sigs.k8s.io/). This allows you to create a local Kubernetes cluster that can be used for testing purposes.
 
+```bash
+kind create cluster --name observability
+# To clean everything up, you can delete the cluster with:
+# kind delete cluster --name observability
+```
+
 First a `coder` deployment is required, as the observability stack is designed to monitor `coder` deployments.
 
 ## Launch `coder` in a namespace
@@ -70,8 +76,6 @@ So coder can be accessed at `http://172.18.0.2:31332`. After making an account, 
 Install the local observability chart using Helm into its own namespace.
 
 ```bash
-kind create cluster --name observability
-
 # Set kubectl default namespace to `coder-observability` for easier usage
 kubectl config set-context --current --namespace=coder-observability
 # This will install the local observability chart into the `coder-observability` namespace
@@ -83,6 +87,13 @@ helm install --namespace coder-observability --create-namespace observe .
 
 ```bash
 helm upgrade --namespace coder-observability -force --create-namespace observe .
+```
+
+Sometimes the config maps do not take. A quick way to reset the helm installation is just to uninstall and install.
+
+```bash
+helm uninstall observe
+# Install using the `helm install ...` command from above.
 ```
 
 ## To port-forward services
