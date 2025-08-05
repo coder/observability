@@ -525,8 +525,11 @@ prometheus:
 
 pyroscope:
   enabled: true
-  fullnameOverride: pyroscope
-
+  pyroscope:
+    fullnameOverride: pyroscope
+    service:
+      port: 4040
+      type: ClusterIP
 loki:
   enabled: true
   nameOverride: loki

@@ -77,19 +77,19 @@ discovery.relabel "pod_metrics" {
 discovery.relabel "pod_pprof" {
   targets = discovery.kubernetes.pods.targets
   {{ $agent.commonRelabellings | nindent 6 }}
-  # The relabeling allows the actual pod scrape endpoint to be configured via the
-  # following annotations:
-  #
-  # * `pyroscope.io/scrape`: Only scrape pods that have a value of `true`.
-  # * `pyroscope.io/application-name`: Name of the application being profiled.
-  # * `pyroscope.io/scheme`: If the metrics endpoint is secured then you will need
-  # to set this to `https` & most likely set the `tls_config` of the scrape config.
-  # * `pyroscope.io/port`: Scrape the pod on the indicated port.
-  # * `pyroscope.io/profile-{profile_name}-path`: Specifies URL path exposing pprof profile.
-  # * `pyroscope.io/profile-{profile_name}-param-{param_key}`: Overrides scrape URL parameters.
-  #
-  # Kubernetes labels will be added as Pyroscope labels on metrics via the
-  # `labelmap` relabeling action.
+  // The relabeling allows the actual pod scrape endpoint to be configured via the
+  // following annotations:
+  //
+  // * `pyroscope.io/scrape`: Only scrape pods that have a value of `true`.
+  // * `pyroscope.io/application-name`: Name of the application being profiled.
+  // * `pyroscope.io/scheme`: If the metrics endpoint is secured then you will need
+  // to set this to `https` & most likely set the `tls_config` of the scrape config.
+  // * `pyroscope.io/port`: Scrape the pod on the indicated port.
+  // * `pyroscope.io/profile-{profile_name}-path`: Specifies URL path exposing pprof profile.
+  // * `pyroscope.io/profile-{profile_name}-param-{param_key}`: Overrides scrape URL parameters.
+  //
+  // Kubernetes labels will be added as Pyroscope labels on metrics via the
+  // `labelmap` relabeling action.
   rule {
     source_labels = ["__meta_kubernetes_pod_annotation_pyroscope_io_scrape"]
     action = "keep"
@@ -120,8 +120,8 @@ discovery.relabel "pod_pprof" {
     replacement = "$2:$1"
     target_label = "__address__"
   }
-  # Labels will exists to turn on various profiling types, e.g.:
-  #   pyroscope.io/profile-mem-enabled: 'true'
+  // Labels will exists to turn on various profiling types, e.g.:
+  //   pyroscope.io/profile-mem-enabled: 'true'
   rule {
     action = "labelmap"
     regex = "__meta_kubernetes_pod_annotation_pyroscope_io_profile_(.+)"
@@ -214,10 +214,16 @@ loki.write "loki" {
 
 pyroscope.scrape "pods" {
   targets = discovery.relabel.pod_pprof.output
-  #forward_to = [prometheus.relabel.pods.receiver]
+  forward_to = [pyroscope.write.pods.receiver]
 
   scrape_interval = "{{ .Values.global.telemetry.pprof.scrape_interval }}"
   scrape_timeout = "{{ .Values.global.telemetry.pprof.scrape_timeout }}"
+}
+
+pyroscope.write "pods" {
+  endpoint {
+    url = "http://{{ include "pyroscope.fullname" .Subcharts.pyroscope }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}:{{ .Values.pyroscope.pyroscope.service.port }}"
+  }
 }
 
 prometheus.scrape "pods" {
