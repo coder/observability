@@ -222,6 +222,7 @@ grafana:
 | https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
+| https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
@@ -260,10 +261,12 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.externalZone | string | `"svc.cluster.local"` |  |
 | global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","exporter":{"image":"quay.io/prometheuscommunity/postgres-exporter"},"hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","sslrootcert":null,"username":"coder","volumeMounts":[],"volumes":[]}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
 | global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
-| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"}}` | control telemetry collection |
+| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"},"pprof":{"scrape_interval":"15s","scrape_timeout":"18s"}}` | control telemetry collection |
 | global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
+| global.telemetry.pprof.scrape_interval | string | `"15s"` | how often the collector will scrape pprof endpoints |
+| global.telemetry.pprof.scrape_timeout | string | `"18s"` | how long a request will be allowed to wait before being canceled |
 | global.zone | string | `"svc"` |  |
 | grafana-agent.agent.clustering.enabled | bool | `false` |  |
 | grafana-agent.agent.configMap.create | bool | `false` |  |
@@ -487,6 +490,10 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
 | prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
+| pyroscope.enabled | bool | `true` |  |
+| pyroscope.pyroscope.fullnameOverride | string | `"pyroscope"` |  |
+| pyroscope.pyroscope.service.port | int | `4040` |  |
+| pyroscope.pyroscope.service.type | string | `"ClusterIP"` |  |
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
 
