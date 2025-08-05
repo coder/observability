@@ -355,6 +355,15 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
+        - name: pyroscope
+          type: grafana-pyroscope-datasource
+          # Unsure how to make the 4040 reference the value in pyroscope.
+          url: http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:4040
+          isDefault: false
+          editable: false
+          access: proxy
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
+          uid: pyroscope
         - name: metrics
           type: prometheus
           url: http://prometheus.{{ .Release.Namespace }}.{{ $.Values.global.zone }}
@@ -530,6 +539,13 @@ pyroscope:
     service:
       port: 4040
       type: ClusterIP
+    extraArgs:
+      log.level: info
+    replicaCount: 1
+    persistence:
+      enabled: true
+      size: 10Gi
+
 loki:
   enabled: true
   nameOverride: loki
