@@ -499,7 +499,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
 | pyroscope.alloy.enabled | bool | `false` |  |
-| pyroscope.enabled | bool | `true` |  |
+| pyroscope.enabled | bool | `false` |  |
 | pyroscope.pyroscope.extraArgs."log.level" | string | `"info"` |  |
 | pyroscope.pyroscope.fullnameOverride | string | `"pyroscope"` |  |
 | pyroscope.pyroscope.persistence.enabled | bool | `true` |  |
