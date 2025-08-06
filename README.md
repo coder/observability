@@ -337,7 +337,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.datasources."datasources.yaml".datasources[0].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[0].type | string | `"grafana-pyroscope-datasource"` |  |
 | grafana.datasources."datasources.yaml".datasources[0].uid | string | `"pyroscope"` |  |
-| grafana.datasources."datasources.yaml".datasources[0].url | string | `"http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[0].url | string | `"http://pyroscope.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:4040"` |  |
 | grafana.datasources."datasources.yaml".datasources[1].access | string | `"proxy"` |  |
 | grafana.datasources."datasources.yaml".datasources[1].editable | bool | `false` |  |
 | grafana.datasources."datasources.yaml".datasources[1].isDefault | bool | `true` |  |
@@ -505,7 +505,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | pyroscope.pyroscope.persistence.enabled | bool | `true` |  |
 | pyroscope.pyroscope.persistence.size | string | `"10Gi"` |  |
 | pyroscope.pyroscope.replicaCount | int | `1` |  |
-| pyroscope.pyroscope.service.port | int | `80` |  |
+| pyroscope.pyroscope.service.port | int | `4040` |  |
 | pyroscope.pyroscope.service.type | string | `"ClusterIP"` |  |
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
