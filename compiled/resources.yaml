@@ -212,7 +212,7 @@ data:
       timeout: '905'
       type: grafana-pyroscope-datasource
       uid: pyroscope
-      url: http://pyroscope.coder-observability.svc
+      url: http://pyroscope.coder-observability.svc:4040
     - access: proxy
       editable: false
       isDefault: true
@@ -11255,7 +11255,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 666fc9d25c33f33d23342eb8113dc2abcd9ba71cc245634e924f8397fb8d777b
+        checksum/config: 8143dd78a48b90e972a84c3078e9812a2536a4efff7ca13f404626d5eae08ab2
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana

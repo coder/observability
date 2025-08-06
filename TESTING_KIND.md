@@ -102,5 +102,5 @@ To view the monitoring services, you can port forward their UI's.
 
 - Grafana: `kubectl -n coder-observability port-forward svc/grafana 3000:80`
 - Prometheus: `kubectl -n coder-observability port-forward svc/prometheus 3001:80`
-- Pyroscope: `kubectl port-forward svc/pyroscope 3002:80`
+- Pyroscope: `kubectl port-forward svc/pyroscope 3002:4040`
 - Grafana Agent: `kubectl port-forward svc/grafana-agent 3003:80`
