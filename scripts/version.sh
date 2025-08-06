@@ -25,7 +25,7 @@ function bump_version() {
   local new_version
 
   if [[ $version == "major" ]]; then
-    new_version=$(echo $current_version | awk -F. '{print $1+1".0.0"}')
+    new_version=$(echo $current_version | sed 's/^v//' | awk -F. '{print "v" $1+1".0.0"}')
   elif [[ $version == "minor" ]]; then
     new_version=$(echo $current_version | awk -F. '{print $1"."$2+1".0"}')
   elif [[ $version == "patch" ]]; then
