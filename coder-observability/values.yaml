@@ -532,7 +532,7 @@ prometheus:
     enabled: false
 
 pyroscope:
-  enabled: true
+  enabled: false
   alloy:
     enabled: false
   pyroscope:

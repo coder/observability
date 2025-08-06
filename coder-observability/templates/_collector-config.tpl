@@ -203,6 +203,7 @@ loki.write "loki" {
   }
 }
 
+{{ if .Values.pyroscope.enabled }}
 pyroscope.scrape "pods" {
   targets = discovery.relabel.pod_pprof.output
   forward_to = [pyroscope.write.pods.receiver]
@@ -216,6 +217,7 @@ pyroscope.write "pods" {
     url = "http://{{ include "pyroscope.fullname" .Subcharts.pyroscope }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}:{{ .Values.pyroscope.pyroscope.service.port }}"
   }
 }
+{{ end }}
 
 prometheus.scrape "pods" {
   targets = discovery.relabel.pod_metrics.output
