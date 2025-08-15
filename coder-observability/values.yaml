@@ -186,7 +186,7 @@ grafana-agent:
       key: config.river
       create: false
     clustering:
-      enabled: false
+      enabled: true
     extraArgs:
       - --disable-reporting=true
     mounts:
