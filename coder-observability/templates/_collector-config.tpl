@@ -210,6 +210,10 @@ pyroscope.scrape "pods" {
 
   scrape_interval = "{{ .Values.global.telemetry.profiling.scrape_interval }}"
   scrape_timeout = "{{ .Values.global.telemetry.profiling.scrape_timeout }}"
+
+  clustering {
+    enabled = true
+  }
 }
 
 pyroscope.write "pods" {

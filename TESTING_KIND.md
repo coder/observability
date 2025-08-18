@@ -1,5 +1,12 @@
 # Using kind to test observability
 
+<details>
+  <summary>If using nix</summary>
+
+    `nix-shell -p kind kubernetes-helm kubectl`
+
+</details>
+
 To test the observability chart locally without a kubernetes cluster, you can use [`kind` (Kubernetes in Docker)](https://kind.sigs.k8s.io/). This allows you to create a local Kubernetes cluster that can be used for testing purposes.
 
 ```bash
@@ -86,7 +93,7 @@ helm install --namespace coder-observability --create-namespace observe .
 ## To update
 
 ```bash
-helm upgrade --namespace coder-observability -force --create-namespace observe .
+helm upgrade --namespace coder-observability --create-namespace observe .
 ```
 
 Sometimes the config maps do not take. A quick way to reset the helm installation is just to uninstall and install.
