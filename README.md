@@ -268,7 +268,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.telemetry.profiling.scrape_interval | string | `"60s"` | how often the collector will scrape pprof endpoints |
 | global.telemetry.profiling.scrape_timeout | string | `"60s"` | how long a request will be allowed to wait before being canceled |
 | global.zone | string | `"svc"` |  |
-| grafana-agent.agent.clustering.enabled | bool | `false` |  |
+| grafana-agent.agent.clustering.enabled | bool | `true` |  |
 | grafana-agent.agent.configMap.create | bool | `false` |  |
 | grafana-agent.agent.configMap.key | string | `"config.river"` |  |
 | grafana-agent.agent.configMap.name | string | `"collector-config"` |  |
