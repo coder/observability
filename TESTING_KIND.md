@@ -93,7 +93,7 @@ helm install --namespace coder-observability --create-namespace observe .
 ## To update
 
 ```bash
-helm upgrade --namespace coder-observability -force --create-namespace observe .
+helm upgrade --namespace coder-observability --force --create-namespace observe .
 ```
 
 Sometimes the config maps do not take. A quick way to reset the helm installation is just to uninstall and install.
