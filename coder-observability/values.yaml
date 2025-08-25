@@ -116,8 +116,8 @@ global:
     profiling:
       # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s
-      # global.telemetry.profiling.scrape_timeout -- how long a request will be allowed to wait before being canceled
-      scrape_timeout: 60s
+      # global.telemetry.profiling.scrape_timeout -- how long a request will be allowed to wait before being canceled, must be larger than scrape_interval
+      scrape_timeout: 70s
 
   # global.postgres -- postgres connection information
   # NOTE: these settings are global so we can parameterise some values which get rendered by subcharts
