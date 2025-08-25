@@ -265,6 +265,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
+| global.telemetry.profiling.delta_profiling_duration | string | `"30s"` | duration of each pprof profiling capture, must be less than scrape_interval |
 | global.telemetry.profiling.scrape_interval | string | `"60s"` | how often the collector will scrape pprof endpoints |
 | global.telemetry.profiling.scrape_timeout | string | `"70s"` | how long a request will be allowed to wait before being canceled, must be larger than scrape_interval |
 | global.zone | string | `"svc"` |  |
