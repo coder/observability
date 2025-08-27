@@ -487,6 +487,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.server.extraConfigmapMounts[0].readonly | bool | `true` |  |
 | prometheus.server.extraFlags[0] | string | `"web.enable-lifecycle"` |  |
 | prometheus.server.extraFlags[1] | string | `"enable-feature=remote-write-receiver"` |  |
+| prometheus.server.extraFlags[2] | string | `"enable-feature=native-histograms"` |  |
 | prometheus.server.fullnameOverride | string | `"prometheus"` |  |
 | prometheus.server.global.evaluation_interval | string | `"30s"` |  |
 | prometheus.server.persistentVolume.enabled | bool | `true` |  |

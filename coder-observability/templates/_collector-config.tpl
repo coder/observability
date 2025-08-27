@@ -230,6 +230,7 @@ prometheus.scrape "pods" {
 
   scrape_interval = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
   scrape_timeout = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
+  enable_protobuf_negotiation = true
 }
 
 // These are metric_relabel_configs while discovery.relabel are relabel_configs.
@@ -301,6 +302,7 @@ prometheus.scrape "cadvisor" {
   bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
   scrape_interval   = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
   scrape_timeout    = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
+  enable_protobuf_negotiation = true
 }
 
 prometheus.relabel "cadvisor" {
@@ -346,6 +348,7 @@ prometheus.relabel "cadvisor" {
 
 prometheus.remote_write "default" {
   endpoint {
+    send_native_histograms = true
     url ="http://{{ include "prometheus.server.fullname" .Subcharts.prometheus }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 
     // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
@@ -396,6 +399,7 @@ prometheus.scrape "coder_metrics" {
 
   forward_to = [prometheus.remote_write.default.receiver]
   scrape_interval = "{{ .scrapeInterval }}"
+  enable_protobuf_negotiation = true
 }
 {{- end }}
 {{- end }}
