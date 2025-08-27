@@ -261,11 +261,10 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.externalZone | string | `"svc.cluster.local"` |  |
 | global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","exporter":{"image":"quay.io/prometheuscommunity/postgres-exporter"},"hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","sslrootcert":null,"username":"coder","volumeMounts":[],"volumes":[]}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
 | global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
-| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"delta_profiling_duration":"30s","scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
+| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
 | global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
-| global.telemetry.profiling.delta_profiling_duration | string | `"30s"` | duration of each pprof profiling capture, must be less than scrape_interval |
 | global.telemetry.profiling.scrape_interval | string | `"60s"` | how often the collector will scrape pprof endpoints |
 | global.telemetry.profiling.scrape_timeout | string | `"70s"` | how long a request will be allowed to wait before being canceled |
 | global.zone | string | `"svc"` |  |
