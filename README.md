@@ -215,6 +215,73 @@ grafana:
     path: "/"
 ```
 
+### Prometheus
+
+To access Prometheus, run:
+
+```bash
+kubectl -n coder-observability port-forward svc/prometheus 9090:80
+```
+
+And open your web browser to http://localhost:9090/graph.
+
+#### Native Histograms
+
+Native histograms are an **experimental** Prometheus feature that remove the need to predefine bucket boundaries and instead provide higher-resolution, adaptive buckets (see [Prometheus docs](https://prometheus.io/docs/specs/native_histograms/) for details).
+
+Unlike classic histograms, which are sent in plain text, **native histograms require the protobuf protocol**.
+In addition to running Prometheus with native histogram support, since the Prometheus Helm chart is configured with remote write, the Grafana Agent must be configured to scrape and remote write using protobuf.
+Native histograms are **disabled by default**, but when you enable them globally, the Helm chart automatically updates the Grafana Agent configuration accordingly.
+
+To enable native histograms, define this in your `values.yaml`:
+
+```yaml
+global:
+  telemetry:
+    metrics:
+      nativeHistograms: true
+
+prometheus:
+  server:
+    extraFlags:
+      - web.enable-lifecycle
+      - enable-feature=remote-write-receiver
+      - enable-feature=native-histograms
+```
+
+After updating values, it might be required to restart the Grafana Agent so it picks up the new configuration:
+```bash
+kubectl -n coder-observability rollout restart daemonset/grafana-agent
+```
+
+⚠️ **Important**: Classic and native histograms cannot be aggregated together.
+If you switch from classic to native histograms, dashboards may need to account for the transition. See [Prometheus migration guidelines](https://prometheus.io/docs/specs/native_histograms/#migration-considerations) for details.
+
+<details>
+<summary>Validate Prometheus Native Histograms</summary>
+
+1) Check Prometheus flags:
+
+    Open http://localhost:9090/flags and confirm that `--enable-feature` includes `native-histograms`.
+
+2) Inspect histogram metrics:
+
+   * Classic histograms expose metrics with suffixes: `_bucket`, `_sum`, and `_count`.
+   * Native histograms are exposed directly under the metric name.
+   * Example: query `coderd_workspace_creation_duration_seconds` in http://localhost:9090/graph.
+
+3) Check Grafana Agent (if remote write is enabled):
+
+   To confirm, run:
+    ```bash
+    kubectl -n coder-observability port-forward svc/grafana-agent 3030:80
+    ```
+   Then open http://localhost:3030:
+   * scrape configurations defined in `prometheus.scrape.cadvisor`, should have `enable_protobuf_negotiation: true`
+   * remote write configurations defined in `prometheus.remote_write.default` should have `send_native_histograms: true`
+
+</details>
+
 ## Subcharts
 
 | Repository | Name | Version |
@@ -261,8 +328,9 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.externalZone | string | `"svc.cluster.local"` |  |
 | global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","exporter":{"image":"quay.io/prometheuscommunity/postgres-exporter"},"hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","sslrootcert":null,"username":"coder","volumeMounts":[],"volumes":[]}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
 | global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
-| global.telemetry | object | `{"metrics":{"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"delta_profiling_duration":"30s","scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
-| global.telemetry.metrics | object | `{"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
+| global.telemetry | object | `{"metrics":{"nativeHistograms":false,"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"delta_profiling_duration":"30s","scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
+| global.telemetry.metrics | object | `{"nativeHistograms":false,"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
+| global.telemetry.metrics.nativeHistograms | bool | `false` | enable Prometheus native histograms or default to classic histograms |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
 | global.telemetry.profiling.delta_profiling_duration | string | `"30s"` | duration of each pprof profiling capture, must be less than scrape_interval |
