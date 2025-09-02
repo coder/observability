@@ -274,9 +274,9 @@ If you switch from classic to native histograms, dashboards may need to account 
 
    To confirm, run:
     ```bash
-    kubectl -n coder-observability port-forward svc/grafana-agent 3000:80
+    kubectl -n coder-observability port-forward svc/grafana-agent 3030:80
     ```
-   Then open http://localhost:3000:
+   Then open http://localhost:3030:
    * scrape configurations defined in `prometheus.scrape.cadvisor`, should have `enable_protobuf_negotiation: true`
    * remote write configurations defined in `prometheus.remote_write.default` should have `send_native_histograms: true`
 
