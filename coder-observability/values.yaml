@@ -113,6 +113,8 @@ global:
       scrape_interval: 15s
       # global.telemetry.metrics.scrape_timeout -- how long a request will be allowed to wait before being canceled
       scrape_timeout: 12s
+      # global.telemetry.metrics.nativeHistograms -- enable Prometheus native histograms or default to classic histograms
+      nativeHistograms: false
     profiling:
       # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s
@@ -481,7 +483,6 @@ prometheus:
     extraFlags:
       - web.enable-lifecycle
       - enable-feature=remote-write-receiver
-      - enable-feature=native-histograms
     extraConfigmapMounts:
       - name: alerts
         mountPath: /etc/config/alerts
