@@ -136,6 +136,7 @@ global:
     # ensure that your secret has a field named `PGPASSWORD`
     mountSecret: "secret-postgres"
     exporter:
+      enabled: true
       image: "quay.io/prometheuscommunity/postgres-exporter"
 
     # volumes and volumeMounts for SSL certificates
@@ -176,6 +177,7 @@ runbookViewer:
   image: "dannyben/madness"
 
 sqlExporter:
+  enabled: true
   image: "burningalchemist/sql_exporter"
 
 grafana-agent:

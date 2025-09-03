@@ -12307,7 +12307,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
-        checksum/config: 71bb9e7579b6e138ae28c623aa29d72025be00387da6c1b8dd5aa168c96ca1e0
+        checksum/config: 80b50946b9b587df2a3833a4b60b549f37531da381f03f5dc0b69534c7d5044f
       labels:
         app: sql-exporter
         app.kubernetes.io/name: "database-stats"

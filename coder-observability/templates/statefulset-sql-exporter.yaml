@@ -1,3 +1,4 @@
+{{- if .Values.sqlExporter.enabled }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -35,3 +36,4 @@ spec:
         - name: config
           configMap:
             name: sql-exporter-config
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.sqlExporter.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -25,3 +26,4 @@ data:
             values: [ usage ]
             query: |
               SELECT pg_notification_queue_usage() AS usage;
+{{- end }}
