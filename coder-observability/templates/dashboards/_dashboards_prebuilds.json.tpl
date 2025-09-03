@@ -19,107 +19,9 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
+  "id": 132,
   "links": [],
   "panels": [
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "orange",
-                  "index": 2,
-                  "text": "Not enabled"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "Enabled"
-                }
-              },
-              "type": "value"
-            },
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "orange",
-                  "index": 1,
-                  "text": "Not enabled"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 0
-      },
-      "id": 15,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 15
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "min(coderd_experiments{experiment=\"workspace-prebuilds\"})",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Experiment enabled?",
-      "type": "stat"
-    },
     {
       "datasource": {
         "type": "prometheus",
@@ -137,7 +39,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -151,7 +53,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 4,
+        "x": 0,
         "y": 0
       },
       "id": 49,
@@ -161,6 +63,7 @@
         "graphMode": "area",
         "justifyMode": "center",
         "orientation": "vertical",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -172,8 +75,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.3",
-      "repeatDirection": "v",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -241,7 +143,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -255,7 +157,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 4,
         "y": 0
       },
       "id": 48,
@@ -265,6 +167,7 @@
         "graphMode": "area",
         "justifyMode": "center",
         "orientation": "vertical",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -276,8 +179,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.3",
-      "repeatDirection": "v",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -329,6 +231,7 @@
       "type": "stat"
     },
     {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -337,9 +240,8 @@
       },
       "id": 2,
       "panels": [],
-      "repeat": "template",
-      "repeatDirection": "h",
-      "title": "$template",
+      "repeat": "preset",
+      "title": "$preset",
       "type": "row"
     },
     {
@@ -347,6 +249,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -359,7 +262,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -371,18 +274,19 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 4,
+        "h": 3,
+        "w": 6,
         "x": 0,
         "y": 5
       },
-      "id": 31,
+      "id": 1,
       "interval": "30s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "center",
         "orientation": "vertical",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -394,9 +298,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.3",
-      "repeat": "preset",
-      "repeatDirection": "v",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -405,45 +307,46 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_desired{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "max(coderd_prebuilt_workspaces_created_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
           "instant": true,
           "interval": "",
-          "legendFormat": "Desired",
+          "legendFormat": "Created",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(coderd_prebuilt_workspaces_failed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Failed",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(coderd_prebuilt_workspaces_claimed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Claimed",
           "range": false,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_running{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Running",
-          "range": false,
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_eligible{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Eligible",
-          "range": false,
-          "refId": "E"
         }
       ],
-      "title": "Current: $preset",
+      "title": "All Time: $preset",
       "type": "stat"
     },
     {
@@ -465,208 +368,7 @@
             "axisSoftMax": 10,
             "axisSoftMin": 0,
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 18,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Desired"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 85
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "Running"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Running"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillBelowTo",
-                "value": "Eligible"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Eligible"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 4,
-        "y": 5
-      },
-      "id": 5,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.4.3",
-      "repeat": "preset",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(coderd_prebuilt_workspaces_desired{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Desired",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(coderd_prebuilt_workspaces_running{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Running",
-          "range": true,
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(coderd_prebuilt_workspaces_eligible{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Eligible",
-          "range": true,
-          "refId": "E"
-        }
-      ],
-      "title": "Pool Capacity: $preset",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMax": 10,
-            "axisSoftMin": 0,
-            "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 13,
             "gradientMode": "none",
@@ -703,7 +405,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -806,9 +508,9 @@
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 8,
-        "x": 12,
+        "h": 6,
+        "w": 9,
+        "x": 6,
         "y": 5
       },
       "id": 38,
@@ -820,13 +522,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "10.4.3",
-      "repeat": "preset",
-      "repeatDirection": "v",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -879,7 +580,208 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 10,
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 18,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Desired"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 85
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "Running"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Running"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillBelowTo",
+                "value": "Eligible"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eligible"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 5
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max(coderd_prebuilt_workspaces_desired{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Desired",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max(coderd_prebuilt_workspaces_running{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Running",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "max(coderd_prebuilt_workspaces_eligible{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Eligible",
+          "range": true,
+          "refId": "E"
+        }
+      ],
+      "title": "Pool Capacity: $preset",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -892,7 +794,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -904,18 +806,19 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 4,
-        "x": 20,
-        "y": 5
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 8
       },
-      "id": 1,
+      "id": 31,
       "interval": "30s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "center",
         "orientation": "vertical",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -927,9 +830,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.3",
-      "repeat": "preset",
-      "repeatDirection": "v",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -938,11 +839,203 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_created_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "max(coderd_prebuilt_workspaces_desired{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Desired",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(coderd_prebuilt_workspaces_running{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
           "hide": false,
           "instant": true,
           "interval": "",
-          "legendFormat": "Created",
+          "legendFormat": "Running",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(coderd_prebuilt_workspaces_eligible{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Eligible",
+          "range": false,
+          "refId": "E"
+        }
+      ],
+      "title": "Current: $preset",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Compares the total number of regular workspace creations to prebuilt workspace claims to date.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 11
+      },
+      "id": 51,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(max by (template_name, preset_name) (\n  coderd_workspace_creation_total{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n)) or vector(0)",
+          "instant": false,
+          "legendFormat": "Regular workspaces created",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (template_name, preset_name) (\n  coderd_prebuilt_workspaces_claimed_total{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n)) or vector(0)\n",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Prebuild workspaces claimed",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "All Time: Regular vs Prebuild",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Average seconds to:\n* Create a regular workspace\n* Create a prebuilt workspace into the pool\n* Claim a prebuilt workspace from the pool",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 6,
+        "y": 11
+      },
+      "id": 52,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_workspace_creation_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n  }\n) / \nmax(\n  coderd_workspace_creation_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n  }\n)\nor vector(0)",
+          "instant": true,
+          "legendFormat": "Regular Creation",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_workspace_creation_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n  }\n) / \nmax(\n  coderd_workspace_creation_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n  }\n)\nor vector(0)",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Prebuild Creation",
           "range": false,
           "refId": "B"
         },
@@ -953,13 +1046,113 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_failed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_prebuilt_workspace_claim_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n) / \nmax(\n  coderd_prebuilt_workspace_claim_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n)\nor vector(0)",
           "hide": false,
           "instant": true,
-          "interval": "",
-          "legendFormat": "Failed",
+          "legendFormat": "Prebuild Claim",
           "range": false,
           "refId": "C"
+        }
+      ],
+      "title": "Regular vs Prebuild Times (Avg)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Side-by-side comparison of prebuild creation and prebuild claim times",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "dash": [
+                10,
+                10
+              ],
+              "fill": "dash"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 15,
+        "y": 11
+      },
+      "id": 50,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "histogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n) or vector(0)",
+          "legendFormat": "Build into Pool",
+          "range": true,
+          "refId": "A"
         },
         {
           "datasource": {
@@ -967,36 +1160,36 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "exemplar": false,
-          "expr": "max(coderd_prebuilt_workspaces_claimed_total{template_name=~\"$template\", preset_name=~\"$preset\"}) or vector(0)",
+          "expr": "histogram_avg(\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n) or vector(0)",
           "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Claimed",
-          "range": false,
-          "refId": "A"
+          "instant": false,
+          "legendFormat": "Claim",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "All Time: $preset",
-      "type": "stat"
+      "title": "Prebuild: Create vs Claim (Avg)",
+      "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "{{- include "dashboard-refresh" . -}}",
-  "schemaVersion": 39,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": "",
+        "current": {
+          "text": "coder",
+          "value": "coder"
+        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
         "definition": "label_values(coderd_prebuilt_workspaces_desired,template_name)",
-        "hide": 0,
         "includeAll": false,
         "label": "Template",
-        "multi": false,
         "name": "template",
         "options": [],
         "query": {
@@ -1006,18 +1199,20 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
-        "allValue": "",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus"
         },
         "definition": "label_values(coderd_prebuilt_workspaces_desired{template_name=~\"$template\"},preset_name)",
-        "hide": 0,
         "includeAll": true,
         "label": "Preset",
         "multi": true,
@@ -1030,8 +1225,6 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
@@ -1044,7 +1237,6 @@
   "timezone": "browser",
   "title": "Prebuilds",
   "uid": "cej6jysyme22oa",
-  "version": 13,
-  "weekStart": ""
+  "version": 5
 }
 {{ end }}
