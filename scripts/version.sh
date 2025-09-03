@@ -8,7 +8,10 @@
 set -euo pipefail
 
 remote_url=$(git remote get-url origin)
+# Newest tag by semantic version (may include prerelease like -rc/-beta/-alpha)
 current_version="$(git tag -l | sort --version-sort | tail -n1)"
+# Newest stable version tag (strict X.Y.Z; excludes prereleases)
+stable_version="$(git tag -l | sort --version-sort | grep -E '^(v)?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n1)"
 
 function help() {
     echo "$0 [options] [arguments]"
@@ -16,6 +19,7 @@ function help() {
     echo "options:"
     echo "-h, --help      show brief help"
     echo "-c, --current   show the current version"
+    echo "-s, --stable    show the current stable version"
     echo "-b, --bump      bump the version based on the given argument"
     exit 0
 }
@@ -25,11 +29,11 @@ function bump_version() {
   local new_version
 
   if [[ $version == "major" ]]; then
-    new_version=$(echo $current_version | sed 's/^v//' | awk -F. '{print "v" $1+1".0.0"}')
+    new_version=$(echo $stable_version | sed 's/^v//' | awk -F. '{print "v" $1+1".0.0"}')
   elif [[ $version == "minor" ]]; then
-    new_version=$(echo $current_version | awk -F. '{print $1"."$2+1".0"}')
+    new_version=$(echo $stable_version | awk -F. '{print $1"."$2+1".0"}')
   elif [[ $version == "patch" ]]; then
-    new_version=$(echo $current_version | awk -F. '{print $1"."$2"."$3+1}')
+    new_version=$(echo $stable_version | awk -F. '{print $1"."$2"."$3+1}')
   else
     echo "Error: Unknown argument $version"
     exit 1
@@ -38,9 +42,14 @@ function bump_version() {
   echo $new_version
 }
 
+# Show the newest tag (stable or prerelease like -rc/-beta/-alpha), without the leading 'v'.
 function show_current() {
-    # Version without the "v" prefix.
     echo "${current_version#v}"
+}
+
+# Show the newest stable tag (strict X.Y.Z), without the leading 'v'.
+function show_stable() {
+    echo "${stable_version#v}"
 }
 
 if [ $# == 0 ]; then
@@ -54,6 +63,10 @@ while test $# -gt 0; do
       ;;
     -c|--current)
       show_current
+      shift
+      ;;
+    -s|--stable)
+      show_stable
       shift
       ;;
     -b|--bump)
