@@ -20,11 +20,9 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ## Installation
 
-<!-- TODO: auto-update version here from publish script -->
-
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.1.1 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.3.5 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements

@@ -13,6 +13,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for fetch git tags step
+
+      # Ensure git tags are available for version scripts
+      - name: Fetch git tags
+        run: git fetch --tags --force
 
       - name: Setup Go
         uses: actions/setup-go@v2
