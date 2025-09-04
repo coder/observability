@@ -3623,7 +3623,7 @@ data:
               "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
               "hide": false,
               "instant": false,
-              "legendFormat": "Prebuild Creation",
+              "legendFormat": "Prebuilt Creation",
               "range": true,
               "refId": "B"
             },
@@ -3797,7 +3797,7 @@ data:
               "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
               "hide": false,
               "instant": false,
-              "legendFormat": "Prebuild Creation",
+              "legendFormat": "Prebuilt Creation",
               "range": true,
               "refId": "B"
             },
@@ -3886,7 +3886,7 @@ data:
               "refId": "A"
             }
           ],
-          "title": "All Time: Prebuild Usage %",
+          "title": "All Time: Prebuilds Usage %",
           "type": "stat"
         }
       ],
