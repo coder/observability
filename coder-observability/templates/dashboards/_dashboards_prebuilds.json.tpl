@@ -909,7 +909,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 3,
         "w": 6,
         "x": 0,
         "y": 11
@@ -952,12 +952,12 @@
           "expr": "sum(max by (template_name, preset_name) (\n  coderd_prebuilt_workspaces_claimed_total{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n)) or vector(0)\n",
           "hide": false,
           "instant": false,
-          "legendFormat": "Prebuild workspaces claimed",
+          "legendFormat": "Prebuilt workspaces claimed",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "All Time: Regular vs Prebuild",
+      "title": "All Time: Regular vs Prebuilt",
       "type": "stat"
     },
     {
@@ -965,104 +965,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Average seconds to:\n* Create a regular workspace\n* Create a prebuilt workspace into the pool\n* Claim a prebuilt workspace from the pool",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 9,
-        "x": 6,
-        "y": 11
-      },
-      "id": 52,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "vertical",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_workspace_creation_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n  }\n) / \nmax(\n  coderd_workspace_creation_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n  }\n)\nor vector(0)",
-          "instant": true,
-          "legendFormat": "Regular Creation",
-          "range": false,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_workspace_creation_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n  }\n) / \nmax(\n  coderd_workspace_creation_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n  }\n)\nor vector(0)",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Prebuild Creation",
-          "range": false,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "# Native Histogram\nhistogram_avg(\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n) \nor\n# Classic Histogram\nmax(\n  coderd_prebuilt_workspace_claim_duration_seconds_sum{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n) / \nmax(\n  coderd_prebuilt_workspace_claim_duration_seconds_count{\n    template_name=~\"$template\", preset_name=~\"$preset\"\n  }\n)\nor vector(0)",
-          "hide": false,
-          "instant": true,
-          "legendFormat": "Prebuild Claim",
-          "range": false,
-          "refId": "C"
-        }
-      ],
-      "title": "Regular vs Prebuild Times (Avg)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "Side-by-side comparison of prebuild creation and prebuild claim times",
+      "description": "Median (p50) build time in seconds for Regular Workspace Creation, Prebuilt Workspace Creation, and Prebuilt Workspace Claim",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1123,12 +1026,58 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Regular Creation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Prebuild Creation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Prebuilt Claim"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 9,
-        "x": 15,
+        "x": 6,
         "y": 11
       },
       "id": 50,
@@ -1149,8 +1098,8 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "histogram_avg(\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n) or vector(0)",
-          "legendFormat": "Build into Pool",
+          "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n    }\n  )\n)\nor vector(0)",
+          "legendFormat": "Regular Creation",
           "range": true,
           "refId": "A"
         },
@@ -1160,16 +1109,273 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "histogram_avg(\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n) or vector(0)",
+          "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
           "hide": false,
           "instant": false,
-          "legendFormat": "Claim",
+          "legendFormat": "Prebuild Creation",
           "range": true,
           "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n)\nor vector(0)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Prebuilt Claim",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "Prebuild: Create vs Claim (Avg)",
+      "title": "Workspace Build Latency p50",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "95th-percentile (p95) build time in seconds for Regular Workspace Creation, Prebuilt Workspace Creation, and Prebuilt Workspace Claim.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "dash": [
+                10,
+                10
+              ],
+              "fill": "dash"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Regular Creation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Prebuild Creation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Prebuilt Claim"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 11
+      },
+      "id": 53,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"regular\"\n    }\n  )\n)\nor vector(0)",
+          "legendFormat": "Regular Creation",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Prebuild Creation",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n)\nor vector(0)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Prebuilt Claim",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Workspace Build Latency p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 75
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 14
+      },
+      "id": 54,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "clamp_max(\n  100 *\n  (\n    sum(\n      coderd_prebuilt_workspaces_claimed_total{\n        template_name=\"$template\", preset_name=\"$preset\"\n      }\n    ) or vector(0)\n  )\n  /\n  clamp_min(\n    ( \n      sum(\n        coderd_prebuilt_workspaces_claimed_total{\n          template_name=\"$template\", preset_name=\"$preset\"\n        }\n      ) or vector(0))\n    +\n    (\n      sum(\n        coderd_workspace_creation_total{\n          template_name=\"$template\", preset_name=\"$preset\"\n        }\n      ) or vector(0)),\n    1\n  ),\n  100\n)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "All Time: Prebuild Usage %",
+      "type": "stat"
     }
   ],
   "preload": false,
@@ -1203,7 +1409,9 @@
       },
       {
         "current": {
-          "text": "All",
+          "text": [
+            "All"
+          ],
           "value": [
             "$__all"
           ]
