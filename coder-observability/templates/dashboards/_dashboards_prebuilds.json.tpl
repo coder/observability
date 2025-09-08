@@ -1061,7 +1061,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Prebuilt Claim"
+              "options": "Prebuild Claim"
             },
             "properties": [
               {
@@ -1235,7 +1235,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Prebuilt Claim"
+              "options": "Prebuild Claim"
             },
             "properties": [
               {
