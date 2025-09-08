@@ -9,7 +9,7 @@ set -euo pipefail
 
 remote_url=$(git remote get-url origin)
 # Newest tag by semantic version (may include prerelease like -rc/-beta/-alpha)
-current_version="$(git tag -l | sort --version-sort | tail -n1)"
+current_version="$(git tag --list --sort=-creatordate | head -n1)"
 # Newest stable version tag (strict X.Y.Z; excludes prereleases)
 stable_version="$(git tag -l | sort --version-sort | grep -E '^(v)?[0-9]+\.[0-9]+\.[0-9]+$' | tail -n1)"
 
