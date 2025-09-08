@@ -1113,7 +1113,7 @@
           "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
           "hide": false,
           "instant": false,
-          "legendFormat": "Prebuilt Creation",
+          "legendFormat": "Prebuild Creation",
           "range": true,
           "refId": "B"
         },
@@ -1126,7 +1126,7 @@
           "expr": "histogram_quantile(0.5,\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n)\nor vector(0)",
           "hide": false,
           "instant": false,
-          "legendFormat": "Prebuilt Claim",
+          "legendFormat": "Prebuild Claim",
           "range": true,
           "refId": "C"
         }
@@ -1287,7 +1287,7 @@
           "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_workspace_creation_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\", type=\"prebuild\"\n    }\n  )\n)\nor vector(0)",
           "hide": false,
           "instant": false,
-          "legendFormat": "Prebuilt Creation",
+          "legendFormat": "Prebuild Creation",
           "range": true,
           "refId": "B"
         },
@@ -1300,7 +1300,7 @@
           "expr": "histogram_quantile(0.95,\n  sum(\n    coderd_prebuilt_workspace_claim_duration_seconds{\n      template_name=~\"$template\", preset_name=~\"$preset\"\n    }\n  )\n)\nor vector(0)",
           "hide": false,
           "instant": false,
-          "legendFormat": "Prebuilt Claim",
+          "legendFormat": "Prebuild Claim",
           "range": true,
           "refId": "C"
         }
