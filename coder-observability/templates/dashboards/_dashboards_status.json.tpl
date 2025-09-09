@@ -404,7 +404,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(kube_pod_status_ready{condition=\"true\", {{ include "workspaces-selector" . -}}} == 1)\nor\ncount(coderd_api_workspace_latest_build{status=\"running\"})\nor\nvector(0)",
+          "expr": "count(kube_pod_status_ready{condition=\"true\", {{ include "workspaces-selector" . -}}} == 1)\nor\nsum(max by (workspace_owner, template_name, template_version) (coderd_workspace_latest_build_status{status=\"succeeded\", workspace_transition=\"start\"}))\nor\nvector(0)",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
