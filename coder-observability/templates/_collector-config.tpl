@@ -197,14 +197,13 @@ loki.process "pod_logs" {
 {{ if $agent.extraBlocks -}}
 {{ $agent.extraBlocks }}
 {{- end }}
-
-{{ if .Values.loki.enabled }}
+{{ if .Values.loki.enabled -}}
 loki.write "loki" {
   endpoint {
     url = "http://{{ include "loki.fullname" .Subcharts.loki }}-gateway.{{ .Release.Namespace }}.{{ .Values.global.zone }}/loki/api/v1/push"
   }
 }
-{{ end }}
+{{- end }}
 
 {{ if .Values.pyroscope.enabled }}
 pyroscope.scrape "pods" {
