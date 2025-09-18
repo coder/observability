@@ -4,6 +4,8 @@
 {{ $agent.logging }}
 {{ $agent.discovery }}
 
+{{- if .Values.loki.enabled }}
+
 discovery.relabel "pod_logs" {
   targets = discovery.kubernetes.pods.targets
   {{ $agent.commonRelabellings | nindent 2 }}
@@ -25,6 +27,7 @@ discovery.relabel "pod_logs" {
   {{ $agent.podLogsRelabelRules | trim | nindent 2 }}
   {{- end }}
 }
+{{- end }}
 
 discovery.relabel "pod_metrics" {
   targets = discovery.kubernetes.pods.targets
@@ -122,6 +125,7 @@ discovery.relabel "pod_pprof" {
   {{ $agent.podMetricsRelabelRules | trim | nindent 2 }}
   {{- end }}
 }
+{{- if .Values.loki.enabled }}
 
 local.file_match "pod_logs" {
   path_targets = discovery.relabel.pod_logs.output
@@ -194,6 +198,7 @@ loki.process "pod_logs" {
 
   forward_to = [loki.write.loki.receiver]
 }
+{{- end }}
 {{ if $agent.extraBlocks -}}
 {{ $agent.extraBlocks }}
 {{- end }}
@@ -379,15 +384,19 @@ otelcol.exporter.prometheus "to_prometheus" {
     prometheus.remote_write.default.receiver,
   ]
 }
+{{- if .Values.loki.enabled }}
 otelcol.exporter.loki "to_loki" {
   forward_to = [
     loki.write.loki.receiver,
   ]
 }
+{{- end }}
 otelcol.processor.batch "default" {
   output {
     metrics = [otelcol.exporter.prometheus.to_prometheus.input]
+{{- if .Values.loki.enabled }}
     logs    = [otelcol.exporter.loki.to_loki.input]
+{{- end }}
   }
 }
 {{- end -}}
