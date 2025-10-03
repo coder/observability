@@ -1,7 +1,12 @@
+{{- if .Values.global.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-workspace-detail
+  name: coder-dashboard-workspace-detail
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.global.dashboards.configmapLabels }}
+  labels: {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
-  workspaces-detail.json: |- {{- include "workspace-detail-dashboard.json" . | trim | nindent 4 }}
+  coder-workspaces-detail.json: |- {{- include "workspace-detail-dashboard.json" . | trim | nindent 4 }}
+{{- end }}

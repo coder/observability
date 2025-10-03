@@ -1618,8 +1618,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Workspaces",
-  "uid": "workspaces",
+  "title": "Coder Workspaces",
+  "uid": "coder-workspaces",
   "version": 2,
   "weekStart": ""
 }

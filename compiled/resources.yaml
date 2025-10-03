@@ -184,7 +184,7 @@ data:
     org_name = Main Org.
     org_role = Admin
     [dashboards]
-    default_home_dashboard_path = /var/lib/grafana/dashboards/coder/0/status.json
+    default_home_dashboard_path = /var/lib/grafana/dashboards/coder/0/coder-status.json
     [dataproxy]
     timeout = 900
     [feature_toggles]
@@ -786,18 +786,6 @@ metadata:
 data:
   config.river: "\n// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}\n\ndiscovery.relabel \"pod_logs\" {\n  targets = discovery.kubernetes.pods.targets\n  \n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\"]\n    target_label  = \"namespace\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_name\"]\n    target_label  = \"pod\"\n  }\n  // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n  rule {\n    source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n    separator      = \"/\"\n    target_label   = \"__meta_app\"\n    action         = \"replace\"\n    regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n    replacement    = \"${1}\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n    separator     = \"/\"\n    target_label  = \"job\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_name\"]\n    target_label  = \"container\"\n  }\n  rule {\n    regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    regex   = \"pod_template_generation\"\n    action  = \"labeldrop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_phase\"]\n    regex = \"Pending|Succeeded|Failed|Completed\"\n    action = \"drop\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_node_name\"]\n    action = \"replace\"\n    target_label = \"node\"\n  }\n  rule {\n    action = \"labelmap\"\n    regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n    replacement = \"__param_$1\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_uid\", \"__meta_kubernetes_pod_container_name\"]\n    separator     = \"/\"\n    action        = \"replace\"\n    replacement   = \"/var/log/pods/*$1/*.log\"\n    target_label  = \"__path__\"\n  }\n  rule {\n    action = \"replace\"\n    source_labels = [\"__meta_kubernetes_pod_container_id\"]\n    regex = \"^(\\\\w+):\\\\/\\\\/.+$\"\n    replacement = \"$1\"\n    target_label = \"tmp_container_runtime\"\n  }\n}\n\ndiscovery.relabel \"pod_metrics\" {\n  targets = discovery.kubernetes.pods.targets\n  \n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\"]\n        target_label  = \"namespace\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_name\"]\n        target_label  = \"pod\"\n      }\n      // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n      rule {\n        source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n        separator      = \"/\"\n        target_label   = \"__meta_app\"\n        action         = \"replace\"\n        regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n        replacement    = \"${1}\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n        separator     = \"/\"\n        target_label  = \"job\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_container_name\"]\n        target_label  = \"container\"\n      }\n      rule {\n        regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        regex   = \"pod_template_generation\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_phase\"]\n        regex = \"Pending|Succeeded|Failed|Completed\"\n        action = \"drop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_node_name\"]\n        action = \"replace\"\n        target_label = \"node\"\n      }\n      rule {\n        action = \"labelmap\"\n        regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n        replacement = \"__param_$1\"\n      }\n  // drop ports that do not expose Prometheus metrics, but might otherwise be exposed by a container which *also*\n  // exposes an HTTP port which exposes metrics\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_container_port_name\"]\n    regex         = \"grpc|http-(memberlist|console)\"\n    action        = \"drop\"\n  }\n  // adapted from the Prometheus helm chart\n  // https://github.com/prometheus-community/helm-charts/blob/862870fc3c847e32479b509e511584d5283126a3/charts/prometheus/values.yaml#L1070\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scrape\"]\n    action = \"keep\"\n    regex = \"true\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_scheme\"]\n    action = \"replace\"\n    regex = \"(https?)\"\n    target_label = \"__scheme__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_path\"]\n    action = \"replace\"\n    target_label = \"__metrics_path__\"\n    regex = \"(.+)\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})\"\n    replacement = \"[$2]:$1\"\n    target_label = \"__address__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_prometheus_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);((([0-9]+?)(\\\\.|$)){4})\"\n    replacement = \"$2:$1\"\n    target_label = \"__address__\"\n  }\n}\n\ndiscovery.relabel \"pod_pprof\" {\n  targets = discovery.kubernetes.pods.targets\n  \n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\"]\n        target_label  = \"namespace\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_name\"]\n        target_label  = \"pod\"\n      }\n      // coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\n      rule {\n        source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n        separator      = \"/\"\n        target_label   = \"__meta_app\"\n        action         = \"replace\"\n        regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n        replacement    = \"${1}\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n        separator     = \"/\"\n        target_label  = \"job\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_container_name\"]\n        target_label  = \"container\"\n      }\n      rule {\n        regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        regex   = \"pod_template_generation\"\n        action  = \"labeldrop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_phase\"]\n        regex = \"Pending|Succeeded|Failed|Completed\"\n        action = \"drop\"\n      }\n      rule {\n        source_labels = [\"__meta_kubernetes_pod_node_name\"]\n        action = \"replace\"\n        target_label = \"node\"\n      }\n      rule {\n        action = \"labelmap\"\n        regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n        replacement = \"__param_$1\"\n      }\n  // The relabeling allows the actual pod scrape endpoint to be configured via the\n  // following annotations:\n  //\n  // * `pyroscope.io/scrape`: Only scrape pods that have a value of `true`.\n  // * `pyroscope.io/application-name`: Name of the application being profiled.\n  // * `pyroscope.io/scheme`: If the metrics endpoint is secured then you will need\n  // to set this to `https` & most likely set the `tls_config` of the scrape config.\n  // * `pyroscope.io/port`: Scrape the pod on the indicated port.\n  //\n  // Kubernetes labels will be added as Pyroscope labels on metrics via the\n  // `labelmap` relabeling action.\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_pyroscope_io_scrape\"]\n    action = \"keep\"\n    regex = \"true\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_pyroscope_io_application_name\"]\n    action = \"replace\"\n    target_label = \"__name__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_pyroscope_io_scheme\"]\n    action = \"replace\"\n    regex = \"(https?)\"\n    target_label = \"__scheme__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_pyroscope_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})\"\n    replacement = \"[$2]:$1\"\n    target_label = \"__address__\"\n  }\n  rule {\n    source_labels = [\"__meta_kubernetes_pod_annotation_pyroscope_io_port\", \"__meta_kubernetes_pod_ip\"]\n    action = \"replace\"\n    regex = \"(\\\\d+);((([0-9]+?)(\\\\.|$)){4})\"\n    replacement = \"$2:$1\"\n    target_label = \"__address__\"\n  }\n}\n\nlocal.file_match \"pod_logs\" {\n  path_targets = discovery.relabel.pod_logs.output\n}\n\nloki.source.file \"pod_logs\" {\n  targets    = local.file_match.pod_logs.targets\n  forward_to = [loki.process.pod_logs.receiver]\n}\n\nloki.process \"pod_logs\" {\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"containerd\\\"}\"\n    // the cri processing stage extracts the following k/v pairs: log, stream, time, flags\n    stage.cri {}\n    // Set the extract flags and stream values as labels\n    stage.labels {\n      values = {\n        flags   = \"\",\n        stream  = \"\",\n      }\n    }\n  }\n\n  // if the label tmp_container_runtime from above is docker parse using docker\n  stage.match {\n    selector = \"{tmp_container_runtime=\\\"docker\\\"}\"\n    // the docker processing stage extracts the following k/v pairs: log, stream, time\n    stage.docker {}\n\n    // Set the extract stream value as a label\n    stage.labels {\n      values = {\n        stream  = \"\",\n      }\n    }\n  }\n\n  // drop the temporary container runtime label as it is no longer needed\n  stage.label_drop {\n    values = [\"tmp_container_runtime\"]\n  }\n\n  // parse Coder logs and extract level & logger for efficient filtering\n  stage.match {\n    selector = \"{pod=~\\\"coder.*\\\"}\" // TODO: make configurable\n\n    stage.multiline {\n      firstline     = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\"\n      max_wait_time = \"10s\"\n    }\n\n    stage.regex {\n      expression = \"^(?P<ts>\\\\d{4}-\\\\d{2}-\\\\d{2}\\\\s\\\\d{2}:\\\\d{2}:\\\\d{2}\\\\.\\\\d{3})\\\\s\\\\[(?P<level>\\\\w+)\\\\]\\\\s\\\\s(?P<logger>[^:]+):\\\\s(?P<line>.+)\"\n    }\n\n    stage.timestamp {\n      source            = \"ts\"\n      format            = \"2006-01-02 15:04:05.000\"\n      action_on_failure = \"fudge\" // rather have inaccurate time than drop the log line\n    }\n\n    stage.labels {\n      values = {\n        level  = \"\",\n        logger = \"\",\n      }\n    }\n  }\n\n  forward_to = [loki.write.loki.receiver]\n}\n\nloki.write \"loki\" {\n  endpoint {\n    url = \"http://loki-gateway.coder-observability.svc/loki/api/v1/push\"\n  }\n}\n\n\n\nprometheus.scrape \"pods\" {\n  targets = discovery.relabel.pod_metrics.output\n  forward_to = [prometheus.relabel.pods.receiver]\n\n  scrape_interval = \"15s\"\n  scrape_timeout = \"12s\"\n  enable_protobuf_negotiation = false\n}\n\n// These are metric_relabel_configs while discovery.relabel are relabel_configs.\n// See https://github.com/grafana/agent/blob/main/internal/converter/internal/prometheusconvert/prometheusconvert.go#L95-L106\nprometheus.relabel \"pods\" {\n  forward_to = [prometheus.remote_write.default.receiver]\n\n  // Drop kube-state-metrics' labels which clash with ours\n  rule {\n    source_labels = [\"__name__\", \"container\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"container\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"pod\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"pod\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"namespace\"]\n    regex         = \"kube_pod.+;(.+)\"\n    target_label  = \"namespace\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_container\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"container\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_pod\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"pod\"\n    replacement   = \"$1\"\n  }\n  rule {\n    source_labels = [\"__name__\", \"exported_namespace\"]\n    // don't replace an empty label\n    regex         = \"^kube_pod.+;(.+)$\"\n    target_label  = \"namespace\"\n    replacement   = \"$1\"\n  }\n  rule {\n    regex         = \"^(exported_.*|image_.*|container_id|id|uid)$\"\n    action        = \"labeldrop\"\n  }\n}\n\ndiscovery.relabel \"cadvisor\" {\n  targets = discovery.kubernetes.nodes.targets\n  rule {\n    replacement   = \"/metrics/cadvisor\"\n    target_label  = \"__metrics_path__\"\n  }\n}\n\nprometheus.scrape \"cadvisor\" {\n  targets    = discovery.relabel.cadvisor.output\n  forward_to = [ prometheus.relabel.cadvisor.receiver ]\n  scheme     = \"https\"\n  tls_config {\n    insecure_skip_verify = true\n  }\n  bearer_token_file = \"/var/run/secrets/kubernetes.io/serviceaccount/token\"\n  scrape_interval   = \"15s\"\n  scrape_timeout    = \"12s\"\n  enable_protobuf_negotiation = false\n}\n\nprometheus.relabel \"cadvisor\" {\n  forward_to = [ prometheus.remote_write.default.receiver ]\n\n  // Drop empty container labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"container\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*)@\"\n    action = \"drop\"\n  }\n  // Drop empty image labels, addressing https://github.com/google/cadvisor/issues/2688\n  rule {\n    source_labels = [\"__name__\",\"image\"]\n    separator = \"@\"\n    regex = \"(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@\"\n    action = \"drop\"\n  }\n  // Drop irrelevant series\n  rule {\n    source_labels = [\"container\"]\n    regex         = \"^POD$\"\n    action        = \"drop\"\n  }\n  // Drop unnecessary labels\n  rule {\n    source_labels = [\"id\"]\n    target_label  = \"id\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"job\"]\n    target_label  = \"job\"\n    replacement   = \"\"\n  }\n  rule {\n    source_labels = [\"name\"]\n    target_label  = \"name\"\n    replacement   = \"\"\n  }\n}\n\nprometheus.remote_write \"default\" {\n  endpoint {\n    send_native_histograms = false\n    url =\"http://prometheus.coder-observability.svc/api/v1/write\"\n\n    // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned\n    // NOTE: \"__address__\" is mapped to \"instance\", so will contain <hostname>:<port>\n    write_relabel_config {\n      regex  = \"instance\"\n      action = \"labeldrop\"\n    }\n  }\n}"
 ---
-# Source: coder-observability/templates/configmap-prometheus-alerts.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: metrics-alerts
-  namespace: coder-observability
-data:
-  coderd.yaml: "groups:\n- name: CPU Usage\n  rules:\n  \n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdcpuusage\n  - alert: CoderdCPUUsage\n    expr: max by (pod) (rate(container_cpu_usage_seconds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) / max by(pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"cpu\"}) > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of CPU, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdcpuusage\n- name: Memory Usage\n  rules:\n  \n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.9\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdmemoryusage\n  - alert: CoderdMemoryUsage\n    expr: max by (pod) (container_memory_working_set_bytes{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) / max by (pod) (kube_pod_container_resource_limits{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, resource=\"memory\"})  > 0.8\n    for: 10m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} is using high amounts of memory, which may lead to an Out-Of-Memory (OOM) error.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdmemoryusage\n- name: Pod Restarts\n  rules:\n  \n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 3\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 1\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdrestarts\n  - alert: CoderdRestarts\n    expr: sum by(pod) (increase(kube_pod_container_status_restarts_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}[10m])) > 2\n    for: 1m\n    annotations:\n      summary: The Coder instance {{ $labels.pod }} has restarted multiple times in the last 10m, which may indicate a CrashLoop.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdrestarts\n- name: Coderd Replicas\n  rules:\n  \n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdreplicas\n  - alert: CoderdReplicas\n    expr: sum(up{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive coderd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdreplicas\n- name: Coderd Workspace Build Failures\n  rules:\n  \n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 10\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 2\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdworkspacebuildfailures\n  - alert: CoderdWorkspaceBuildFailures\n    expr: sum(increase(coderd_workspace_builds_total{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`, status=\"failed\" }[10m])) > 5\n    for: 10m\n    annotations:\n      summary: Workspace builds have failed multiple times in the last 10m, which may indicate a broken Coder template.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdworkspacebuildfailures\n- name: Coderd Ineligible Prebuilds\n  rules:\n  \n  - alert: CoderdIneligiblePrebuilds\n    expr: max by (template_name, preset_name) (coderd_prebuilt_workspaces_running - coderd_prebuilt_workspaces_eligible) > 0\n    for: 10m\n    annotations:\n      summary: >\n        {{ $value }} prebuilt workspace(s) are currently ineligible for claiming for the \"{{ $labels.template_name }}\" template and \"{{ $labels.preset_name }}\" preset.\n        This usually indicates that the agent has not started correctly, or is still running its startup scripts after an extended period of time.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdineligibleprebuilds\n- name: Coderd Unprovisioned Prebuilt Workspaces\n  rules:\n  \n  - alert: CoderdUnprovisionedPrebuiltWorkspaces\n    expr: max by (template_name, preset_name) (coderd_prebuilt_workspaces_desired - coderd_prebuilt_workspaces_running) > 0\n    for: 10m\n    annotations:\n      summary: >\n        {{ $value }} prebuilt workspace(s) not yet been provisioned for the \"{{ $labels.template_name }}\" template and \"{{ $labels.preset_name }}\" preset.\n    labels:\n      severity: warn\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#coderdunprovisionedprebuiltworkspaces  "
-  provisionerd.yaml: "groups:\n- name: Provisionerd Replicas\n  rules:\n  \n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 1\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 1.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 3\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 3.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#provisionerdreplicas\n  - alert: ProvisionerdReplicas\n    expr: sum(coderd_provisionerd_num_daemons{pod=~`coder.*`, pod!~`.*provisioner.*`, namespace=`coder`}) < 2\n    for: 5m\n    annotations:\n      summary: Number of alive provisionerd replicas is below the threshold = 2.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/coderd#provisionerdreplicas  "
-  enterprise.yaml: "groups:\n  - name: Licences\n    rules:\n  \n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=1'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: critical\n          runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/enterprise#coderlicenseseats\n      - alert: CoderLicenseSeats\n        expr: 'max(coderd_license_active_users) / max(coderd_license_limit_users) >=0.9'\n        for: 1m\n        annotations:\n          summary: Your Coder enterprise licence usage is now at {{ $value | humanizePercentage }} capacity.\n        labels:\n          severity: warning\n          runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/enterprise#coderlicenseseats "
-  postgres.yaml: "groups:\n- name: Notifications\n  rules:\n  \n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.9\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.5\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: notify\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n  - alert: PostgresNotificationQueueFillingUp\n    expr: pg_pubsub_usage > 0.8\n    for: 15m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} has a notification that is filling up, which may impact application performance.\n    labels:\n      severity: warning\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresnotificationqueuefillingup\n\n- name: Liveness\n  rules:\n  \n  - alert: PostgresDown\n    expr: pg_up == 0\n    for: 1m\n    annotations:\n      summary: The postgres instance {{ $labels.instance }} is down!\n    labels:\n      severity: critical\n      runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresdown\n\n\n- name: Connections\n  rules:\n  \n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.9)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: critical\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.5)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: notify\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow\n    - alert: PostgresConnectionsRunningLow\n      expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * 0.8)\n      for: 5m\n      labels:\n        summary: The postgres instance {{ $labels.instance }} is running low on connections which may impact application performance.\n        severity: warning\n        runbook_url: http://runbook-viewer.coder-observability.svc.cluster.local/postgres#postgresconnectionsrunninglow"
----
 # Source: coder-observability/templates/configmap-runbooks.yaml
 kind: ConfigMap
 apiVersion: v1
@@ -1032,10 +1020,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-coderd
+  name: coder-dashboard-coderd
   namespace: coder-observability
 data:
-  coderd.json: |-
+  coder-coderd.json: |-
     {
       "annotations": {
         "list": [
@@ -2503,8 +2491,8 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Control Plane",
-      "uid": "coderd",
+      "title": "Coder Control Plane",
+      "uid": "coder-coderd",
       "version": 6,
       "weekStart": ""
     }
@@ -2513,10 +2501,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-prebuilds
+  name: coder-dashboard-prebuilds
   namespace: coder-observability
 data:
-  prebuilds.json: |-
+  coder-prebuilds.json: |-
     {
       "annotations": {
         "list": [
@@ -3963,8 +3951,8 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Prebuilds",
-      "uid": "cej6jysyme22oa",
+      "title": "Coder Prebuilds",
+      "uid": "coder-prebuilds",
       "version": 5
     }
 ---
@@ -3972,10 +3960,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-provisionerd
+  name: coder-dashboard-provisionerd
   namespace: coder-observability
 data:
-  provisionerd.json: |-
+  coder-provisionerd.json: |-
     {
       "annotations": {
         "list": [
@@ -4990,8 +4978,8 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Provisioners",
-      "uid": "provisionerd",
+      "title": "Coder Provisioners",
+      "uid": "coder-provisionerd",
       "version": 10,
       "weekStart": ""
     }
@@ -5000,10 +4988,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-status
+  name: coder-dashboard-status
   namespace: coder-observability
 data:
-  status.json: |-
+  coder-status.json: |-
     {
       "annotations": {
         "list": [
@@ -7073,7 +7061,7 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Status",
+      "title": "Coder Status",
       "uid": "coder-status",
       "version": 1,
       "weekStart": ""
@@ -7083,10 +7071,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-workspace-detail
+  name: coder-dashboard-workspace-detail
   namespace: coder-observability
 data:
-  workspaces-detail.json: |-
+  coder-workspaces-detail.json: |-
     {
       "annotations": {
         "list": [
@@ -8424,8 +8412,8 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Workspace Detail",
-      "uid": "workspace-detail",
+      "title": "Coder Workspace Detail",
+      "uid": "coder-workspace-detail",
       "version": 9,
       "weekStart": ""
     }
@@ -8434,10 +8422,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-workspaces
+  name: coder-dashboard-workspaces
   namespace: coder-observability
 data:
-  workspaces.json: |-
+  coder-workspaces.json: |-
     {
       "annotations": {
         "list": [
@@ -10057,8 +10045,8 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Workspaces",
-      "uid": "workspaces",
+      "title": "Coder Workspaces",
+      "uid": "coder-workspaces",
       "version": 2,
       "weekStart": ""
     }
@@ -11694,7 +11682,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 20c285f755dee545f371c9b074076736f3f793c8901c979afa0e244702d80f10
+        checksum/config: b08e5acafbf67bfc9df6ec4774f8a064a72894a623812a262cd84676e41e4a97
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
@@ -11760,27 +11748,27 @@ spec:
             - name: config
               mountPath: "/etc/grafana/grafana.ini"
               subPath: grafana.ini
-            - name: dashboards-status
+            - name: coder-dashboard-status
               mountPath: /var/lib/grafana/dashboards/coder/0
               subPath:
               readOnly: false
-            - name: dashboards-coderd
+            - name: coder-dashboard-coderd
               mountPath: /var/lib/grafana/dashboards/coder/1
               subPath:
               readOnly: false
-            - name: dashboards-provisionerd
+            - name: coder-dashboard-provisionerd
               mountPath: /var/lib/grafana/dashboards/coder/2
               subPath:
               readOnly: false
-            - name: dashboards-workspaces
+            - name: coder-dashboard-workspaces
               mountPath: /var/lib/grafana/dashboards/coder/3
               subPath:
               readOnly: false
-            - name: dashboards-workspace-detail
+            - name: coder-dashboard-workspace-detail
               mountPath: /var/lib/grafana/dashboards/coder/4
               subPath:
               readOnly: false
-            - name: dashboards-prebuilds
+            - name: coder-dashboard-prebuilds
               mountPath: /var/lib/grafana/dashboards/coder/5
               subPath:
               readOnly: false
@@ -11838,24 +11826,24 @@ spec:
         - name: config
           configMap:
             name: grafana
-        - name: dashboards-status
+        - name: coder-dashboard-status
           configMap:
-            name: dashboards-status
-        - name: dashboards-coderd
+            name: coder-dashboard-status
+        - name: coder-dashboard-coderd
           configMap:
-            name: dashboards-coderd
-        - name: dashboards-provisionerd
+            name: coder-dashboard-coderd
+        - name: coder-dashboard-provisionerd
           configMap:
-            name: dashboards-provisionerd
-        - name: dashboards-workspaces
+            name: coder-dashboard-provisionerd
+        - name: coder-dashboard-workspaces
           configMap:
-            name: dashboards-workspaces
-        - name: dashboards-workspace-detail
+            name: coder-dashboard-workspaces
+        - name: coder-dashboard-workspace-detail
           configMap:
-            name: dashboards-workspace-detail
-        - name: dashboards-prebuilds
+            name: coder-dashboard-workspace-detail
+        - name: coder-dashboard-prebuilds
           configMap:
-            name: dashboards-prebuilds
+            name: coder-dashboard-prebuilds
         - name: dashboards-infra
           configMap:
             name: grafana-dashboards-infra
@@ -12614,13 +12602,14 @@ spec:
             name: prometheus
         - name: configmap-reload-alerts
           configMap:
-            name: metrics-alerts
+            name: coder-metrics-alerts
         - name: server-alerts
           configMap:
-            name: metrics-alerts
+            name: coder-metrics-alerts
         - name: alerts
           configMap:
-            name: metrics-alerts
+            name: coder-metrics-alerts
+            optional: true
   volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim

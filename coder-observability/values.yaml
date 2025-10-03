@@ -164,16 +164,28 @@ global:
             warning: 0.8
             critical: 0.9
 
-  # global.dashboards -- settings for bundled dashboards
+  alerts:
+    # global.alerts.enabled -- enable or disable alerting
+    enabled: true
+    # global.alerts.kind -- the container resource kind in which alerts should be created
+    # valid values are "prometheusrule" or "configmap"
+    kind: "configmap"
+
   dashboards:
+    # global.dashboards.enabled -- enable or disable the creation of configmaps for dashboards
+    enabled: true
     # global.dashboards.timerange -- how far back dashboards should look
     timerange: 12h
     # global.dashboards.refresh -- how often dashboards should refresh
     refresh: 30s
     # global.dashboards.queryTimeout -- how long until a query in Grafana will timeout after
     queryTimeout: 900
+    # global.dashboards.configmapLabels -- labels to apply to configmaps created for dashboards
+    configmapLabels:
 
 runbookViewer:
+  # runbookViewer.enabled -- enable or disable the runbook viewer
+  enabled: true
   image: "dannyben/madness"
 
 sqlExporter:
@@ -426,7 +438,7 @@ grafana:
       autoMigrateOldPanels: true
     dashboards:
       # mounted configmap will be synced with sidecar
-      default_home_dashboard_path: /var/lib/grafana/dashboards/coder/0/status.json
+      default_home_dashboard_path: /var/lib/grafana/dashboards/coder/0/coder-status.json
     dataproxy:
       timeout: '{{ $.Values.global.dashboards.queryTimeout }}'
   sidecar:
@@ -439,29 +451,29 @@ grafana:
   extraConfigmapMounts:
     # we can't combine configmaps because of the 1MiB size limit, but Grafana will scan
     # the /var/lib/grafana/dashboards/coder directory deeply to find dashboards
-    - name: dashboards-status
+    - name: coder-dashboard-status
       mountPath: /var/lib/grafana/dashboards/coder/0
-      configMap: dashboards-status
+      configMap: coder-dashboard-status
       readOnly: false
-    - name: dashboards-coderd
+    - name: coder-dashboard-coderd
       mountPath: /var/lib/grafana/dashboards/coder/1
-      configMap: dashboards-coderd
+      configMap: coder-dashboard-coderd
       readOnly: false
-    - name: dashboards-provisionerd
+    - name: coder-dashboard-provisionerd
       mountPath: /var/lib/grafana/dashboards/coder/2
-      configMap: dashboards-provisionerd
+      configMap: coder-dashboard-provisionerd
       readOnly: false
-    - name: dashboards-workspaces
+    - name: coder-dashboard-workspaces
       mountPath: /var/lib/grafana/dashboards/coder/3
-      configMap: dashboards-workspaces
+      configMap: coder-dashboard-workspaces
       readOnly: false
-    - name: dashboards-workspace-detail
+    - name: coder-dashboard-workspace-detail
       mountPath: /var/lib/grafana/dashboards/coder/4
-      configMap: dashboards-workspace-detail
+      configMap: coder-dashboard-workspace-detail
       readOnly: false
-    - name: dashboards-prebuilds
+    - name: coder-dashboard-prebuilds
       mountPath: /var/lib/grafana/dashboards/coder/5
-      configMap: dashboards-prebuilds
+      configMap: coder-dashboard-prebuilds
       readOnly: false
 
 prometheus:
@@ -495,8 +507,9 @@ prometheus:
     extraConfigmapMounts:
       - name: alerts
         mountPath: /etc/config/alerts
-        configMap: metrics-alerts
+        configMap: coder-metrics-alerts
         readonly: true
+        optional: true
 
   serverFiles:
     prometheus.yml:
@@ -519,8 +532,9 @@ prometheus:
       extraConfigmapMounts:
         - name: alerts
           mountPath: /etc/config/alerts
-          configMap: metrics-alerts
+          configMap: coder-metrics-alerts
           readonly: true
+          optional: true
 
   alertmanager:
     fullnameOverride: alertmanager

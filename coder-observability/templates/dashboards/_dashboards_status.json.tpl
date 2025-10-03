@@ -2068,7 +2068,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Status",
+  "title": "Coder Status",
   "uid": "coder-status",
   "version": 1,
   "weekStart": ""

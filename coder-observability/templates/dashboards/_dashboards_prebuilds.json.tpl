@@ -1445,8 +1445,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Prebuilds",
-  "uid": "cej6jysyme22oa",
+  "title": "Coder Prebuilds",
+  "uid": "coder-prebuilds",
   "version": 5
 }
 {{ end }}

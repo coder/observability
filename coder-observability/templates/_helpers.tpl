@@ -99,8 +99,12 @@ envFrom:
 {{/* Build a runbook URL */}}
 {{- define "runbook-url" -}}
 {{ $outer := . }}
+{{- if .Values.runbookViewer.enabled -}}
 {{- with .Values.global -}}
   {{- .externalScheme }}://runbook-viewer.{{ $outer.Release.Namespace }}.{{ .externalZone }}/{{- $outer.service }}#{{- $outer.alert | lower }}
+{{- end }}
+{{- else -}}
+https://github.com/coder/observability/blob/main/coder-observability/runbooks/{{- $outer.service }}.md#{{- $outer.alert | lower }}
 {{- end }}
 {{- end }}
 

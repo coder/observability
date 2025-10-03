@@ -1,7 +1,12 @@
+{{- if .Values.global.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-prebuilds
+  name: coder-dashboard-prebuilds
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.global.dashboards.configmapLabels }}
+  labels: {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
-  prebuilds.json: |- {{- include "prebuilds-dashboard.json" . | trim | nindent 4 }}
+  coder-prebuilds.json: |- {{- include "prebuilds-dashboard.json" . | trim | nindent 4 }}
+{{- end }}
