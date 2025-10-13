@@ -167,7 +167,7 @@ global:
   alerts:
     # global.alerts.enabled -- enable or disable alerting
     enabled: true
-    # global.alerts.kind -- the container resource kind in which alerts should be created
+    # global.alerts.kind -- the container resource kind in which alerts should be created;
     # valid values are "prometheusrule" or "configmap"
     kind: "configmap"
 
