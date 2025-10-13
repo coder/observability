@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: coder-dashboard-workspaces
   namespace: {{ .Release.Namespace }}
-  {{- with .Values.global.dashboards.configmapLabels }}
+  {{- with .Values.global.dashboards.labels }}
   labels: {{- toYaml . | nindent 4 }}
   {{- end }}
 data:

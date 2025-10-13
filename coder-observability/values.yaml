@@ -180,8 +180,8 @@ global:
     refresh: 30s
     # global.dashboards.queryTimeout -- how long until a query in Grafana will timeout after
     queryTimeout: 900
-    # global.dashboards.configmapLabels -- labels to apply to configmaps created for dashboards
-    configmapLabels:
+    # global.dashboards.labels -- labels to apply to configmaps created for dashboards
+    labels:
 
 runbookViewer:
   # runbookViewer.enabled -- enable or disable the runbook viewer

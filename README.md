@@ -321,7 +321,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.coder.provisionerdSelector | string | `"pod=~`coder-provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. https://coder.com/docs/v2/latest/admin/provisioners TODO: rename container label in provisioner helm chart to be "provisioner" not "coder" ensure this uses backticks for quotes! |
 | global.coder.scrapeMetrics | string | `nil` | use this to scrape metrics from a standalone (set of) coder deployment(s) if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped; set this value to null and configure coderdSelector to target your coder pods |
 | global.coder.workspacesSelector | string | `"namespace=`coder-workspaces`"` | the namespace into which any external provisioners have been deployed. |
-| global.dashboards.configmapLabels | string | `nil` | labels to apply to configmaps created for dashboards |
+| global.dashboards.labels| string | `nil` | labels to apply to configmaps created for dashboards |
 | global.dashboards.enabled | bool | `true` | enable or disable the creation of configmaps for dashboards |
 | global.dashboards.queryTimeout | int | `900` | how long until a query in Grafana will timeout after |
 | global.dashboards.refresh | string | `"30s"` | how often dashboards should refresh |
