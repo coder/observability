@@ -1,4 +1,4 @@
-{{- if and .Values.global.alerts.enabled (eq .Values.global.alerts.format "configmap") -}}
+{{- if and .Values.global.alerts.enabled (eq .Values.global.alerts.kind "configmap") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
