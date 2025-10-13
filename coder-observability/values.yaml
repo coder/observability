@@ -683,7 +683,6 @@ tempo:
     retention: 336h  # 14 days
     reportingEnabled: false
 
-  singleBinary:
-    replicas: 1
-    podAnnotations:
-      prometheus.io/scrape: "true"
+  replicas: 1
+  podAnnotations:
+    prometheus.io/scrape: "true"
