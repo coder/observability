@@ -1619,7 +1619,7 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Coder Workspaces",
-  "uid": "coder-workspaces",
+  "uid": "workspaces",
   "version": 2,
   "weekStart": ""
 }

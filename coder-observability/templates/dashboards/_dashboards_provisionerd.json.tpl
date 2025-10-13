@@ -1014,7 +1014,7 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Coder Provisioners",
-  "uid": "coder-provisionerd",
+  "uid": "provisionerd",
   "version": 10,
   "weekStart": ""
 }
