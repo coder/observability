@@ -1,4 +1,4 @@
-{{- if and .Values.global.alerts.enabled (eq .Values.global.alerts.format "prometheusrule") -}}
+{{- if and .Values.global.alerts.enabled (eq .Values.global.alerts.kind "prometheusrule") -}}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
