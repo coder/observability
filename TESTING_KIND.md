@@ -10,7 +10,7 @@
 To test the observability chart locally without a kubernetes cluster, you can use [`kind` (Kubernetes in Docker)](https://kind.sigs.k8s.io/). This allows you to create a local Kubernetes cluster that can be used for testing purposes.
 
 ```bash
-kind create cluster --name observability
+kind create cluster --name observability --image kindest/node:v1.24.0
 # To clean everything up, you can delete the cluster with:
 # kind delete cluster --name observability
 ```
@@ -46,6 +46,11 @@ coder:
     - name: CODER_ACCESS_URL
       # Keep this an empty string to get a public `try` url
       value: ""
+    # Enable tracing in observability chart (tempo.enabled=true)
+    - name: CODER_TRACE_ENABLE
+      value: "true"
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: "http://tempo.coder-observability.svc.cluster.local:4317"
 ```
 
 ### Verify `coder` installation
@@ -87,7 +92,20 @@ Install the local observability chart using Helm into its own namespace.
 kubectl config set-context --current --namespace=coder-observability
 # This will install the local observability chart into the `coder-observability` namespace
 
-helm install --namespace coder-observability --create-namespace observe .
+cd coder-observability
+helm upgrade --install coder-observability . --namespace observe --create-namespace
+```
+
+You may need to remove the taint to get pods to schedule if you get an error like this:
+
+```bash
+kubectl get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+NAME                          TAINTS
+observability-control-plane   [map[effect:NoSchedule key:node-role.kubernetes.io/control-plane]]
+```
+
+```bash
+kubectl taint nodes observability-control-plane node-role.kubernetes.io/control-plane:NoSchedule-
 ```
 
 ## To update
