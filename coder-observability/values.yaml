@@ -455,26 +455,32 @@ grafana:
       mountPath: /var/lib/grafana/dashboards/coder/0
       configMap: coder-dashboard-status
       readOnly: false
+      optional: true
     - name: coder-dashboard-coderd
       mountPath: /var/lib/grafana/dashboards/coder/1
       configMap: coder-dashboard-coderd
       readOnly: false
+      optional: true
     - name: coder-dashboard-provisionerd
       mountPath: /var/lib/grafana/dashboards/coder/2
       configMap: coder-dashboard-provisionerd
       readOnly: false
+      optional: true
     - name: coder-dashboard-workspaces
       mountPath: /var/lib/grafana/dashboards/coder/3
       configMap: coder-dashboard-workspaces
       readOnly: false
+      optional: true
     - name: coder-dashboard-workspace-detail
       mountPath: /var/lib/grafana/dashboards/coder/4
       configMap: coder-dashboard-workspace-detail
       readOnly: false
+      optional: true
     - name: coder-dashboard-prebuilds
       mountPath: /var/lib/grafana/dashboards/coder/5
       configMap: coder-dashboard-prebuilds
       readOnly: false
+      optional: true
 
 prometheus:
   enabled: true
