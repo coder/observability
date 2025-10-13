@@ -229,6 +229,14 @@ data:
       type: loki
       uid: loki
       url: http://loki-gateway.coder-observability.svc
+    - access: proxy
+      editable: false
+      isDefault: false
+      name: traces
+      timeout: '905'
+      type: tempo
+      uid: tempo
+      url: http://tempo.coder-observability.svc:3200
     - editable: false
       isDefault: false
       jsonData:
@@ -11686,7 +11694,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 8143dd78a48b90e972a84c3078e9812a2536a4efff7ca13f404626d5eae08ab2
+        checksum/config: 20c285f755dee545f371c9b074076736f3f793c8901c979afa0e244702d80f10
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana

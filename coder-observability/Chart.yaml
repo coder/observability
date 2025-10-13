@@ -20,6 +20,10 @@ dependencies:
     condition: loki.enabled
     repository: https://grafana.github.io/helm-charts
     version: '~v6.7.3'
+  - name: tempo
+    condition: tempo.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: '~v1.23.0'
   - name: grafana-agent
     alias: grafana-agent
     condition: grafana-agent.enabled
