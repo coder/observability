@@ -22,7 +22,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.4.2 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.4.3 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements
@@ -288,6 +288,7 @@ If you switch from classic to native histograms, dashboards may need to account 
 | https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
+| https://grafana.github.io/helm-charts | tempo | ~v1.23.0 |
 | https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
@@ -420,16 +421,24 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.datasources."datasources.yaml".datasources[2].type | string | `"loki"` |  |
 | grafana.datasources."datasources.yaml".datasources[2].uid | string | `"loki"` |  |
 | grafana.datasources."datasources.yaml".datasources[2].url | string | `"http://loki-gateway.{{ .Release.Namespace }}.{{ $.Values.global.zone }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].access | string | `"proxy"` |  |
 | grafana.datasources."datasources.yaml".datasources[3].editable | bool | `false` |  |
 | grafana.datasources."datasources.yaml".datasources[3].isDefault | bool | `false` |  |
-| grafana.datasources."datasources.yaml".datasources[3].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].name | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].name | string | `"traces"` |  |
 | grafana.datasources."datasources.yaml".datasources[3].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].type | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].uid | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].url | string | `"{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}"` |  |
-| grafana.datasources."datasources.yaml".datasources[3].user | string | `"{{ .Values.global.postgres.username }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].type | string | `"tempo"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].uid | string | `"tempo"` |  |
+| grafana.datasources."datasources.yaml".datasources[3].url | string | `"http://tempo.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:3200"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].editable | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[4].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[4].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].name | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].type | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].uid | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].url | string | `"{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].user | string | `"{{ .Values.global.postgres.username }}"` |  |
 | grafana.deploymentStrategy.type | string | `"Recreate"` |  |
 | grafana.enabled | bool | `true` |  |
 | grafana.env.GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION | bool | `true` |  |
@@ -576,4 +585,11 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | runbookViewer.image | string | `"dannyben/madness"` |  |
 | sqlExporter.enabled | bool | `true` |  |
 | sqlExporter.image | string | `"burningalchemist/sql_exporter"` |  |
+| tempo.enabled | bool | `false` |  |
+| tempo.fullnameOverride | string | `"tempo"` |  |
+| tempo.nameOverride | string | `"tempo"` |  |
+| tempo.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| tempo.replicas | int | `1` |  |
+| tempo.tempo.reportingEnabled | bool | `false` |  |
+| tempo.tempo.retention | string | `"336h"` |  |
 
