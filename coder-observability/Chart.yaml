@@ -2,7 +2,7 @@ apiVersion: v2
 name: coder-observability
 description: Gain insights into your Coder deployment
 type: application
-version: 0.4.2
+version: 0.4.3
 dependencies:
   - name: pyroscope
     condition: pyroscope.enabled
@@ -20,6 +20,10 @@ dependencies:
     condition: loki.enabled
     repository: https://grafana.github.io/helm-charts
     version: '~v6.7.3'
+  - name: tempo
+    condition: tempo.enabled
+    repository: https://grafana.github.io/helm-charts
+    version: '~v1.23.0'
   - name: grafana-agent
     alias: grafana-agent
     condition: grafana-agent.enabled

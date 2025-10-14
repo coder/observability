@@ -377,6 +377,9 @@ otelcol.receiver.otlp "otlp_receiver" {
   output {
     metrics = [otelcol.processor.batch.default.input]
     logs = [otelcol.processor.batch.default.input]
+{{- if .Values.tempo.enabled }}
+    traces = [otelcol.processor.batch.default.input]
+{{- end }}
   }
 }
 otelcol.exporter.prometheus "to_prometheus" {
@@ -391,11 +394,24 @@ otelcol.exporter.loki "to_loki" {
   ]
 }
 {{- end }}
+{{- if .Values.tempo.enabled }}
+otelcol.exporter.otlp "to_tempo" {
+  client {
+    endpoint = "http://tempo.{{ .Release.Namespace }}.{{ .Values.global.zone }}:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+{{- end }}
 otelcol.processor.batch "default" {
   output {
     metrics = [otelcol.exporter.prometheus.to_prometheus.input]
 {{- if .Values.loki.enabled }}
     logs    = [otelcol.exporter.loki.to_loki.input]
+{{- end }}
+{{- if .Values.tempo.enabled }}
+    traces  = [otelcol.exporter.otlp.to_tempo.input]
 {{- end }}
   }
 }

@@ -385,6 +385,15 @@ grafana:
           # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
           timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
           uid: loki
+        - name: traces
+          type: tempo
+          url: http://tempo.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:3200
+          access: proxy
+          isDefault: false
+          editable: false
+          # add 5s on global timeout to distinguish between Grafana timeout & datasource timeout
+          timeout: '{{ add $.Values.global.dashboards.queryTimeout 5 }}'
+          uid: tempo
         - name: postgres
           type: postgres
           url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
@@ -664,3 +673,20 @@ loki:
         mountPath: /var/loki-ruler-wal
     extraArgs:
       - -log.level=debug
+
+tempo:
+  enabled: false
+  nameOverride: tempo
+  fullnameOverride: tempo
+
+  tempo:
+    retention: 336h  # 14 days
+    reportingEnabled: false
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  replicas: 1
+  podAnnotations:
+    prometheus.io/scrape: "true"
