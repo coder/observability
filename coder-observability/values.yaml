@@ -683,6 +683,10 @@ tempo:
     retention: 336h  # 14 days
     reportingEnabled: false
 
+  persistence:
+    enabled: true
+    size: 10Gi
+
   replicas: 1
   podAnnotations:
     prometheus.io/scrape: "true"
