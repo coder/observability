@@ -588,6 +588,8 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | tempo.enabled | bool | `false` |  |
 | tempo.fullnameOverride | string | `"tempo"` |  |
 | tempo.nameOverride | string | `"tempo"` |  |
+| tempo.persistence.enabled | bool | `true` |  |
+| tempo.persistence.size | string | `"10Gi"` |  |
 | tempo.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | tempo.replicas | int | `1` |  |
 | tempo.tempo.reportingEnabled | bool | `false` |  |
