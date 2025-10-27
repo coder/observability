@@ -22,7 +22,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.4.3 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.5.0 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements
@@ -312,7 +312,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.alerts.enabled | bool | `true` | enable or disable alerting |
-| global.alerts.kind | string | `"configmap"` | the container resource kind in which alerts should be created valid values are "prometheusrule" or "configmap" |
+| global.alerts.kind | string | `"configmap"` | the container resource kind in which alerts should be created; valid values are "prometheusrule" or "configmap" |
 | global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"IneligiblePrebuilds":{"delay":"10m","enabled":true,"thresholds":{"notify":1}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}},"UnprovisionedPrebuiltWorkspaces":{"delay":"10m","enabled":true,"thresholds":{"warn":1}},"WorkspaceBuildFailures":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":10,"notify":2,"warning":5}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}},"provisionerd":{"groups":{"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}}}}}` | alerts for the various aspects of Coder |
 | global.coder.coderdSelector | string | `"pod=~`coder.*`, pod!~`.*provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. ensure this uses backticks for quotes! |
 | global.coder.controlPlaneNamespace | string | `"coder"` | the namespace into which the control plane has been deployed. |
@@ -321,8 +321,8 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.coder.provisionerdSelector | string | `"pod=~`coder-provisioner.*`"` | series selector for Prometheus/Loki to locate provisioner pods. https://coder.com/docs/v2/latest/admin/provisioners TODO: rename container label in provisioner helm chart to be "provisioner" not "coder" ensure this uses backticks for quotes! |
 | global.coder.scrapeMetrics | string | `nil` | use this to scrape metrics from a standalone (set of) coder deployment(s) if using kubernetes, rather add an annotation "prometheus.io/scrape=true" and coder will get automatically scraped; set this value to null and configure coderdSelector to target your coder pods |
 | global.coder.workspacesSelector | string | `"namespace=`coder-workspaces`"` | the namespace into which any external provisioners have been deployed. |
-| global.dashboards.labels| string | `nil` | labels to apply to configmaps created for dashboards |
 | global.dashboards.enabled | bool | `true` | enable or disable the creation of configmaps for dashboards |
+| global.dashboards.labels | string | `nil` | labels to apply to configmaps created for dashboards |
 | global.dashboards.queryTimeout | int | `900` | how long until a query in Grafana will timeout after |
 | global.dashboards.refresh | string | `"30s"` | how often dashboards should refresh |
 | global.dashboards.timerange | string | `"12h"` | how far back dashboards should look |
@@ -448,26 +448,32 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.extraConfigmapMounts[0].configMap | string | `"coder-dashboard-status"` |  |
 | grafana.extraConfigmapMounts[0].mountPath | string | `"/var/lib/grafana/dashboards/coder/0"` |  |
 | grafana.extraConfigmapMounts[0].name | string | `"coder-dashboard-status"` |  |
+| grafana.extraConfigmapMounts[0].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[0].readOnly | bool | `false` |  |
 | grafana.extraConfigmapMounts[1].configMap | string | `"coder-dashboard-coderd"` |  |
 | grafana.extraConfigmapMounts[1].mountPath | string | `"/var/lib/grafana/dashboards/coder/1"` |  |
 | grafana.extraConfigmapMounts[1].name | string | `"coder-dashboard-coderd"` |  |
+| grafana.extraConfigmapMounts[1].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[1].readOnly | bool | `false` |  |
 | grafana.extraConfigmapMounts[2].configMap | string | `"coder-dashboard-provisionerd"` |  |
 | grafana.extraConfigmapMounts[2].mountPath | string | `"/var/lib/grafana/dashboards/coder/2"` |  |
 | grafana.extraConfigmapMounts[2].name | string | `"coder-dashboard-provisionerd"` |  |
+| grafana.extraConfigmapMounts[2].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[2].readOnly | bool | `false` |  |
 | grafana.extraConfigmapMounts[3].configMap | string | `"coder-dashboard-workspaces"` |  |
 | grafana.extraConfigmapMounts[3].mountPath | string | `"/var/lib/grafana/dashboards/coder/3"` |  |
 | grafana.extraConfigmapMounts[3].name | string | `"coder-dashboard-workspaces"` |  |
+| grafana.extraConfigmapMounts[3].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[3].readOnly | bool | `false` |  |
 | grafana.extraConfigmapMounts[4].configMap | string | `"coder-dashboard-workspace-detail"` |  |
 | grafana.extraConfigmapMounts[4].mountPath | string | `"/var/lib/grafana/dashboards/coder/4"` |  |
 | grafana.extraConfigmapMounts[4].name | string | `"coder-dashboard-workspace-detail"` |  |
+| grafana.extraConfigmapMounts[4].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[4].readOnly | bool | `false` |  |
 | grafana.extraConfigmapMounts[5].configMap | string | `"coder-dashboard-prebuilds"` |  |
 | grafana.extraConfigmapMounts[5].mountPath | string | `"/var/lib/grafana/dashboards/coder/5"` |  |
 | grafana.extraConfigmapMounts[5].name | string | `"coder-dashboard-prebuilds"` |  |
+| grafana.extraConfigmapMounts[5].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[5].readOnly | bool | `false` |  |
 | grafana.fullnameOverride | string | `"grafana"` |  |
 | grafana.image.tag | string | `"10.4.19"` |  |
