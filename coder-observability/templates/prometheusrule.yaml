@@ -1,0 +1,34 @@
+{{- if and .Values.global.alerts.enabled (eq .Values.global.alerts.kind "prometheusrule") -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: coder-prometheus-alerts
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups: {{ include "coderd-prometheus-alerts" . | nindent 4 }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: provisionerd-prometheus-alerts
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups: {{ include "provisionerd-prometheus-alerts" . | nindent 4 }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: enterprise-prometheus-alerts
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups: {{ include "enterprise-prometheus-alerts" . | nindent 4 }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: postgres-prometheus-alerts
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups: {{ include "postgres-prometheus-alerts" . | nindent 4 }}
+{{- end }}

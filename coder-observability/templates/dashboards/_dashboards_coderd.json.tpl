@@ -1466,7 +1466,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Control Plane",
+  "title": "Coder Control Plane",
   "uid": "coderd",
   "version": 6,
   "weekStart": ""

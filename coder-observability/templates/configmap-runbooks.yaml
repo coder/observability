@@ -1,3 +1,4 @@
+{{- if .Values.runbookViewer.enabled }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -8,3 +9,4 @@ metadata:
     checksum/config: {{ (.Files.Glob "runbooks/**").AsConfig | indent 2 | sha256sum }}
 data:
 {{ (.Files.Glob "runbooks/**").AsConfig | indent 2 }}
+{{- end }}

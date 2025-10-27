@@ -1,7 +1,12 @@
+{{- if .Values.global.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-status
+  name: coder-dashboard-status
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.global.dashboards.labels }}
+  labels: {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
-  status.json: |- {{- include "status-dashboard.json" . | trim | nindent 4 }}
+  coder-status.json: |- {{- include "status-dashboard.json" . | trim | nindent 4 }}
+{{- end }}

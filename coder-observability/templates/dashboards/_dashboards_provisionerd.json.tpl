@@ -1013,7 +1013,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Provisioners",
+  "title": "Coder Provisioners",
   "uid": "provisionerd",
   "version": 10,
   "weekStart": ""

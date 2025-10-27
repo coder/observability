@@ -1,7 +1,12 @@
+{{- if .Values.global.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboards-provisionerd
+  name: coder-dashboard-provisionerd
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.global.dashboards.labels }}
+  labels: {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
-  provisionerd.json: |- {{- include "provisionerd-dashboard.json" . | trim | nindent 4 }}
+  coder-provisionerd.json: |- {{- include "provisionerd-dashboard.json" . | trim | nindent 4 }}
+{{- end }}

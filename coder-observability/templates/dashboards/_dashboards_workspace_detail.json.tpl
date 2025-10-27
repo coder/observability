@@ -1336,7 +1336,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Workspace Detail",
+  "title": "Coder Workspace Detail",
   "uid": "workspace-detail",
   "version": 9,
   "weekStart": ""

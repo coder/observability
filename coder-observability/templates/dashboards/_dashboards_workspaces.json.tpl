@@ -1618,7 +1618,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Workspaces",
+  "title": "Coder Workspaces",
   "uid": "workspaces",
   "version": 2,
   "weekStart": ""

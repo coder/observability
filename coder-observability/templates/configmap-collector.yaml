@@ -1,3 +1,4 @@
+{{- if (index .Values "grafana-agent").enabled }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -6,3 +7,4 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   config.river: |- {{- include "collector-config" . | trim | nindent 4 }}
+{{- end }}
