@@ -218,7 +218,7 @@
       rules:
       {{ $alert := "PostgresDown" }}
       - alert: {{ $alert }}
-        expr: pg_up == 0
+        expr: pg_up{namespace="{{ $.Release.Namespace }}"} == 0
         for: {{ $group.delay }}
         annotations:
           summary: The postgres instance {{ `{{ $labels.instance }}` }} is down!
@@ -235,7 +235,7 @@
       {{ $alert := "PostgresConnectionsRunningLow" }}
       {{- range $severity, $threshold := .thresholds }}
         - alert: {{ $alert }}
-          expr: sum by (datname, instance) (pg_stat_activity_count) > on () group_left() (pg_settings_max_connections * {{ $threshold }})
+          expr: sum by (datname, instance) (pg_stat_activity_count{namespace="{{ $.Release.Namespace }}"}) > on () group_left() (pg_settings_max_connections{namespace="{{ $.Release.Namespace }}"} * {{ $threshold }})
           for: {{ $group.delay }}
           labels:
             summary: The postgres instance {{ `{{ $labels.instance }}` }} is running low on connections which may impact application performance.
