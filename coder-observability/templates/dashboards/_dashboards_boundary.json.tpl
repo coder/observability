@@ -110,7 +110,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum by (decision) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=~`deny|allow` | owner=~`$owner` | domain=~`$domain` | template_id=~`$template_id` [$__range]))",
+          "expr": "sum by (decision) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=~`deny|allow` | owner=~`$owner` | domain=~`$domain` | template_id=~`$template_id` | template_version_id=~`$template_version_id` [$__range]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -203,7 +203,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
+          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | template_version_id=~`$template_version_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -326,7 +326,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
+          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | template_version_id=~`$template_version_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -456,6 +456,30 @@
                 "value": 144
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Template ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 195
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Workspace Name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 204
+              }
+            ]
           }
         ]
       },
@@ -488,7 +512,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\"`",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | template_version_id=~`$template_version_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\" template_version_id=\"{{ "{{" }}.template_version_id{{ "}}" }}\"`",
           "queryType": "range",
           "refId": "A"
         }
@@ -516,22 +540,23 @@
           "options": {
             "excludeByName": {},
             "includeByName": {
-              "time": true,
-              "method": true,
               "domain": true,
-              "path": true,
+              "method": true,
               "owner": true,
-              "workspace_name": true,
-              "template_id": true
+              "path": true,
+              "template_id": true,
+              "template_version_id": true,
+              "time": true,
+              "workspace_name": true
             },
             "indexByName": {
-              "time": 0,
-              "method": 1,
               "domain": 2,
-              "path": 3,
+              "method": 1,
               "owner": 4,
-              "workspace_name": 5,
-              "template_id": 6
+              "path": 3,
+              "template_id": 6,
+              "time": 0,
+              "workspace_name": 5
             },
             "renameByName": {
               "domain": "Domain",
@@ -539,6 +564,7 @@
               "owner": "Workspace Owner",
               "path": "Path",
               "template_id": "Template ID",
+              "template_version_id": "Template Version ID",
               "time": "Time",
               "workspace_name": "Workspace Name"
             }
@@ -671,7 +697,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\"`",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | template_version_id=~`$template_version_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\" template_version_id=\"{{ "{{" }}.template_version_id{{ "}}" }}\"`",
           "queryType": "range",
           "refId": "A"
         }
@@ -699,22 +725,23 @@
           "options": {
             "excludeByName": {},
             "includeByName": {
-              "time": true,
-              "method": true,
               "domain": true,
-              "path": true,
+              "method": true,
               "owner": true,
-              "workspace_name": true,
-              "template_id": true
+              "path": true,
+              "template_id": true,
+              "template_version_id": true,
+              "time": true,
+              "workspace_name": true
             },
             "indexByName": {
-              "time": 0,
-              "method": 1,
               "domain": 2,
-              "path": 3,
+              "method": 1,
               "owner": 4,
-              "workspace_name": 5,
-              "template_id": 6
+              "path": 3,
+              "template_id": 6,
+              "time": 0,
+              "workspace_name": 5
             },
             "renameByName": {
               "domain": "Domain",
@@ -722,6 +749,7 @@
               "owner": "Workspace Owner",
               "path": "Path",
               "template_id": "Template ID",
+              "template_version_id": "Template Version ID",
               "time": "Time",
               "workspace_name": "Workspace Name"
             }
@@ -778,9 +806,27 @@
           "text": "",
           "value": ""
         },
-        "description": "Filter requests by template ID",
+        "description": "Filter requests by template ID (UUID). Template IDs can be found via the CLI with  \"coder templates list\".",
         "label": "Template ID",
         "name": "template_id",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "description": "Filter by template version ID (UUID). A templates version IDs can be found via the CLI with  \"coder templates versions list <template name>\".",
+        "label": "Template Version ID",
+        "name": "template_version_id",
         "options": [
           {
             "selected": true,
