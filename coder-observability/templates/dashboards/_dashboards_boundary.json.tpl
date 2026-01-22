@@ -22,6 +22,7 @@
       }
     ]
   },
+  "description": "This dashboard shows HTTP requests audited by agent boundaries within Coder workspaces to provide visibility into workspace network activity.\n\nWhat it shows:\n  - Total count of allowed and denied outbound HTTP requests\n  - Top 20 most frequently accessed allowed domains\n  - Top 20 most frequently blocked domains\n  - Recent allowed requests with details (time, domain, method, path, workspace owner, workspace name, template ID)\n  - Recent denied requests with the same details\n\nWho it's for:\n  - Platform administrators and template administrators who need to audit workspace network activity and define agent boundary policies\n  - Security team members who want to know what HTTP requests AI agents made in Coder workspaces for security incident review\n  - Agent Boundaries policy owners who want to refine network access controls/security posture\n\nFilters available:\n  - Template ID\n  - HTTP request domain\n  - Workspace owner",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -44,7 +45,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -88,6 +89,7 @@
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -99,7 +101,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -108,7 +110,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "sum by (decision) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=~`deny|allow` | owner=~`$owner` [$__range]))",
+          "expr": "sum by (decision) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=~`deny|allow` | owner=~`$owner` | domain=~`$domain` | template_id=~`$template_id` [$__range]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -141,7 +143,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -192,7 +194,7 @@
           }
         ]
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -201,7 +203,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
+          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -264,7 +266,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -315,7 +317,7 @@
           }
         ]
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -324,7 +326,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
+          "expr": "topk(20, sum by (domain) (count_over_time({ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=(?P<scheme>https?)://(?P<domain>[^/:]+)` | domain=~`$domain` [$__auto])))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -385,7 +387,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -459,7 +461,7 @@
       },
       "gridPos": {
         "h": 12,
-        "w": 22,
+        "w": 24,
         "x": 0,
         "y": 19
       },
@@ -477,7 +479,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -486,7 +488,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | regexp `http_url=https?://(?P<domain>[^/?#]+)(?P<path>/[^?#]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" domain={{ "{{" }}.domain{{ "}}" }} method={{ "{{" }}.http_method{{ "}}" }} path=\"{{ "{{" }}.path{{ "}}" }}\" owner={{ "{{" }}.owner{{ "}}" }} workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\"`",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`allow` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\"`",
           "queryType": "range",
           "refId": "A"
         }
@@ -512,30 +514,32 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "id": true,
-              "labelTypes": true,
-              "labels": true,
-              "tsNs": true
+            "excludeByName": {},
+            "includeByName": {
+              "time": true,
+              "method": true,
+              "domain": true,
+              "path": true,
+              "owner": true,
+              "workspace_name": true,
+              "template_id": true
             },
-            "includeByName": {},
             "indexByName": {
-              "domain": 2,
-              "method": 1,
-              "owner": 4,
-              "path": 3,
               "time": 0,
-              "workspace_name": 5
+              "method": 1,
+              "domain": 2,
+              "path": 3,
+              "owner": 4,
+              "workspace_name": 5,
+              "template_id": 6
             },
             "renameByName": {
-              "Line": "Domain",
               "domain": "Domain",
-              "labels": "",
               "method": "Method",
               "owner": "Workspace Owner",
               "path": "Path",
+              "template_id": "Template ID",
               "time": "Time",
-              "tsNs": "",
               "workspace_name": "Workspace Name"
             }
           }
@@ -566,7 +570,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -640,7 +644,7 @@
       },
       "gridPos": {
         "h": 12,
-        "w": 22,
+        "w": 24,
         "x": 0,
         "y": 31
       },
@@ -658,7 +662,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "12.1.0",
       "targets": [
         {
           "datasource": {
@@ -667,7 +671,7 @@
           },
           "direction": "backward",
           "editorMode": "code",
-          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | regexp `http_url=https?://(?P<domain>[^/?#]+)(?P<path>/[^?#]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" domain={{ "{{" }}.domain{{ "}}" }} method={{ "{{" }}.http_method{{ "}}" }} path=\"{{ "{{" }}.path{{ "}}" }}\" owner={{ "{{" }}.owner{{ "}}" }} workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\"`",
+          "expr": "{ {{- include "non-workspace-selector" . -}}, logger=`coderd.agentrpc`} |= `boundary_request` | logfmt | decision=`deny` | owner=~`$owner` | template_id=~`$template_id` | regexp `http_url=https?://(?P<domain>[^/?# ]+)(?P<path>/[^?# ]*)?` | domain=~`$domain` | line_format `time=\"{{ "{{" }}.event_time{{ "}}" }}\" method=\"{{ "{{" }}.http_method{{ "}}" }}\" domain=\"{{ "{{" }}.domain{{ "}}" }}\" path=\"{{ "{{" }}.path{{ "}}" }}\" owner=\"{{ "{{" }}.owner{{ "}}" }}\" workspace_name=\"{{ "{{" }}.workspace_name{{ "}}" }}\" template_id=\"{{ "{{" }}.template_id{{ "}}" }}\"`",
           "queryType": "range",
           "refId": "A"
         }
@@ -693,30 +697,32 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {
-              "id": true,
-              "labelTypes": true,
-              "labels": true,
-              "tsNs": true
+            "excludeByName": {},
+            "includeByName": {
+              "time": true,
+              "method": true,
+              "domain": true,
+              "path": true,
+              "owner": true,
+              "workspace_name": true,
+              "template_id": true
             },
-            "includeByName": {},
             "indexByName": {
-              "domain": 2,
-              "method": 1,
-              "owner": 4,
-              "path": 3,
               "time": 0,
-              "workspace_name": 5
+              "method": 1,
+              "domain": 2,
+              "path": 3,
+              "owner": 4,
+              "workspace_name": 5,
+              "template_id": 6
             },
             "renameByName": {
-              "Line": "Domain",
               "domain": "Domain",
-              "labels": "",
               "method": "Method",
               "owner": "Workspace Owner",
               "path": "Path",
+              "template_id": "Template ID",
               "time": "Time",
-              "tsNs": "",
               "workspace_name": "Workspace Name"
             }
           }
@@ -725,8 +731,9 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "{{ include "dashboard-refresh" . }}",
-  "schemaVersion": 39,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -735,7 +742,7 @@
           "text": "",
           "value": ""
         },
-        "description": "Search for blocked paths/methods by domain",
+        "description": "Filter by request domain",
         "label": "Domain",
         "name": "domain",
         "options": [
@@ -753,9 +760,27 @@
           "text": "",
           "value": ""
         },
-        "description": "Search for allowed/denied requests by workspace owner",
+        "description": "Filter requests by workspace owner",
         "label": "Workspace Owner",
         "name": "owner",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "description": "Filter requests by template ID",
+        "label": "Template ID",
+        "name": "template_id",
         "options": [
           {
             "selected": true,
