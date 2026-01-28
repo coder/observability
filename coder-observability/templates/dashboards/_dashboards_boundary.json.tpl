@@ -569,6 +569,18 @@
               "workspace_name": "Workspace Name"
             }
           }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "Time"
+              }
+            ]
+          }
         }
       ],
       "type": "table"
@@ -753,6 +765,18 @@
               "time": "Time",
               "workspace_name": "Workspace Name"
             }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "Time"
+              }
+            ]
           }
         }
       ],
