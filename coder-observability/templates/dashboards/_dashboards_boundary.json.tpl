@@ -520,12 +520,6 @@
       "title": "Most recent allowed requests",
       "transformations": [
         {
-          "id": "limit",
-          "options": {
-            "limitField": "10"
-          }
-        },
-        {
           "id": "extractFields",
           "options": {
             "delimiter": "|",
@@ -580,6 +574,12 @@
                 "field": "Time"
               }
             ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": "10"
           }
         }
       ],
@@ -717,12 +717,6 @@
       "title": "Most recent denied requests",
       "transformations": [
         {
-          "id": "limit",
-          "options": {
-            "limitField": "10"
-          }
-        },
-        {
           "id": "extractFields",
           "options": {
             "delimiter": "|",
@@ -777,6 +771,12 @@
                 "field": "Time"
               }
             ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": "10"
           }
         }
       ],
