@@ -240,6 +240,7 @@ data:
     - editable: false
       isDefault: false
       jsonData:
+        database: 'coder'
         sslmode: 'disable'
       name: postgres
       secureJsonData:
@@ -12578,7 +12579,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: b08e5acafbf67bfc9df6ec4774f8a064a72894a623812a262cd84676e41e4a97
+        checksum/config: 9d69efdceffa38ecceebc5bec21712c49f95d7fb897c026e38b5fa3220049d38
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana

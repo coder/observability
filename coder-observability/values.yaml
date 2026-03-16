@@ -413,6 +413,7 @@ grafana:
           secureJsonData:
             password: '{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}'
           jsonData:
+            database: '{{ .Values.global.postgres.database }}'
             sslmode: '{{ .Values.global.postgres.sslmode }}'
           isDefault: false
           editable: false
