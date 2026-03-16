@@ -411,6 +411,7 @@ grafana:
           url: '{{ .Values.global.postgres.hostname }}:{{ .Values.global.postgres.port }}'
           user: '{{ .Values.global.postgres.username }}'
           secureJsonData:
+            database: '{{ .Values.global.postgres.database }}'
             password: '{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}'
           jsonData:
             sslmode: '{{ .Values.global.postgres.sslmode }}'
