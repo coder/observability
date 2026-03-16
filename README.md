@@ -434,9 +434,9 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.datasources."datasources.yaml".datasources[3].url | string | `"http://tempo.{{ .Release.Namespace }}.{{ $.Values.global.zone }}:3200"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].editable | bool | `false` |  |
 | grafana.datasources."datasources.yaml".datasources[4].isDefault | bool | `false` |  |
+| grafana.datasources."datasources.yaml".datasources[4].jsonData.database | string | `"{{ .Values.global.postgres.database }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].name | string | `"postgres"` |  |
-| grafana.datasources."datasources.yaml".datasources[4].secureJsonData.database | string | `"{{ .Values.global.postgres.database }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].type | string | `"postgres"` |  |
