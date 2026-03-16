@@ -22,7 +22,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.6.2 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.7.1 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements
@@ -436,6 +436,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.datasources."datasources.yaml".datasources[4].isDefault | bool | `false` |  |
 | grafana.datasources."datasources.yaml".datasources[4].jsonData.sslmode | string | `"{{ .Values.global.postgres.sslmode }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].name | string | `"postgres"` |  |
+| grafana.datasources."datasources.yaml".datasources[4].secureJsonData.database | string | `"{{ .Values.global.postgres.database }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].secureJsonData.password | string | `"{{ if .Values.global.postgres.password }}{{ .Values.global.postgres.password }}{{ else }}$PGPASSWORD{{ end }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].timeout | string | `"{{ add $.Values.global.dashboards.queryTimeout 5 }}"` |  |
 | grafana.datasources."datasources.yaml".datasources[4].type | string | `"postgres"` |  |
