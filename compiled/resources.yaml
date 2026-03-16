@@ -243,6 +243,7 @@ data:
         sslmode: 'disable'
       name: postgres
       secureJsonData:
+        database: 'coder'
         password: '$PGPASSWORD'
       timeout: '905'
       type: postgres
@@ -12578,7 +12579,7 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: b08e5acafbf67bfc9df6ec4774f8a064a72894a623812a262cd84676e41e4a97
+        checksum/config: e9c6f84481af8ea55a73e23c17a17c1e444a8031cbf1e9cdc144481a04b244fc
         checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
