@@ -2,9 +2,7 @@ apiVersion: v2
 name: coder-observability
 description: Gain insights into your Coder deployment
 type: application
-
 version: 0.8.0
-
 dependencies:
   - name: pyroscope
     condition: pyroscope.enabled

@@ -38,6 +38,38 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 1 },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(coder_derp_server_connections)",
+          "legendFormat": "__auto"
+        }
+      ],
+      "title": "Total Connections",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
           "custom": {
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -51,7 +83,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 5 },
       "id": 2,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -86,7 +118,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 5 },
       "id": 3,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -121,7 +153,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 5 },
       "id": 4,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -157,7 +189,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 13 },
       "id": 5,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -184,7 +216,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
       "id": 6,
       "title": "DERP Throughput",
       "type": "row"
@@ -206,7 +238,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 18 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 22 },
       "id": 7,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -248,7 +280,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 18 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 22 },
       "id": 8,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -290,7 +322,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 18 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 22 },
       "id": 9,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -310,7 +342,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
       "id": 10,
       "title": "DERP Drops & Errors",
       "type": "row"
@@ -332,7 +364,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 27 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 31 },
       "id": 11,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -367,7 +399,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 27 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 31 },
       "id": 12,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -402,7 +434,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 27 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 31 },
       "id": 13,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -437,7 +469,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 27 },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 31 },
       "id": 14,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -457,7 +489,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
       "id": 15,
       "title": "DERP Mesh & Peering",
       "type": "row"
@@ -479,7 +511,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 40 },
       "id": 16,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -521,7 +553,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 40 },
       "id": 17,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -563,7 +595,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 36 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 40 },
       "id": 18,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -590,7 +622,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
       "id": 19,
       "title": "DERP Health",
       "type": "row"
@@ -612,7 +644,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 45 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 49 },
       "id": 20,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -647,7 +679,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 45 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 49 },
       "id": 21,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -689,7 +721,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 45 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 49 },
       "id": 22,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
