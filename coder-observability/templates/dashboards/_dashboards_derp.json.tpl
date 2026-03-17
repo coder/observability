@@ -31,7 +31,7 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
       "id": 1,
-      "title": "Connections",
+      "title": "DERP Connections",
       "type": "row"
     },
     {
@@ -186,7 +186,7 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
       "id": 6,
-      "title": "Throughput",
+      "title": "DERP Throughput",
       "type": "row"
     },
     {
@@ -312,7 +312,7 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
       "id": 10,
-      "title": "Drops & Errors",
+      "title": "DERP Drops & Errors",
       "type": "row"
     },
     {
@@ -459,7 +459,7 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
       "id": 15,
-      "title": "Mesh & Peering",
+      "title": "DERP Mesh & Peering",
       "type": "row"
     },
     {
@@ -592,7 +592,7 @@
       "collapsed": false,
       "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
       "id": 19,
-      "title": "Health",
+      "title": "DERP Health",
       "type": "row"
     },
     {
