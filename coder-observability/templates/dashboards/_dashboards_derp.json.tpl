@@ -143,8 +143,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_accepts_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_accepts_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -179,15 +179,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (coder_derp_server_clients_local)",
-          "legendFormat": "Local - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (coder_derp_server_clients_local)",
+          "legendFormat": "Local - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (coder_derp_server_clients_remote)",
-          "legendFormat": "Remote - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (coder_derp_server_clients_remote)",
+          "legendFormat": "Remote - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -228,15 +228,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_bytes_received_total[$__rate_interval]))",
-          "legendFormat": "Received - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_bytes_received_total[$__rate_interval]))",
+          "legendFormat": "Received - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_bytes_sent_total[$__rate_interval]))",
-          "legendFormat": "Sent - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_bytes_sent_total[$__rate_interval]))",
+          "legendFormat": "Sent - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -270,15 +270,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_packets_received_total[$__rate_interval]))",
-          "legendFormat": "Received - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_packets_received_total[$__rate_interval]))",
+          "legendFormat": "Received - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_packets_sent_total[$__rate_interval]))",
-          "legendFormat": "Sent - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_packets_sent_total[$__rate_interval]))",
+          "legendFormat": "Sent - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -312,8 +312,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance, kind) (rate(coder_derp_server_packets_received_kind_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}kind{{ "}}" }} - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod, kind) (rate(coder_derp_server_packets_received_kind_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}kind{{ "}}" }} - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -354,8 +354,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_packets_dropped_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_packets_dropped_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -389,8 +389,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance, reason) (rate(coder_derp_server_packets_dropped_reason_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}reason{{ "}}" }} - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod, reason) (rate(coder_derp_server_packets_dropped_reason_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}reason{{ "}}" }} - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -424,8 +424,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance, type) (rate(coder_derp_server_packets_dropped_type_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}type{{ "}}" }} - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod, type) (rate(coder_derp_server_packets_dropped_type_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}type{{ "}}" }} - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -459,8 +459,8 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_unknown_frames_total[$__rate_interval]))",
-          "legendFormat": "{{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_unknown_frames_total[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -501,15 +501,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_packets_forwarded_in_total[$__rate_interval]))",
-          "legendFormat": "In - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_packets_forwarded_in_total[$__rate_interval]))",
+          "legendFormat": "In - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_packets_forwarded_out_total[$__rate_interval]))",
-          "legendFormat": "Out - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_packets_forwarded_out_total[$__rate_interval]))",
+          "legendFormat": "Out - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -543,15 +543,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_peer_gone_disconnected_total[$__rate_interval]))",
-          "legendFormat": "Disconnected - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_peer_gone_disconnected_total[$__rate_interval]))",
+          "legendFormat": "Disconnected - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_peer_gone_not_here_total[$__rate_interval]))",
-          "legendFormat": "Not Here - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_peer_gone_not_here_total[$__rate_interval]))",
+          "legendFormat": "Not Here - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -585,15 +585,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_home_moves_in_total[$__rate_interval]))",
-          "legendFormat": "In - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_home_moves_in_total[$__rate_interval]))",
+          "legendFormat": "In - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_home_moves_out_total[$__rate_interval]))",
-          "legendFormat": "Out - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_home_moves_out_total[$__rate_interval]))",
+          "legendFormat": "Out - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
@@ -635,7 +635,7 @@
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
           "expr": "coder_derp_server_average_queue_duration_ms",
-          "legendFormat": "{{ "{{" }}instance{{ "}}" }}",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -669,15 +669,15 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_got_ping_total[$__rate_interval]))",
-          "legendFormat": "Got Ping - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_got_ping_total[$__rate_interval]))",
+          "legendFormat": "Got Ping - {{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum by (instance) (rate(coder_derp_server_sent_pong_total[$__rate_interval]))",
-          "legendFormat": "Sent Pong - {{ "{{" }}instance{{ "}}" }}",
+          "expr": "sum by (pod) (rate(coder_derp_server_sent_pong_total[$__rate_interval]))",
+          "legendFormat": "Sent Pong - {{ "{{" }}pod{{ "}}" }}",
           "refId": "B"
         }
       ]
