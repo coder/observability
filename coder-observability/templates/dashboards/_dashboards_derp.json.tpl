@@ -286,7 +286,7 @@
             "showPoints": "auto",
             "spanNulls": false
           },
-          "unit": "none"
+          "unit": "pps"
         },
         "overrides": []
       },
@@ -363,7 +363,7 @@
             "showPoints": "auto",
             "spanNulls": false
           },
-          "unit": "none"
+          "unit": "pps"
         },
         "overrides": []
       },
