@@ -38,78 +38,33 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "unit": "none"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 4, "x": 0, "y": 1 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
       "id": 2,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single", "sort": "none" }
       },
       "title": "Current Connections",
-      "type": "stat",
+      "type": "timeseries",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(coder_derp_server_connections)",
-          "legendFormat": "__auto",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 4, "x": 4, "y": 1 },
-      "id": 3,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "title": "Home Connections",
-      "type": "stat",
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "editorMode": "code",
-          "expr": "sum(coder_derp_server_home_connections)",
-          "legendFormat": "__auto",
+          "expr": "sum by (pod) (coder_derp_server_connections)",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
@@ -132,6 +87,41 @@
         "overrides": []
       },
       "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "id": 3,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "title": "Home Connections",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum by (pod) (coder_derp_server_home_connections)",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
       "id": 4,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -167,7 +157,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
       "id": 5,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -194,7 +184,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
       "id": 6,
       "title": "Throughput",
       "type": "row"
@@ -216,7 +206,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 10 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 18 },
       "id": 7,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -258,7 +248,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 10 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 18 },
       "id": 8,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -300,7 +290,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 18 },
       "id": 9,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -320,7 +310,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
       "id": 10,
       "title": "Drops & Errors",
       "type": "row"
@@ -342,7 +332,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 19 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 27 },
       "id": 11,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -377,7 +367,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 19 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 27 },
       "id": 12,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -412,7 +402,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 19 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 27 },
       "id": 13,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -447,7 +437,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 19 },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 27 },
       "id": 14,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -467,7 +457,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
       "id": 15,
       "title": "Mesh & Peering",
       "type": "row"
@@ -489,7 +479,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 28 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 36 },
       "id": 16,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -531,7 +521,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 28 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 36 },
       "id": 17,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -573,7 +563,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 36 },
       "id": 18,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -600,7 +590,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
       "id": 19,
       "title": "Health",
       "type": "row"
@@ -622,7 +612,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 37 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 45 },
       "id": 20,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -657,7 +647,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 37 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 45 },
       "id": 21,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -686,38 +676,33 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": false
+          },
+          "unit": "none"
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 37 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 45 },
       "id": 22,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single", "sort": "none" }
       },
       "title": "Watchers",
-      "type": "stat",
+      "type": "timeseries",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "editorMode": "code",
-          "expr": "sum(coder_derp_server_watchers)",
-          "legendFormat": "__auto",
+          "expr": "sum by (pod) (coder_derp_server_watchers)",
+          "legendFormat": "{{ "{{" }}pod{{ "}}" }}",
           "refId": "A"
         }
       ]
