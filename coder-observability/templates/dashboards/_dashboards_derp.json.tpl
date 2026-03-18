@@ -35,6 +35,19 @@
       "type": "row"
     },
     {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 1 },
+      "id": 24,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "DERP (Designated Encrypted Relay for Packets) relays traffic between Coder clients and workspaces when direct peer-to-peer connections aren't possible. **Current Connections** shows active WebSocket connections to each DERP server. **Home Connections** are clients that have selected this server as their primary relay. **Accepts Rate** shows new connections per second. **Clients** breaks down local (directly connected) vs remote (mesh-forwarded) clients.\n\n📌 **What to watch:** A sudden drop in connections may indicate a DERP server issue. A high ratio of remote to local clients suggests mesh forwarding is doing heavy lifting — this is normal in multi-region deployments. Zero connections on a server that should be active warrants investigation.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text",
+      "transparent": true
+    },
+    {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
@@ -46,7 +59,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 1 },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 4 },
       "id": 23,
       "options": {
         "colorMode": "value",
@@ -83,7 +96,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 5 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
       "id": 2,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -118,7 +131,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 5 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
       "id": 3,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -153,7 +166,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 5 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
       "id": 4,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -189,7 +202,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 13 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
       "id": 5,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -216,10 +229,23 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
       "id": 6,
       "title": "DERP Throughput",
       "type": "row"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 25 },
+      "id": 25,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "Bytes and packets flowing through the DERP relay. **Bytes Rate** shows bandwidth consumption (sent vs received should be roughly balanced). **Packets Rate** shows message throughput. **Packets by Kind** breaks down the types of packets being relayed.\n\n📌 **What to watch:** Large asymmetry between sent and received bytes could indicate one-directional traffic issues. Throughput scaling linearly with connections is normal. Sudden throughput drops with stable connection counts may indicate packet processing issues.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text",
+      "transparent": true
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -238,7 +264,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 22 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 28 },
       "id": 7,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -280,7 +306,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 22 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 28 },
       "id": 8,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -322,7 +348,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 22 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 28 },
       "id": 9,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -342,10 +368,23 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
       "id": 10,
       "title": "DERP Drops & Errors",
       "type": "row"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 37 },
+      "id": 26,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "Packets that couldn't be delivered. **Packet Drop Rate** is the overall drop rate. **Drops by Reason** shows why packets were dropped (e.g. queue full, unknown destination). **Drops by Type** categorizes by packet type. **Unknown Frames** are unrecognized protocol frames.\n\n📌 **What to watch:** Some drops are normal during client disconnects and reconnects — these are self-healing. Sustained high drop rates or drops with reason `queue_full` indicate the server is overloaded. Unknown frames at a consistent rate may indicate a client/server version mismatch.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text",
+      "transparent": true
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -364,7 +403,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 31 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 40 },
       "id": 11,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -399,7 +438,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 31 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 40 },
       "id": 12,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -434,7 +473,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 31 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 40 },
       "id": 13,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -469,7 +508,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 31 },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 40 },
       "id": 14,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -489,10 +528,23 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
       "id": 15,
       "title": "DERP Mesh & Peering",
       "type": "row"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 49 },
+      "id": 27,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "Traffic forwarded between DERP servers in a mesh topology. **Forwarded Packets** shows packets relayed to/from other DERP servers. **Peer Gone** fires when a client disconnects or is looked up on the wrong server. **Home Moves** track clients migrating their home DERP server between regions.\n\n📌 **What to watch:** Peer Gone - Not Here at a low rate is normal as clients reconnect to different servers. High rates suggest frequent re-homing or routing issues. Home Moves correlate with clients changing networks or regions — occasional spikes are fine, sustained high rates may indicate instability.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text",
+      "transparent": true
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -511,7 +563,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 40 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 52 },
       "id": 16,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -553,7 +605,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 40 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 52 },
       "id": 17,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -595,7 +647,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 40 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 52 },
       "id": 18,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -622,10 +674,23 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 60 },
       "id": 19,
       "title": "DERP Health",
       "type": "row"
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 61 },
+      "id": 28,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "Server-level health indicators. **Average Queue Duration** is how long packets wait before being sent — lower is better. **Ping/Pong** shows keepalive traffic; these should be roughly equal. **Watchers** are clients subscribed to peer presence notifications.\n\n📌 **What to watch:** Queue duration consistently above 50ms suggests the server is struggling to keep up. A divergence between ping and pong rates means keepalives are being lost. Watchers should roughly correlate with connection count.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.4.0",
+      "title": "",
+      "type": "text",
+      "transparent": true
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -644,7 +709,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 49 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 64 },
       "id": 20,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -679,7 +744,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 49 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 64 },
       "id": 21,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
@@ -721,7 +786,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 49 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 64 },
       "id": 22,
       "options": {
         "legend": { "calcs": [], "displayMode": "list", "placement": "bottom" },
