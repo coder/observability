@@ -31,9 +31,15 @@ spec:
           volumeMounts:
             - mountPath: /cfg/
               name: config
+            {{- if .Values.global.postgres.volumeMounts }}
+            {{- toYaml .Values.global.postgres.volumeMounts | nindent 12 }}
+            {{- end }}
           {{ include "postgres-secret-mount" . | nindent 10 }}
       volumes:
         - name: config
           configMap:
             name: sql-exporter-config
+        {{- if .Values.global.postgres.volumes }}
+        {{- toYaml .Values.global.postgres.volumes | nindent 8 }}
+        {{- end }}
 {{- end }}
