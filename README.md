@@ -289,7 +289,7 @@ If you switch from classic to native histograms, dashboards may need to account 
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://grafana.github.io/helm-charts | tempo | ~v1.23.0 |
-| https://prometheus-community.github.io/helm-charts | prometheus | ~v25.24.1 |
+| https://prometheus-community.github.io/helm-charts | prometheus | ~v29.20.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
@@ -570,6 +570,16 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.prometheus-node-exporter.fullnameOverride | string | `"node-exporter"` |  |
 | prometheus.prometheus-node-exporter.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | prometheus.prometheus-pushgateway.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-api-servers.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-nodes-cadvisor.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-nodes.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-pods-slow.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-pods.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-service-endpoints-slow.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-service-endpoints.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.kubernetes-services.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.prometheus-pushgateway.enabled | bool | `false` |  |
+| prometheus.scrapeConfigs.prometheus.enabled | bool | `false` |  |
 | prometheus.server.extraArgs."log.level" | string | `"debug"` |  |
 | prometheus.server.extraConfigmapMounts[0].configMap | string | `"coder-metrics-alerts"` |  |
 | prometheus.server.extraConfigmapMounts[0].mountPath | string | `"/etc/config/alerts"` |  |
