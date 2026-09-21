@@ -140,7 +140,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
   namespace: coder-observability
@@ -735,7 +734,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
   namespace: coder-observability
@@ -750,6 +748,7 @@ data:
       evaluation_interval: 30s
       scrape_interval: 1m
       scrape_timeout: 10s
+    scrape_configs:
     rule_files:
     - /etc/config/alerts/*.yaml
     scrape_configs: []
@@ -11113,23 +11112,23 @@ rules:
     resources:
       - cronjobs
     verbs: ["list", "watch"]
-  - apiGroups: ["extensions", "apps"]
+  - apiGroups: ["apps"]
     resources:
       - daemonsets
     verbs: ["list", "watch"]
-  - apiGroups: ["extensions", "apps"]
+  - apiGroups: ["apps"]
     resources:
       - deployments
     verbs: ["list", "watch"]
-  - apiGroups: [""]
+  - apiGroups: ["discovery.k8s.io"]
     resources:
-      - endpoints
+      - endpointslices
     verbs: ["list", "watch"]
   - apiGroups: ["autoscaling"]
     resources:
       - horizontalpodautoscalers
     verbs: ["list", "watch"]
-  - apiGroups: ["extensions", "networking.k8s.io"]
+  - apiGroups: ["networking.k8s.io"]
     resources:
       - ingresses
     verbs: ["list", "watch"]
@@ -11177,7 +11176,7 @@ rules:
     resources:
       - pods
     verbs: ["list", "watch"]
-  - apiGroups: ["extensions", "apps"]
+  - apiGroups: ["apps"]
     resources:
       - replicasets
     verbs: ["list", "watch"]
@@ -11222,7 +11221,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
 rules:
@@ -11230,7 +11228,6 @@ rules:
       - ""
     resources:
       - nodes
-      - nodes/proxy
       - nodes/metrics
       - services
       - endpoints
@@ -11242,7 +11239,6 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "extensions"
       - "networking.k8s.io"
     resources:
       - ingresses/status
@@ -11348,7 +11344,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
 subjects:
@@ -11921,10 +11916,10 @@ metadata:
 spec:
   type: "ClusterIP"
   ports:
-    - name: "http"
+    - name: http
       protocol: TCP
       port: 8080
-      targetPort: 8080
+      targetPort: http
   selector:
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
@@ -11962,7 +11957,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus-headless
   namespace: coder-observability
@@ -11986,7 +11980,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
   namespace: coder-observability
@@ -12200,13 +12193,13 @@ spec:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         prometheus.io/scrape: "true"
       labels:
-        helm.sh/chart: prometheus-node-exporter-4.37.0
+        helm.sh/chart: prometheus-node-exporter-4.56.1
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: prometheus-node-exporter
         app.kubernetes.io/name: prometheus-node-exporter
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "1.8.1"
+        app.kubernetes.io/version: "1.12.1"
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -12239,7 +12232,7 @@ spec:
             httpGet:
               httpHeaders:
               path: /
-              port: 9100
+              port: metrics
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 10
@@ -12250,7 +12243,7 @@ spec:
             httpGet:
               httpHeaders:
               path: /
-              port: 9100
+              port: metrics
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 10
@@ -12269,6 +12262,20 @@ spec:
               readOnly: true
       hostNetwork: true
       hostPID: true
+      hostIPC: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: eks.amazonaws.com/compute-type
+                    operator: NotIn
+                    values:
+                      - fargate
+                  - key: type
+                    operator: NotIn
+                    values:
+                      - virtual-kubelet
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:
@@ -12495,13 +12502,13 @@ spec:
   template:
     metadata:
       labels:
-        helm.sh/chart: kube-state-metrics-5.21.0
+        helm.sh/chart: kube-state-metrics-8.0.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: kube-state-metrics
         app.kubernetes.io/name: kube-state-metrics
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "2.12.0"
+        app.kubernetes.io/version: "2.19.1"
       annotations:
         prometheus.io/scrape: "true"
     spec:
@@ -12515,21 +12522,23 @@ spec:
         runAsUser: 65534
         seccompProfile:
           type: RuntimeDefault
+      dnsPolicy: ClusterFirst
       containers:
         - name: kube-state-metrics
           args:
             - --port=8080
-            - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+            - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-              name: "http"
+              name: http
+            - containerPort: 8081
+              name: metrics
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              httpHeaders:
-              path: /healthz
-              port: 8080
+              path: /livez
+              port: http
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -12538,9 +12547,8 @@ spec:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              httpHeaders:
-              path: /
-              port: 8080
+              path: /readyz
+              port: metrics
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -13311,7 +13319,7 @@ spec:
         app.kubernetes.io/name: alertmanager
         app.kubernetes.io/instance: coder-observability
       annotations:
-        checksum/config: 490f47b0d70495b76347dac06d9734b3074df82e0cc70a914ab7859d725f850b
+        checksum/config: e3369d0aa5f1fbb1e2429a202bc7313006c888d3379e8698200a31d48f7ba88a
         prometheus.io/scrape: "true"
     spec:
       automountServiceAccountToken: true
@@ -13369,7 +13377,7 @@ spec:
           requests:
             storage: 2Gi
 ---
-# Source: coder-observability/charts/prometheus/templates/sts.yaml
+# Source: coder-observability/charts/prometheus/templates/deploy.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -13377,7 +13385,6 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: prometheus
   name: prometheus
   namespace: coder-observability
@@ -13385,6 +13392,7 @@ spec:
   persistentVolumeClaimRetentionPolicy:
     whenDeleted: Retain
     whenScaled: Retain
+  podManagementPolicy: OrderedReady
   serviceName: prometheus-headless
   selector:
     matchLabels:
@@ -13393,7 +13401,6 @@ spec:
       app.kubernetes.io/instance: coder-observability
   replicas: 1
   revisionHistoryLimit: 10
-  podManagementPolicy: OrderedReady
   template:
     metadata:
       annotations:
@@ -13402,9 +13409,8 @@ spec:
         app.kubernetes.io/component: server
         app.kubernetes.io/name: prometheus
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: v2.53.1
-        helm.sh/chart: prometheus-25.24.2
-        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: v3.13.2
+        helm.sh/chart: prometheus-29.20.1
         app.kubernetes.io/part-of: prometheus
     spec:
       enableServiceLinks: true
@@ -13429,12 +13435,6 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 10
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: metrics
-              scheme: HTTP
-            periodSeconds: 10
-          startupProbe:
             httpGet:
               path: /healthz
               port: metrics
@@ -13492,7 +13492,6 @@ spec:
               mountPath: /etc/config/alerts
               subPath:
               readOnly:
-      hostNetwork: false
       dnsPolicy: ClusterFirst
       securityContext:
         fsGroup: 65534

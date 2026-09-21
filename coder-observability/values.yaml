@@ -531,6 +531,32 @@ prometheus:
       rule_files:
         - /etc/config/alerts/*.yaml
 
+  # As of prometheus chart v27+ the default scrape jobs moved from
+  # serverFiles.prometheus.yml.scrape_configs to this top-level map. Disable each
+  # one so scraping stays managed by the collector (an empty map does not
+  # override the chart defaults; each job must be disabled explicitly).
+  scrapeConfigs:
+    prometheus:
+      enabled: false
+    kubernetes-api-servers:
+      enabled: false
+    kubernetes-nodes:
+      enabled: false
+    kubernetes-nodes-cadvisor:
+      enabled: false
+    kubernetes-service-endpoints:
+      enabled: false
+    kubernetes-service-endpoints-slow:
+      enabled: false
+    prometheus-pushgateway:
+      enabled: false
+    kubernetes-services:
+      enabled: false
+    kubernetes-pods:
+      enabled: false
+    kubernetes-pods-slow:
+      enabled: false
+
   testFramework:
     enabled: false
 
