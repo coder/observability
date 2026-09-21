@@ -531,7 +531,7 @@ prometheus:
       rule_files:
         - /etc/config/alerts/*.yaml
 
-  # As of prometheus chart v27+ the default scrape jobs moved from
+  # As of prometheus chart v28+ the default scrape jobs moved from
   # serverFiles.prometheus.yml.scrape_configs to this top-level map. Disable each
   # one so scraping stays managed by the collector (an empty map does not
   # override the chart defaults; each job must be disabled explicitly).
