@@ -15,7 +15,7 @@ dependencies:
   - name: prometheus
     condition: prometheus.enabled
     repository: https://prometheus-community.github.io/helm-charts
-    version: '~v25.24.1'
+    version: '~v29.20.1'
   - name: loki
     condition: loki.enabled
     repository: https://grafana.github.io/helm-charts
