@@ -751,7 +751,6 @@ data:
     scrape_configs:
     rule_files:
     - /etc/config/alerts/*.yaml
-    scrape_configs: []
     alerting:
       alertmanagers:
       - kubernetes_sd_configs:
