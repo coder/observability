@@ -366,7 +366,7 @@ prometheus.remote_write "default" {
   }
 }
 
-{{- if $agent.withOTLPReceiver -}}
+{{- if $agent.withOTLPReceiver }}
 otelcol.receiver.otlp "otlp_receiver" {
   grpc {
     endpoint = "0.0.0.0:4317"
