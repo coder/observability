@@ -25,6 +25,10 @@ build:
 	./scripts/compile.sh
 .PHONY: build
 
+test/prometheus: build
+	./scripts/test-prometheus.sh
+.PHONY: test/prometheus
+
 lint/rules: lint/helm/prometheus-rules
 .PHONY: lint/rules
 

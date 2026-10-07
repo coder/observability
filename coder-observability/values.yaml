@@ -515,7 +515,7 @@ prometheus:
       type: ClusterIP
     extraFlags:
       - web.enable-lifecycle
-      - enable-feature=remote-write-receiver
+      - web.enable-remote-write-receiver
     extraConfigmapMounts:
       - name: alerts
         mountPath: /etc/config/alerts
@@ -525,8 +525,6 @@ prometheus:
 
   serverFiles:
     prometheus.yml:
-      # disables scraping of metrics by the Prometheus helm chart since this is managed by the collector
-      scrape_configs: []
       # use custom rule files to be able to render templates (can't do that in values.yaml, unless that value is evaluated by a tpl call)
       rule_files:
         - /etc/config/alerts/*.yaml

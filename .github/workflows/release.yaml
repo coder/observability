@@ -47,7 +47,12 @@ jobs:
       - name: Install helm
         uses: azure/setup-helm@v4
         with:
-          version: v3.9.2
+          version: v3.17.1
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 -O /usr/bin/yq &&\
+          sudo chmod +x /usr/bin/yq
 
       - name: Publish Helm Chart
         if: ${{ !inputs.dry_run }}

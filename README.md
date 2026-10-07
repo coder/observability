@@ -22,7 +22,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.7.3 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.7.4 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements
@@ -587,7 +587,7 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.server.extraConfigmapMounts[0].optional | bool | `true` |  |
 | prometheus.server.extraConfigmapMounts[0].readonly | bool | `true` |  |
 | prometheus.server.extraFlags[0] | string | `"web.enable-lifecycle"` |  |
-| prometheus.server.extraFlags[1] | string | `"enable-feature=remote-write-receiver"` |  |
+| prometheus.server.extraFlags[1] | string | `"web.enable-remote-write-receiver"` |  |
 | prometheus.server.fullnameOverride | string | `"prometheus"` |  |
 | prometheus.server.global.evaluation_interval | string | `"30s"` |  |
 | prometheus.server.persistentVolume.enabled | bool | `true` |  |
@@ -598,7 +598,6 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.server.service.type | string | `"ClusterIP"` |  |
 | prometheus.server.statefulSet.enabled | bool | `true` |  |
 | prometheus.serverFiles."prometheus.yml".rule_files[0] | string | `"/etc/config/alerts/*.yaml"` |  |
-| prometheus.serverFiles."prometheus.yml".scrape_configs | list | `[]` |  |
 | prometheus.testFramework.enabled | bool | `false` |  |
 | pyroscope.alloy.enabled | bool | `false` |  |
 | pyroscope.enabled | bool | `false` |  |

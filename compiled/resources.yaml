@@ -751,7 +751,6 @@ data:
     scrape_configs:
     rule_files:
     - /etc/config/alerts/*.yaml
-    scrape_configs: []
     alerting:
       alertmanagers:
       - kubernetes_sd_configs:
@@ -13458,7 +13457,7 @@ spec:
             - --web.console.libraries=/etc/prometheus/console_libraries
             - --web.console.templates=/etc/prometheus/consoles
             - --web.enable-lifecycle
-            - --enable-feature=remote-write-receiver
+            - --web.enable-remote-write-receiver
             - --log.level=debug
           ports:
             - containerPort: 9090

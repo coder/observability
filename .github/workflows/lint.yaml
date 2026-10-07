@@ -37,3 +37,6 @@ jobs:
 
       - name: Lint Helm chart and rules
         run: make lint
+
+      - name: Validate Prometheus config correctness
+        run: make test/prometheus
