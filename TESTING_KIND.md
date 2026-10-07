@@ -1,29 +1,5 @@
 # Using kind to test observability
 
-## Prometheus smoke test
-
-Before running a full cluster test, run the same Prometheus smoke test used by CI:
-
-```bash
-helm dependency build coder-observability
-make test/prometheus
-```
-
-This requires Docker, Helm, yq v4, and curl. It compiles the chart's configuration
-and alert rules, starts the rendered Prometheus image with its rendered arguments,
-and waits for `/-/ready` to return success. Logs are printed and the container is
-removed when the check finishes. Kubernetes discovery uses local service-account
-fixtures; this check does not test discovery or metrics ingestion.
-
-The release script runs the same check against the packaged `.tgz` before uploading
-it. To test an existing package locally:
-
-```bash
-./scripts/test-prometheus.sh path/to/coder-observability-VERSION.tgz
-```
-
-## Full cluster test
-
 <details>
   <summary>If using nix</summary>
 
