@@ -9,18 +9,17 @@ helm dependency build coder-observability
 make test/prometheus
 ```
 
-This requires Docker, Helm, yq v4, and Python 3. It renders the chart, runs
-`promtool check config` (including alert rules) from the rendered Prometheus image,
-then starts that image with the rendered arguments. It checks readiness, zero
-scrape targets (the collector handles scraping), and a remote-written metric that
-can be queried back. Kubernetes discovery uses local service-account fixtures;
-this does not test discovery or the collector end to end.
+This requires Docker, Helm, yq v4, and curl. It compiles the chart's configuration
+and alert rules, starts the rendered Prometheus image with its rendered arguments,
+and waits for `/-/ready` to return success. Logs are printed and the container is
+removed when the check finishes. Kubernetes discovery uses local service-account
+fixtures; this check does not test discovery or metrics ingestion.
 
 The release script runs the same check against the packaged `.tgz` before uploading
 it. To test an existing package locally:
 
 ```bash
-python3 scripts/test-prometheus.py path/to/coder-observability-VERSION.tgz
+./scripts/test-prometheus.sh path/to/coder-observability-VERSION.tgz
 ```
 
 ## Full cluster test

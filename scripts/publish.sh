@@ -4,7 +4,7 @@ set -euox pipefail
 version=$("$(dirname "${BASH_SOURCE[0]}")/version.sh")
 mkdir -p build/helm
 helm package coder-observability --version=${version} --dependency-update --destination build/helm
-python3 "$(dirname "${BASH_SOURCE[0]}")/test-prometheus.py" "build/helm/coder-observability-${version}.tgz"
+"$(dirname "${BASH_SOURCE[0]}")/test-prometheus.sh" "build/helm/coder-observability-${version}.tgz"
 gsutil cp gs://helm.coder.com/observability/index.yaml build/helm/index.yaml
 helm repo index build/helm --url https://helm.coder.com/observability --merge build/helm/index.yaml
 gsutil -h "Cache-Control:no-cache,max-age=0" cp build/helm/index.yaml gs://helm.coder.com/observability/
