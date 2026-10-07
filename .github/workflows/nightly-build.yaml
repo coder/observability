@@ -28,9 +28,9 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 -O /usr/bin/yq &&\
           sudo chmod +x /usr/bin/yq
 
-      - name: make build
+      - name: Build and test Prometheus
         run: |
-          make build > output.log 2>&1
+          { make build && make test/prometheus; } > output.log 2>&1
         continue-on-error: false
 
       - name: Upload script output

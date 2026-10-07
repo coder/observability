@@ -515,7 +515,7 @@ prometheus:
       type: ClusterIP
     extraFlags:
       - web.enable-lifecycle
-      - enable-feature=remote-write-receiver
+      - web.enable-remote-write-receiver
     extraConfigmapMounts:
       - name: alerts
         mountPath: /etc/config/alerts

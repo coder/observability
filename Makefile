@@ -10,7 +10,7 @@ SHELL := bash
 all: lint
 .PHONY: all
 
-lint: build lint/helm lint/rules readme
+lint: build lint/helm test/prometheus lint/rules readme
 	./scripts/check-unstaged.sh
 .PHONY: lint
 
@@ -24,6 +24,11 @@ lint/helm/coder-observability:
 build:
 	./scripts/compile.sh
 .PHONY: build
+
+# Requires chart dependencies (make build), Docker, Helm, yq, and Python 3.
+test/prometheus:
+	python3 ./scripts/test-prometheus.py
+.PHONY: test/prometheus
 
 lint/rules: lint/helm/prometheus-rules
 .PHONY: lint/rules
