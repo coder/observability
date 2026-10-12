@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased
+
+- BREAKING: replaces the `grafana-agent` subchart with Grafana Alloy (`alloy` chart 1.13.1). Rename any `grafana-agent:` values overrides to `alloy:`.
+- Pod `job` label changes from `<ns>/grafana-agent/grafana-agent` to `<ns>/alloy/alloy`; update queries and alerts that match the old label.
+- Alloy listens on port 12345 instead of 80.
+
 ## v0.3.0
 
 - Adding prebuilt workspace dashboard & alerts

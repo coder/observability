@@ -9,7 +9,7 @@
 ## Overview
 
 This chart contains a highly opinionated set of integrations between Grafana, Loki, Prometheus, Alertmanager, and
-Grafana Agent.
+Alloy.
 
 Dashboards, alerts, and runbooks are preconfigured for monitoring [Coder](https://coder.com/) installations.
 
@@ -64,11 +64,11 @@ global:
 ```
 
 If you would like your logs scraped from a process outside Kubernetes, you need to mount the log file(s) in and
-configure Grafana Agent to scrape them; here's an example configuration:
+configure Alloy to scrape them; here's an example configuration:
 
 ```yaml
-grafana-agent:
-  agent:
+alloy:
+  alloy:
     mounts:
       extra:
         - mountPath: /var/log
@@ -228,8 +228,8 @@ And open your web browser to http://localhost:9090/graph.
 Native histograms are an **experimental** Prometheus feature that remove the need to predefine bucket boundaries and instead provide higher-resolution, adaptive buckets (see [Prometheus docs](https://prometheus.io/docs/specs/native_histograms/) for details).
 
 Unlike classic histograms, which are sent in plain text, **native histograms require the protobuf protocol**.
-In addition to running Prometheus with native histogram support, since the Prometheus Helm chart is configured with remote write, the Grafana Agent must be configured to scrape and remote write using protobuf.
-Native histograms are **disabled by default**, but when you enable them globally, the Helm chart automatically updates the Grafana Agent configuration accordingly.
+In addition to running Prometheus with native histogram support, since the Prometheus Helm chart is configured with remote write, the Alloy must be configured to scrape and remote write using protobuf.
+Native histograms are **disabled by default**, but when you enable them globally, the Helm chart automatically updates the Alloy configuration accordingly.
 
 To enable native histograms, define this in your `values.yaml`:
 
@@ -247,9 +247,9 @@ prometheus:
       - enable-feature=native-histograms
 ```
 
-After updating values, it might be required to restart the Grafana Agent so it picks up the new configuration:
+After updating values, it might be required to restart the Alloy so it picks up the new configuration:
 ```bash
-kubectl -n coder-observability rollout restart daemonset/grafana-agent
+kubectl -n coder-observability rollout restart daemonset/alloy
 ```
 
 ⚠️ **Important**: Classic and native histograms cannot be aggregated together.
@@ -268,11 +268,11 @@ If you switch from classic to native histograms, dashboards may need to account 
    * Native histograms are exposed directly under the metric name.
    * Example: query `coderd_workspace_creation_duration_seconds` in http://localhost:9090/graph.
 
-3) Check Grafana Agent (if remote write is enabled):
+3) Check Alloy (if remote write is enabled):
 
    To confirm, run:
     ```bash
-    kubectl -n coder-observability port-forward svc/grafana-agent 3030:80
+    kubectl -n coder-observability port-forward svc/alloy 3030:12345
     ```
    Then open http://localhost:3030:
    * scrape configurations defined in `prometheus.scrape.cadvisor`, should have `enable_protobuf_negotiation: true`
@@ -289,7 +289,7 @@ Each subchart can be disabled by setting the `enabled` field to `false`.
 | Subchart        | Setting                 |
 |-----------------|-------------------------|
 | `grafana`       | `grafana.enabled`       |
-| `grafana-agent` | `grafana-agent.enabled` |
+| `alloy`         | `alloy.enabled`         |
 | `loki`          | `loki.enabled`          |
 | `prometheus`    | `prometheus.enabled`    |
 

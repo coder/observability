@@ -1,9 +1,9 @@
-{{- if (index .Values "grafana-agent").enabled }}
+{{- if (index .Values "alloy").enabled }}
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ (index .Values "grafana-agent").agent.configMap.name }}
+  name: {{ (index .Values "alloy").alloy.configMap.name }}
   namespace: {{ .Release.Namespace }}
 data:
   config.river: |- {{- include "collector-config" . | trim | nindent 4 }}

@@ -35,16 +35,19 @@ spec:
       app.kubernetes.io/component: memcached-results-cache
   maxUnavailable: 1
 ---
-# Source: coder-observability/charts/grafana-agent/templates/serviceaccount.yaml
+# Source: coder-observability/charts/alloy/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
+automountServiceAccountToken: true
 metadata:
-  name: grafana-agent
+  name: alloy
   namespace: coder-observability
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
 ---
 # Source: coder-observability/charts/grafana/templates/serviceaccount.yaml
 apiVersion: v1
@@ -7295,14 +7298,14 @@ data:
                 "uid": "prometheus"
               },
               "editorMode": "code",
-              "expr": "min(up{job=\"coder-observability/grafana-agent/grafana-agent\"})",
+              "expr": "min(up{job=\"coder-observability/alloy/alloy\"})",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
               "refId": "A"
             }
           ],
-          "title": "Grafana Agent",
+          "title": "Alloy",
           "type": "stat"
         },
         {
@@ -7647,14 +7650,14 @@ data:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "min(agent_config_last_load_successful{job=\"coder-observability/grafana-agent/grafana-agent\"})",
+              "expr": "min(alloy_config_last_load_successful{job=\"coder-observability/alloy/alloy\"})",
               "instant": true,
               "legendFormat": "__auto",
               "range": false,
               "refId": "A"
             }
           ],
-          "title": "Grafana Agent Config",
+          "title": "Alloy Config",
           "type": "stat"
         },
         {
@@ -10965,35 +10968,32 @@ spec:
     requests:
       storage: "10Gi"
 ---
-# Source: coder-observability/charts/grafana-agent/templates/rbac.yaml
+# Source: coder-observability/charts/alloy/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: grafana-agent
+  name: alloy
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
 rules:
-  # Rules which allow discovery.kubernetes to function.
   - apiGroups:
       - ""
-      - "discovery.k8s.io"
-      - "networking.k8s.io"
+      - discovery.k8s.io
+      - networking.k8s.io
     resources:
       - endpoints
       - endpointslices
       - ingresses
-      - nodes
-      - nodes/proxy
-      - nodes/metrics
       - pods
       - services
     verbs:
       - get
       - list
       - watch
-  # Rules which allow loki.source.kubernetes and loki.source.podlogs to work.
   - apiGroups:
       - ""
     resources:
@@ -11005,36 +11005,40 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "monitoring.grafana.com"
+      - monitoring.grafana.com
     resources:
       - podlogs
     verbs:
       - get
       - list
       - watch
-  # Rules which allow mimir.rules.kubernetes to work.
-  - apiGroups: ["monitoring.coreos.com"]
+  - apiGroups:
+      - monitoring.coreos.com
     resources:
       - prometheusrules
     verbs:
       - get
       - list
       - watch
-  - nonResourceURLs:
-      - /metrics
-    verbs:
-      - get
-  # Rules for prometheus.kubernetes.*
-  - apiGroups: ["monitoring.coreos.com"]
+  - apiGroups:
+      - monitoring.coreos.com
     resources:
-      - podmonitors
-      - servicemonitors
-      - probes
+      - alertmanagerconfigs
     verbs:
       - get
       - list
       - watch
-  # Rules which allow eventhandler to work.
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - podmonitors
+      - servicemonitors
+      - probes
+      - scrapeconfigs
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -11043,22 +11047,52 @@ rules:
       - get
       - list
       - watch
-  # needed for remote.kubernetes.*
-  - apiGroups: [""]
+  - apiGroups:
+      - ""
     resources:
-      - "configmaps"
-      - "secrets"
+      - configmaps
+      - secrets
     verbs:
       - get
       - list
       - watch
-  # needed for otelcol.processor.k8sattributes
-  - apiGroups: ["apps"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["extensions"]
-    resources: ["replicasets"]
-    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes/pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes/metrics
+    verbs:
+      - get
+      - list
+      - watch
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
 ---
 # Source: coder-observability/charts/grafana/templates/clusterrole.yaml
 kind: ClusterRole
@@ -11259,22 +11293,24 @@ rules:
     verbs:
       - get
 ---
-# Source: coder-observability/charts/grafana-agent/templates/rbac.yaml
+# Source: coder-observability/charts/alloy/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: grafana-agent
+  name: alloy
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: rbac
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: grafana-agent
+  name: alloy
 subjects:
   - kind: ServiceAccount
-    name: grafana-agent
+    name: alloy
     namespace: coder-observability
 ---
 # Source: coder-observability/charts/grafana/templates/clusterrolebinding.yaml
@@ -11389,20 +11425,24 @@ subjects:
     name: grafana
     namespace: coder-observability
 ---
-# Source: coder-observability/charts/grafana-agent/templates/cluster_service.yaml
+# Source: coder-observability/charts/alloy/templates/cluster_service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: grafana-agent-cluster
+  name: alloy-cluster
+  namespace: coder-observability
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: networking
 spec:
   type: ClusterIP
   clusterIP: 'None'
+  publishNotReadyAddresses: true
   selector:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
   ports:
     # Do not include the -metrics suffix in the port name, otherwise metrics
@@ -11412,29 +11452,32 @@ spec:
     # This service should only be used for clustering, and not metric
     # collection.
     - name: http
-      port: 80
-      targetPort: 80
+      port: 12345
+      targetPort: 12345
       protocol: "TCP"
 ---
-# Source: coder-observability/charts/grafana-agent/templates/service.yaml
+# Source: coder-observability/charts/alloy/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: grafana-agent
+  name: alloy
+  namespace: coder-observability
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
+    app.kubernetes.io/component: networking
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
   internalTrafficPolicy: Cluster
   ports:
     - name: http-metrics
-      port: 80
-      targetPort: 80
+      port: 12345
+      targetPort: 12345
       protocol: "TCP"
 ---
 # Source: coder-observability/charts/grafana/templates/service.yaml
@@ -12008,65 +12051,70 @@ spec:
   selector:
     app: runbook-viewer
 ---
-# Source: coder-observability/charts/grafana-agent/templates/controllers/daemonset.yaml
+# Source: coder-observability/charts/alloy/templates/controllers/daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: grafana-agent
+  name: alloy
+  namespace: coder-observability
   labels:
-    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/name: alloy
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: alloy
 spec:
   minReadySeconds: 10
   selector:
     matchLabels:
-      app.kubernetes.io/name: grafana-agent
+      app.kubernetes.io/name: alloy
       app.kubernetes.io/instance: coder-observability
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-container: grafana-agent
+        kubectl.kubernetes.io/default-container: alloy
         prometheus.io/scrape: "true"
       labels:
-        app.kubernetes.io/name: grafana-agent
+        app.kubernetes.io/name: alloy
         app.kubernetes.io/instance: coder-observability
     spec:
-      serviceAccountName: grafana-agent
+      serviceAccountName: alloy
       containers:
-        - name: grafana-agent
+        - name: alloy
           imagePullPolicy: IfNotPresent
           args:
             - run
-            - /etc/agent/config.river
-            - --storage.path=/tmp/agent
-            - --server.http.listen-addr=0.0.0.0:80
+            - /etc/alloy/config.river
+            - --storage.path=/tmp/alloy
+            - --server.http.listen-addr=0.0.0.0:12345
             - --server.http.ui-path-prefix=/
             - --cluster.enabled=true
-            - --cluster.join-addresses=grafana-agent-cluster
+            - --cluster.join-addresses=alloy-cluster
+            - --stability.level=generally-available
             - --disable-reporting=true
           env:
-            - name: AGENT_MODE
-              value: flow
-            - name: AGENT_DEPLOY_MODE
+            - name: ALLOY_DEPLOY_MODE
               value: "helm"
             - name: HOSTNAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           ports:
-            - containerPort: 80
+            - containerPort: 12345
               name: http-metrics
           readinessProbe:
             httpGet:
               path: /-/ready
-              port: 80
+              port: 12345
               scheme: HTTP
             initialDelaySeconds: 10
             timeoutSeconds: 1
           volumeMounts:
             - name: config
-              mountPath: /etc/agent
+              mountPath: /etc/alloy
             - name: varlog
               mountPath: /var/log
               readOnly: true
@@ -12074,16 +12122,28 @@ spec:
               mountPath: /var/lib/docker/containers
               readOnly: true
         - name: config-reloader
+          imagePullPolicy: IfNotPresent
           args:
-            - --volume-dir=/etc/agent
-            - --webhook-url=http://localhost:80/-/reload
+            - --watched-dir=/etc/alloy
+            - --reload-url=http://localhost:12345/-/reload
           volumeMounts:
             - name: config
-              mountPath: /etc/agent
+              mountPath: /etc/alloy
           resources:
             requests:
-              cpu: 1m
-              memory: 5Mi
+              cpu: 10m
+              memory: 50Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault
       dnsPolicy: ClusterFirst
       volumes:
         - name: config

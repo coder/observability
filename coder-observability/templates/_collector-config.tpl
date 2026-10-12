@@ -1,5 +1,5 @@
 {{- define "collector-config" -}}
-{{ $agent := (index .Values "grafana-agent") }}
+{{ $agent := (index .Values "alloy") }}
 
 {{ $agent.logging }}
 {{ $agent.discovery }}

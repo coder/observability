@@ -1407,14 +1407,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "min(up{job=\"{{- include "grafana-agent-job" . -}}\"})",
+          "expr": "min(up{job=\"{{- include "alloy-job" . -}}\"})",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Grafana Agent",
+      "title": "Alloy",
       "type": "stat"
     },
     {
@@ -1759,14 +1759,14 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "min(agent_config_last_load_successful{job=\"{{- include "grafana-agent-job" . -}}\"})",
+          "expr": "min(alloy_config_last_load_successful{job=\"{{- include "alloy-job" . -}}\"})",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "Grafana Agent Config",
+      "title": "Alloy Config",
       "type": "stat"
     },
     {
