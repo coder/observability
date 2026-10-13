@@ -121,8 +121,8 @@ https://github.com/coder/observability/blob/main/coder-observability/runbooks/{{
 {{- define "prometheus-job" -}} {{- printf "%s/%s/%s" .Release.Namespace .Values.prometheus.server.fullnameOverride .Values.prometheus.server.name -}} {{- end }}
 {{/* Loki job label */}}
 {{- define "loki-job" -}} {{- printf "%s/%s" .Release.Namespace .Values.loki.fullnameOverride -}} {{- end }}
-{{/* Grafana Agent job label */}}
-{{- define "grafana-agent-job" -}} {{- printf "%s/%s/%s" .Release.Namespace (index .Values "grafana-agent").fullnameOverride "grafana-agent" -}} {{- end }}
+{{/* Alloy job label */}}
+{{- define "alloy-job" -}} {{- printf "%s/%s/%s" .Release.Namespace (index .Values "alloy").fullnameOverride "alloy" -}} {{- end }}
 
 {{- define "dashboard-range" -}} {{ .Values.global.dashboards.timerange }} {{- end }}
 {{- define "dashboard-refresh" -}} {{ .Values.global.dashboards.refresh }} {{- end }}

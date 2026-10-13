@@ -192,11 +192,10 @@ sqlExporter:
   enabled: true
   image: "burningalchemist/sql_exporter"
 
-grafana-agent:
+alloy:
   enabled: true
-  fullnameOverride: grafana-agent
-  agent:
-    mode: flow
+  fullnameOverride: alloy
+  alloy:
     configMap:
       name: collector-config
       key: config.river

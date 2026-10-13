@@ -9,7 +9,7 @@
 ## Overview
 
 This chart contains a highly opinionated set of integrations between Grafana, Loki, Prometheus, Alertmanager, and
-Grafana Agent.
+Alloy.
 
 Dashboards, alerts, and runbooks are preconfigured for monitoring [Coder](https://coder.com/) installations.
 
@@ -22,7 +22,7 @@ Logs will be scraped from all pods in the Kubernetes cluster.
 
 ```bash
 helm repo add coder-observability https://helm.coder.com/observability
-helm upgrade --install coder-observability coder-observability/coder-observability --version 0.7.4 --namespace coder-observability --create-namespace
+helm upgrade --install coder-observability coder-observability/coder-observability --version 0.7.5 --namespace coder-observability --create-namespace
 ```
 
 ## Requirements
@@ -64,11 +64,11 @@ global:
 ```
 
 If you would like your logs scraped from a process outside Kubernetes, you need to mount the log file(s) in and
-configure Grafana Agent to scrape them; here's an example configuration:
+configure Alloy to scrape them; here's an example configuration:
 
 ```yaml
-grafana-agent:
-  agent:
+alloy:
+  alloy:
     mounts:
       extra:
         - mountPath: /var/log
@@ -228,8 +228,8 @@ And open your web browser to http://localhost:9090/graph.
 Native histograms are an **experimental** Prometheus feature that remove the need to predefine bucket boundaries and instead provide higher-resolution, adaptive buckets (see [Prometheus docs](https://prometheus.io/docs/specs/native_histograms/) for details).
 
 Unlike classic histograms, which are sent in plain text, **native histograms require the protobuf protocol**.
-In addition to running Prometheus with native histogram support, since the Prometheus Helm chart is configured with remote write, the Grafana Agent must be configured to scrape and remote write using protobuf.
-Native histograms are **disabled by default**, but when you enable them globally, the Helm chart automatically updates the Grafana Agent configuration accordingly.
+In addition to running Prometheus with native histogram support, since the Prometheus Helm chart is configured with remote write, the Alloy must be configured to scrape and remote write using protobuf.
+Native histograms are **disabled by default**, but when you enable them globally, the Helm chart automatically updates the Alloy configuration accordingly.
 
 To enable native histograms, define this in your `values.yaml`:
 
@@ -247,9 +247,9 @@ prometheus:
       - enable-feature=native-histograms
 ```
 
-After updating values, it might be required to restart the Grafana Agent so it picks up the new configuration:
+After updating values, it might be required to restart the Alloy so it picks up the new configuration:
 ```bash
-kubectl -n coder-observability rollout restart daemonset/grafana-agent
+kubectl -n coder-observability rollout restart daemonset/alloy
 ```
 
 ⚠️ **Important**: Classic and native histograms cannot be aggregated together.
@@ -268,11 +268,11 @@ If you switch from classic to native histograms, dashboards may need to account 
    * Native histograms are exposed directly under the metric name.
    * Example: query `coderd_workspace_creation_duration_seconds` in http://localhost:9090/graph.
 
-3) Check Grafana Agent (if remote write is enabled):
+3) Check Alloy (if remote write is enabled):
 
    To confirm, run:
     ```bash
-    kubectl -n coder-observability port-forward svc/grafana-agent 3030:80
+    kubectl -n coder-observability port-forward svc/alloy 3030:12345
     ```
    Then open http://localhost:3030:
    * scrape configurations defined in `prometheus.scrape.cadvisor`, should have `enable_protobuf_negotiation: true`
@@ -284,8 +284,8 @@ If you switch from classic to native histograms, dashboards may need to account 
 
 | Repository | Name | Version |
 |------------|------|---------|
+| https://grafana.github.io/helm-charts | alloy | ~1.13.1 |
 | https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
-| https://grafana.github.io/helm-charts | grafana-agent(grafana-agent) | ~0.37.0 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://grafana.github.io/helm-charts | tempo | ~v1.23.0 |
@@ -296,7 +296,7 @@ Each subchart can be disabled by setting the `enabled` field to `false`.
 | Subchart        | Setting                 |
 |-----------------|-------------------------|
 | `grafana`       | `grafana.enabled`       |
-| `grafana-agent` | `grafana-agent.enabled` |
+| `alloy`         | `alloy.enabled`         |
 | `loki`          | `loki.enabled`          |
 | `prometheus`    | `prometheus.enabled`    |
 
@@ -311,6 +311,24 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| alloy.alloy.clustering.enabled | bool | `true` |  |
+| alloy.alloy.configMap.create | bool | `false` |  |
+| alloy.alloy.configMap.key | string | `"config.river"` |  |
+| alloy.alloy.configMap.name | string | `"collector-config"` |  |
+| alloy.alloy.extraArgs[0] | string | `"--disable-reporting=true"` |  |
+| alloy.alloy.mounts.dockercontainers | bool | `true` |  |
+| alloy.alloy.mounts.varlog | bool | `true` |  |
+| alloy.commonRelabellings | string | `"rule {\n  source_labels = [\"__meta_kubernetes_namespace\"]\n  target_label  = \"namespace\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_name\"]\n  target_label  = \"pod\"\n}\n// coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\nrule {\n  source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n  separator      = \"/\"\n  target_label   = \"__meta_app\"\n  action         = \"replace\"\n  regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n  replacement    = \"${1}\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n  separator     = \"/\"\n  target_label  = \"job\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_container_name\"]\n  target_label  = \"container\"\n}\nrule {\n  regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n  action  = \"labeldrop\"\n}\nrule {\n  regex   = \"pod_template_generation\"\n  action  = \"labeldrop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_phase\"]\n  regex = \"Pending|Succeeded|Failed|Completed\"\n  action = \"drop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_node_name\"]\n  action = \"replace\"\n  target_label = \"node\"\n}\nrule {\n  action = \"labelmap\"\n  regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n  replacement = \"__param_$1\"\n}"` |  |
+| alloy.controller.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| alloy.controller.type | string | `"daemonset"` |  |
+| alloy.crds.create | bool | `false` |  |
+| alloy.discovery | string | `"// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}"` |  |
+| alloy.enabled | bool | `true` |  |
+| alloy.extraBlocks | string | `""` |  |
+| alloy.fullnameOverride | string | `"alloy"` |  |
+| alloy.podLogsRelabelRules | string | `""` |  |
+| alloy.podMetricsRelabelRules | string | `""` |  |
+| alloy.withOTLPReceiver | bool | `false` |  |
 | global.alerts.enabled | bool | `true` | enable or disable alerting |
 | global.alerts.kind | string | `"configmap"` | the container resource kind in which alerts should be created; valid values are "prometheusrule" or "configmap" |
 | global.coder.alerts | object | `{"coderd":{"groups":{"CPU":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":0.9,"warning":0.8}},"IneligiblePrebuilds":{"delay":"10m","enabled":true,"thresholds":{"notify":1}},"Memory":{"delay":"10m","enabled":true,"thresholds":{"critical":0.9,"warning":0.8}},"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}},"Restarts":{"delay":"1m","enabled":true,"period":"10m","thresholds":{"critical":3,"notify":1,"warning":2}},"UnprovisionedPrebuiltWorkspaces":{"delay":"10m","enabled":true,"thresholds":{"warn":1}},"WorkspaceBuildFailures":{"delay":"10m","enabled":true,"period":"10m","thresholds":{"critical":10,"notify":2,"warning":5}}}},"enterprise":{"groups":{"Licences":{"delay":"1m","enabled":true,"thresholds":{"critical":1,"warning":0.9}}}},"provisionerd":{"groups":{"Replicas":{"delay":"5m","enabled":true,"thresholds":{"critical":1,"notify":3,"warning":2}}}}}` | alerts for the various aspects of Coder |
@@ -338,25 +356,6 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.telemetry.profiling.scrape_interval | string | `"60s"` | how often the collector will scrape pprof endpoints |
 | global.telemetry.profiling.scrape_timeout | string | `"70s"` | how long a request will be allowed to wait before being canceled, must be larger than scrape_interval |
 | global.zone | string | `"svc"` |  |
-| grafana-agent.agent.clustering.enabled | bool | `true` |  |
-| grafana-agent.agent.configMap.create | bool | `false` |  |
-| grafana-agent.agent.configMap.key | string | `"config.river"` |  |
-| grafana-agent.agent.configMap.name | string | `"collector-config"` |  |
-| grafana-agent.agent.extraArgs[0] | string | `"--disable-reporting=true"` |  |
-| grafana-agent.agent.mode | string | `"flow"` |  |
-| grafana-agent.agent.mounts.dockercontainers | bool | `true` |  |
-| grafana-agent.agent.mounts.varlog | bool | `true` |  |
-| grafana-agent.commonRelabellings | string | `"rule {\n  source_labels = [\"__meta_kubernetes_namespace\"]\n  target_label  = \"namespace\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_name\"]\n  target_label  = \"pod\"\n}\n// coalesce the following labels and pick the first value; we'll use this to define the \"job\" label\nrule {\n  source_labels  = [\"__meta_kubernetes_pod_label_app_kubernetes_io_component\", \"app\", \"__meta_kubernetes_pod_container_name\"]\n  separator      = \"/\"\n  target_label   = \"__meta_app\"\n  action         = \"replace\"\n  regex          = \"^/*([^/]+?)(?:/.*)?$\" // split by the delimiter if it exists, we only want the first one\n  replacement    = \"${1}\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_namespace\", \"__meta_kubernetes_pod_label_app_kubernetes_io_name\", \"__meta_app\"]\n  separator     = \"/\"\n  target_label  = \"job\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_container_name\"]\n  target_label  = \"container\"\n}\nrule {\n  regex   = \"__meta_kubernetes_pod_label_(statefulset_kubernetes_io_pod_name|controller_revision_hash)\"\n  action  = \"labeldrop\"\n}\nrule {\n  regex   = \"pod_template_generation\"\n  action  = \"labeldrop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_phase\"]\n  regex = \"Pending|Succeeded|Failed|Completed\"\n  action = \"drop\"\n}\nrule {\n  source_labels = [\"__meta_kubernetes_pod_node_name\"]\n  action = \"replace\"\n  target_label = \"node\"\n}\nrule {\n  action = \"labelmap\"\n  regex = \"__meta_kubernetes_pod_annotation_prometheus_io_param_(.+)\"\n  replacement = \"__param_$1\"\n}"` |  |
-| grafana-agent.controller.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
-| grafana-agent.controller.type | string | `"daemonset"` |  |
-| grafana-agent.crds.create | bool | `false` |  |
-| grafana-agent.discovery | string | `"// Discover k8s nodes\ndiscovery.kubernetes \"nodes\" {\n  role = \"node\"\n}\n\n// Discover k8s pods\ndiscovery.kubernetes \"pods\" {\n  role = \"pod\"\n  selectors {\n   role  = \"pod\"\n  }\n}"` |  |
-| grafana-agent.enabled | bool | `true` |  |
-| grafana-agent.extraBlocks | string | `""` |  |
-| grafana-agent.fullnameOverride | string | `"grafana-agent"` |  |
-| grafana-agent.podLogsRelabelRules | string | `""` |  |
-| grafana-agent.podMetricsRelabelRules | string | `""` |  |
-| grafana-agent.withOTLPReceiver | bool | `false` |  |
 | grafana."grafana.ini"."auth.anonymous".enabled | bool | `true` |  |
 | grafana."grafana.ini"."auth.anonymous".org_name | string | `"Main Org."` |  |
 | grafana."grafana.ini"."auth.anonymous".org_role | string | `"Admin"` |  |
