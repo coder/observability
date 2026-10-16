@@ -237,6 +237,10 @@ prometheus.scrape "pods" {
   scrape_interval = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
   scrape_timeout = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
   enable_protobuf_negotiation = {{ .Values.global.telemetry.metrics.native_histograms | default false }}
+
+  clustering {
+    enabled = true
+  }
 }
 
 // These are metric_relabel_configs while discovery.relabel are relabel_configs.
@@ -309,6 +313,10 @@ prometheus.scrape "cadvisor" {
   scrape_interval   = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
   scrape_timeout    = "{{ .Values.global.telemetry.metrics.scrape_timeout }}"
   enable_protobuf_negotiation = {{ .Values.global.telemetry.metrics.native_histograms | default false }}
+
+  clustering {
+    enabled = true
+  }
 }
 
 prometheus.relabel "cadvisor" {
