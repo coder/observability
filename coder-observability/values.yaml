@@ -207,6 +207,17 @@ alloy:
     mounts:
       varlog: true
       dockercontainers: true
+    # Expose the OTLP receiver ports on the alloy container and on the alloy and
+    # alloy-cluster Services. Nothing listens on them until withOTLPReceiver is true.
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
   controller:
     type: daemonset
     podAnnotations:
