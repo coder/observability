@@ -5,6 +5,7 @@
 - BREAKING: replaces the `grafana-agent` subchart with Grafana Alloy (`alloy` chart 1.13.1). Rename any `grafana-agent:` values overrides to `alloy:`.
 - Pod `job` label changes from `<ns>/grafana-agent/grafana-agent` to `<ns>/alloy/alloy`; update queries and alerts that match the old label.
 - Alloy listens on port 12345 instead of 80.
+- Alloy `ClusterRole` is narrowed to `pods`, `nodes` and `nodes/metrics`. It no longer grants read access to `secrets` and `configmaps`. If you add components through `alloy.extraBlocks` that need more access, override `alloy.rbac.rules` and `alloy.rbac.clusterRules`.
 
 ## v0.3.0
 
