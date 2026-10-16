@@ -11455,6 +11455,14 @@ spec:
       port: 12345
       targetPort: 12345
       protocol: "TCP"
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
 ---
 # Source: coder-observability/charts/alloy/templates/service.yaml
 apiVersion: v1
@@ -11479,6 +11487,14 @@ spec:
       port: 12345
       targetPort: 12345
       protocol: "TCP"
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
 ---
 # Source: coder-observability/charts/grafana/templates/service.yaml
 apiVersion: v1
@@ -12106,6 +12122,12 @@ spec:
           ports:
             - containerPort: 12345
               name: http-metrics
+            - containerPort: 4317
+              name: otlp-grpc
+              protocol: TCP
+            - containerPort: 4318
+              name: otlp-http
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /-/ready
