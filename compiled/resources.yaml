@@ -12072,6 +12072,7 @@ spec:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: alloy
+        prometheus.io/port: "12345"
         prometheus.io/scrape: "true"
       labels:
         app.kubernetes.io/name: alloy

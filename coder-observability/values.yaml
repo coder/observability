@@ -211,6 +211,11 @@ alloy:
     type: daemonset
     podAnnotations:
       prometheus.io/scrape: "true"
+      # Pod discovery makes one target per declared container port, and a target
+      # on port 80 for containers that declare none (such as config-reloader).
+      # Pin every target of this pod to the Alloy HTTP port.
+      # Must equal alloy.alloy.listenPort.
+      prometheus.io/port: "12345"
   crds:
     create: false
 
