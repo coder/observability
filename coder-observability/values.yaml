@@ -207,6 +207,12 @@ alloy:
     mounts:
       varlog: true
       dockercontainers: true
+    # Requests only. A limit could throttle or OOM-kill the collector on large
+    # clusters, where usage grows with the number of scrape targets.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
   controller:
     type: daemonset
     podAnnotations:
