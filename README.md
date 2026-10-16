@@ -328,6 +328,19 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | alloy.fullnameOverride | string | `"alloy"` |  |
 | alloy.podLogsRelabelRules | string | `""` |  |
 | alloy.podMetricsRelabelRules | string | `""` |  |
+| alloy.rbac.clusterRules[0].apiGroups[0] | string | `""` |  |
+| alloy.rbac.clusterRules[0].resources[0] | string | `"nodes"` |  |
+| alloy.rbac.clusterRules[0].verbs[0] | string | `"get"` |  |
+| alloy.rbac.clusterRules[0].verbs[1] | string | `"list"` |  |
+| alloy.rbac.clusterRules[0].verbs[2] | string | `"watch"` |  |
+| alloy.rbac.clusterRules[1].apiGroups[0] | string | `""` |  |
+| alloy.rbac.clusterRules[1].resources[0] | string | `"nodes/metrics"` |  |
+| alloy.rbac.clusterRules[1].verbs[0] | string | `"get"` |  |
+| alloy.rbac.rules[0].apiGroups[0] | string | `""` |  |
+| alloy.rbac.rules[0].resources[0] | string | `"pods"` |  |
+| alloy.rbac.rules[0].verbs[0] | string | `"get"` |  |
+| alloy.rbac.rules[0].verbs[1] | string | `"list"` |  |
+| alloy.rbac.rules[0].verbs[2] | string | `"watch"` |  |
 | alloy.withOTLPReceiver | bool | `false` |  |
 | global.alerts.enabled | bool | `true` | enable or disable alerting |
 | global.alerts.kind | string | `"configmap"` | the container resource kind in which alerts should be created; valid values are "prometheusrule" or "configmap" |

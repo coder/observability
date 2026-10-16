@@ -213,6 +213,22 @@ alloy:
       prometheus.io/scrape: "true"
   crds:
     create: false
+  # Only the permissions that the collector config uses: pod and node discovery,
+  # and the kubelet cAdvisor scrape. The subchart defaults also grant cluster-wide
+  # read access to secrets and configmaps. If you add components through
+  # extraBlocks that need more, override these lists.
+  rbac:
+    rules:
+      - apiGroups: [""]
+        resources: ["pods"]
+        verbs: ["get", "list", "watch"]
+    clusterRules:
+      - apiGroups: [""]
+        resources: ["nodes"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: [""]
+        resources: ["nodes/metrics"]
+        verbs: ["get"]
 
   withOTLPReceiver: false
 
