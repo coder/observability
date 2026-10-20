@@ -37,8 +37,8 @@ lint/helm/prometheus-rules:
 
 .PHONY: lint/helm/prometheus-rules
 
-# Set coder-observability/Chart.yaml version to the latest stable git tag
-# TODO: auto-update chart version in Chart.yaml when a new release is published
+# Set coder-observability/Chart.yaml version to the latest stable git tag.
+# The release workflow runs this after a release and opens a pull request.
 chart/version-sync:
 	version=$(shell ./scripts/version.sh -s) && \
 	if [ -z "$$version" ]; then \
@@ -55,7 +55,8 @@ publish-%:
 	git tag --sign "$$version" -m "Release: $$version" && \
 	git push origin tag "$$version"
 
-# TODO: auto-update chart version in README files when a new release is published
+# Regenerate the README, including the install command version.
+# The release workflow runs this after a release and opens a pull request.
 readme: chart/version-sync
 	go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 	helm-docs --output-file ../README.md \
