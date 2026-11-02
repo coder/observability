@@ -329,6 +329,13 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | alloy.enabled | bool | `true` |  |
 | alloy.extraBlocks | string | `""` |  |
 | alloy.fullnameOverride | string | `"alloy"` |  |
+| alloy.kubeletTLS | object | `{"ca_file":"","insecure_skip_verify":true}` | TLS settings for scraping each node's kubelet (cAdvisor and volume stats) |
+| alloy.kubeletTLS.ca_file | string | `""` | CA bundle used to verify the kubelet's serving certificate, e.g. /var/run/secrets/kubernetes.io/serviceaccount/ca.crt; set together with insecure_skip_verify: false |
+| alloy.kubeletTLS.insecure_skip_verify | bool | `true` | skip verifying the kubelet's serving certificate; kubelets usually serve a self-signed one (EKS included, unless serverTLSBootstrap is enabled and the CSRs are approved) |
+| alloy.kubeletVolumeStats | object | `{"enabled":true,"scrape_interval":"60s","scrape_timeout":"30s"}` | scrape kubelet_volume_stats_* (PVC capacity and usage) from each kubelet's /metrics |
+| alloy.kubeletVolumeStats.enabled | bool | `true` | enable the kubelet volume stats scrape |
+| alloy.kubeletVolumeStats.scrape_interval | string | `"60s"` | how often to scrape each kubelet |
+| alloy.kubeletVolumeStats.scrape_timeout | string | `"30s"` | how long a request will be allowed to wait before being canceled |
 | alloy.podLogsRelabelRules | string | `""` |  |
 | alloy.podMetricsRelabelRules | string | `""` |  |
 | alloy.rbac.clusterRules[0].apiGroups[0] | string | `""` |  |
@@ -364,8 +371,9 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | global.externalZone | string | `"svc.cluster.local"` |  |
 | global.postgres | object | `{"alerts":{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}},"database":"coder","exporter":{"enabled":true,"image":"quay.io/prometheuscommunity/postgres-exporter"},"hostname":"localhost","mountSecret":"secret-postgres","password":null,"port":5432,"sslmode":"disable","sslrootcert":null,"username":"coder","volumeMounts":[],"volumes":[]}` | postgres connection information NOTE: these settings are global so we can parameterise some values which get rendered by subcharts |
 | global.postgres.alerts | object | `{"groups":{"Basic":{"delay":"1m","enabled":true},"Connections":{"delay":"5m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}},"Notifications":{"delay":"15m","enabled":true,"thresholds":{"critical":0.9,"notify":0.5,"warning":0.8}}}}` | alerts for postgres |
-| global.telemetry | object | `{"metrics":{"native_histograms":false,"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
-| global.telemetry.metrics | object | `{"native_histograms":false,"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
+| global.telemetry | object | `{"metrics":{"externalLabels":{},"native_histograms":false,"scrape_interval":"15s","scrape_timeout":"12s"},"profiling":{"scrape_interval":"60s","scrape_timeout":"70s"}}` | control telemetry collection |
+| global.telemetry.metrics | object | `{"externalLabels":{},"native_histograms":false,"scrape_interval":"15s","scrape_timeout":"12s"}` | control metric collection |
+| global.telemetry.metrics.externalLabels | object | `{}` | labels added to every series the collector writes, e.g. `cluster: my-cluster` |
 | global.telemetry.metrics.native_histograms | bool | `false` | enable Prometheus native histograms or default to classic histograms |
 | global.telemetry.metrics.scrape_interval | string | `"15s"` | how often the collector will scrape discovered pods |
 | global.telemetry.metrics.scrape_timeout | string | `"12s"` | how long a request will be allowed to wait before being canceled |
