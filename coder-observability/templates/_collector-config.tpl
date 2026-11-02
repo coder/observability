@@ -288,6 +288,14 @@ prometheus.relabel "pods" {
     target_label  = "namespace"
     replacement   = "$1"
   }
+  // The pod target `node` label is the node kube-state-metrics itself runs on, which moves the node each
+  // kube_* series is actually about into exported_node.
+  rule {
+    source_labels = ["__name__", "exported_node"]
+    regex         = "^kube_.+;(.+)$"
+    target_label  = "node"
+    replacement   = "$1"
+  }
   rule {
     regex         = "^(exported_.*|image_.*|container_id|id|uid)$"
     action        = "labeldrop"
@@ -300,6 +308,10 @@ discovery.relabel "cadvisor" {
     replacement   = "/metrics/cadvisor"
     target_label  = "__metrics_path__"
   }
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
 }
 
 prometheus.scrape "cadvisor" {
@@ -307,7 +319,10 @@ prometheus.scrape "cadvisor" {
   forward_to = [ prometheus.relabel.cadvisor.receiver ]
   scheme     = "https"
   tls_config {
-    insecure_skip_verify = true
+    insecure_skip_verify = {{ $agent.kubeletTLS.insecure_skip_verify }}
+    {{- with $agent.kubeletTLS.ca_file }}
+    ca_file = {{ . | quote }}
+    {{- end }}
   }
   bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
   scrape_interval   = "{{ .Values.global.telemetry.metrics.scrape_interval }}"
@@ -360,15 +375,82 @@ prometheus.relabel "cadvisor" {
   }
 }
 
+{{- if $agent.kubeletVolumeStats.enabled }}
+
+// kubelet volume stats (PVC capacity and usage) are only served on the kubelet's own /metrics
+discovery.relabel "kubelet" {
+  targets = discovery.kubernetes.nodes.targets
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
+}
+
+prometheus.scrape "kubelet" {
+  targets    = discovery.relabel.kubelet.output
+  forward_to = [ prometheus.relabel.kubelet.receiver ]
+  scheme     = "https"
+  tls_config {
+    insecure_skip_verify = {{ $agent.kubeletTLS.insecure_skip_verify }}
+    {{- with $agent.kubeletTLS.ca_file }}
+    ca_file = {{ . | quote }}
+    {{- end }}
+  }
+  bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  scrape_interval   = "{{ $agent.kubeletVolumeStats.scrape_interval }}"
+  scrape_timeout    = "{{ $agent.kubeletVolumeStats.scrape_timeout }}"
+
+  clustering {
+    enabled = true
+  }
+}
+
+prometheus.relabel "kubelet" {
+  forward_to = [ prometheus.remote_write.default.receiver ]
+
+  // the kubelet exposes far more than we use; keep only the volume stats
+  rule {
+    source_labels = ["__name__"]
+    regex         = "kubelet_volume_stats_.*"
+    action        = "keep"
+  }
+}
+{{- end }}
+
 prometheus.remote_write "default" {
+{{- with .Values.global.telemetry.metrics.externalLabels }}
+  external_labels = {
+  {{- range $name, $value := . }}
+    {{ $name }} = {{ $value | quote }},
+  {{- end }}
+  }
+{{ end }}
   endpoint {
     send_native_histograms = {{ .Values.global.telemetry.metrics.native_histograms | default false }}
     url ="http://{{ include "prometheus.server.fullname" .Subcharts.prometheus }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 
     // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
     // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>
+    // Keep it on node_* series though: node-exporter dashboards tell nodes apart by it, and node-exporter pods
+    // only restart rarely. Stash it in a temporary label, drop instance everywhere, then restore.
+    write_relabel_config {
+      source_labels = ["__name__", "instance"]
+      regex         = "(node_.*);(.+)"
+      target_label  = "keep_instance"
+      replacement   = "$2"
+    }
     write_relabel_config {
       regex  = "instance"
+      action = "labeldrop"
+    }
+    write_relabel_config {
+      source_labels = ["keep_instance"]
+      regex         = "(.+)"
+      target_label  = "instance"
+      replacement   = "$1"
+    }
+    write_relabel_config {
+      regex  = "keep_instance"
       action = "labeldrop"
     }
   }

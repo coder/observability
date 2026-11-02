@@ -115,6 +115,8 @@ global:
       scrape_timeout: 12s
       # global.telemetry.metrics.native_histograms -- enable Prometheus native histograms or default to classic histograms
       native_histograms: false
+      # global.telemetry.metrics.externalLabels -- labels added to every series the collector writes, e.g. `cluster: my-cluster`
+      externalLabels: {}
     profiling:
       # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s
@@ -326,6 +328,20 @@ alloy:
     # }
   podMetricsRelabelRules: ""
   podLogsRelabelRules: ""
+  # alloy.kubeletVolumeStats -- scrape kubelet_volume_stats_* (PVC capacity and usage) from each kubelet's /metrics
+  kubeletVolumeStats:
+    # alloy.kubeletVolumeStats.enabled -- enable the kubelet volume stats scrape
+    enabled: true
+    # alloy.kubeletVolumeStats.scrape_interval -- how often to scrape each kubelet
+    scrape_interval: 60s
+    # alloy.kubeletVolumeStats.scrape_timeout -- how long a request will be allowed to wait before being canceled
+    scrape_timeout: 30s
+  # alloy.kubeletTLS -- TLS settings for scraping each node's kubelet (cAdvisor and volume stats)
+  kubeletTLS:
+    # alloy.kubeletTLS.insecure_skip_verify -- skip verifying the kubelet's serving certificate; kubelets usually serve a self-signed one (EKS included, unless serverTLSBootstrap is enabled and the CSRs are approved)
+    insecure_skip_verify: true
+    # alloy.kubeletTLS.ca_file -- CA bundle used to verify the kubelet's serving certificate, e.g. /var/run/secrets/kubernetes.io/serviceaccount/ca.crt; set together with insecure_skip_verify: false
+    ca_file: ""
 
 grafana:
   enabled: true
