@@ -58,3 +58,63 @@ jobs:
         if: ${{ !inputs.dry_run }}
         run: |
           ./scripts/publish.sh
+
+  # The chart version in Chart.yaml and the README comes from the latest stable
+  # tag. A tag cannot contain its own version, so open a pull request that
+  # commits it. Without this, `make lint` fails on main after every release.
+  sync-version:
+    name: Sync chart version
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fetch git tags
+        run: git fetch --tags --force
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.1
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 -O /usr/bin/yq &&\
+          sudo chmod +x /usr/bin/yq
+
+      - name: Sync Chart.yaml and README
+        run: make readme
+
+      # Does nothing when the files already match, for example after a
+      # prerelease tag.
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: main
+          branch: chore/sync-chart-version
+          delete-branch: true
+          add-paths: |
+            coder-observability/Chart.yaml
+            README.md
+          commit-message: "chore: sync chart version and README with ${{ github.ref_name }}"
+          title: "chore: sync chart version and README with ${{ github.ref_name }}"
+          body: |
+            Automated by the `publish-helm` workflow after the `${{ github.ref_name }}` release.
+
+            `make lint` sets `Chart.yaml` and the README install command from the latest stable tag. A tag cannot contain its own version, so this pull request commits it.
+
+            The files come from `make readme`. Nothing else changes.
+
+            Pull requests that GitHub Actions opens do not start other workflows. To run the `lint` check, close this pull request and open it again.
