@@ -296,6 +296,15 @@ prometheus.relabel "pods" {
     target_label  = "node"
     replacement   = "$1"
   }
+  // node-exporter reports the OS hostname (ip-10-0-0-1.ec2.internal) in node_uname_info's nodename, which does not
+  // match the Kubernetes node name when nodes are named by instance ID. Dashboards join the two to find a node's
+  // instance, so use the node name the pod runs on.
+  rule {
+    source_labels = ["__name__", "node"]
+    regex         = "^node_uname_info;(.+)$"
+    target_label  = "nodename"
+    replacement   = "$1"
+  }
   rule {
     regex         = "^(exported_.*|image_.*|container_id|id|uid)$"
     action        = "labeldrop"

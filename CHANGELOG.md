@@ -10,6 +10,7 @@
 - New `alloy.kubeletVolumeStats` scrapes `kubelet_volume_stats_*` (PVC capacity and usage) from each kubelet, enabled by default. Set `alloy.kubeletVolumeStats.enabled: false` to turn it off.
 - New `alloy.kubeletTLS` configures TLS for the cAdvisor and kubelet scrapes. The defaults (`insecure_skip_verify: true`) match the previous behaviour; set `insecure_skip_verify: false` and `ca_file` to verify the kubelet certificate.
 - Alloy `ClusterRole` is narrowed to `pods`, `nodes` and `nodes/metrics`. It no longer grants read access to `secrets` and `configmaps`. If you add components through `alloy.extraBlocks` that need more access, override `alloy.rbac.rules` and `alloy.rbac.clusterRules`.
+- `node_uname_info` carries the Kubernetes node name in its `nodename` label instead of the OS hostname, so dashboards that match it against `kube_node_info`'s `node` work when nodes are named by instance ID.
 
 ## v0.3.0
 
