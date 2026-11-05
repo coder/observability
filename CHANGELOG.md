@@ -40,3 +40,4 @@
 ## v0.0.1
 
 - Initial release
+- BREAKING: `kube-state-metrics` and `prometheus-node-exporter` are now top-level subcharts instead of dependencies of the `prometheus` subchart, so they can run without the Prometheus server. Move any overrides from `prometheus.kube-state-metrics:` and `prometheus.prometheus-node-exporter:` to top-level `kube-state-metrics:` and `prometheus-node-exporter:`. With default values the rendered manifests are unchanged.

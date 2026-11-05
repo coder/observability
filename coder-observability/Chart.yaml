@@ -16,6 +16,14 @@ dependencies:
     condition: prometheus.enabled
     repository: https://prometheus-community.github.io/helm-charts
     version: '~v29.20.1'
+  - name: kube-state-metrics
+    condition: kube-state-metrics.enabled
+    repository: https://prometheus-community.github.io/helm-charts
+    version: '8.0.*'
+  - name: prometheus-node-exporter
+    condition: prometheus-node-exporter.enabled
+    repository: https://prometheus-community.github.io/helm-charts
+    version: '4.56.1'
   - name: loki
     condition: loki.enabled
     repository: https://grafana.github.io/helm-charts

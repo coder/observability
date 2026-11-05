@@ -289,7 +289,9 @@ If you switch from classic to native histograms, dashboards may need to account 
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://grafana.github.io/helm-charts | tempo | ~v1.23.0 |
+| https://prometheus-community.github.io/helm-charts | kube-state-metrics | 8.0.* |
 | https://prometheus-community.github.io/helm-charts | prometheus | ~v29.20.1 |
+| https://prometheus-community.github.io/helm-charts | prometheus-node-exporter | 4.56.1 |
 
 Each subchart can be disabled by setting the `enabled` field to `false`.
 
@@ -516,6 +518,9 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.sidecar.dashboards.provider.disableDelete | bool | `true` |  |
 | grafana.testFramework.enabled | bool | `false` |  |
 | grafana.useStatefulSet | bool | `true` |  |
+| kube-state-metrics.enabled | bool | `true` |  |
+| kube-state-metrics.fullnameOverride | string | `"kube-state-metrics"` |  |
+| kube-state-metrics.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | loki.backend.extraArgs[0] | string | `"-log.level=debug"` |  |
 | loki.backend.extraVolumeMounts[0].mountPath | string | `"/var/loki-ruler-wal"` |  |
 | loki.backend.extraVolumeMounts[0].name | string | `"ruler-wal"` |  |
@@ -573,6 +578,11 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | loki.write.extraArgs[0] | string | `"-log.level=debug"` |  |
 | loki.write.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
 | loki.write.replicas | int | `1` |  |
+| prometheus-node-exporter.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| prometheus-node-exporter.enabled | bool | `true` |  |
+| prometheus-node-exporter.fullnameOverride | string | `"node-exporter"` |  |
+| prometheus-node-exporter.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus-node-exporter.rbac.pspEnabled | bool | `false` |  |
 | prometheus.alertmanager.enabled | bool | `true` |  |
 | prometheus.alertmanager.fullnameOverride | string | `"alertmanager"` |  |
 | prometheus.alertmanager.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
@@ -586,12 +596,8 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | prometheus.configmapReload.prometheus.extraConfigmapMounts[0].optional | bool | `true` |  |
 | prometheus.configmapReload.prometheus.extraConfigmapMounts[0].readonly | bool | `true` |  |
 | prometheus.enabled | bool | `true` |  |
-| prometheus.kube-state-metrics.enabled | bool | `true` |  |
-| prometheus.kube-state-metrics.fullnameOverride | string | `"kube-state-metrics"` |  |
-| prometheus.kube-state-metrics.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
-| prometheus.prometheus-node-exporter.enabled | bool | `true` |  |
-| prometheus.prometheus-node-exporter.fullnameOverride | string | `"node-exporter"` |  |
-| prometheus.prometheus-node-exporter.podAnnotations."prometheus.io/scrape" | string | `"true"` |  |
+| prometheus.kube-state-metrics.enabled | bool | `false` |  |
+| prometheus.prometheus-node-exporter.enabled | bool | `false` |  |
 | prometheus.prometheus-pushgateway.enabled | bool | `false` |  |
 | prometheus.scrapeConfigs.kubernetes-api-servers.enabled | bool | `false` |  |
 | prometheus.scrapeConfigs.kubernetes-nodes-cadvisor.enabled | bool | `false` |  |

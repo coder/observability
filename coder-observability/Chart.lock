@@ -8,6 +8,12 @@ dependencies:
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
   version: 29.20.1
+- name: kube-state-metrics
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 8.0.0
+- name: prometheus-node-exporter
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 4.56.1
 - name: loki
   repository: https://grafana.github.io/helm-charts
   version: 6.7.4
@@ -17,5 +23,5 @@ dependencies:
 - name: alloy
   repository: https://grafana.github.io/helm-charts
   version: 1.13.1
-digest: sha256:400c10a8e5014f05941bdfb900c6a4e95fd5b6547815115b57356a74d1d2fded
-generated: "2026-10-12T11:05:32.006264-04:00"
+digest: sha256:e0b5dbed6303da84169d73885ba05524bcb3e6bf3fd4e00087ace29374f7e965
+generated: "2026-11-05T15:49:00.013002-05:00"
