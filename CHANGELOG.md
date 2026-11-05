@@ -40,3 +40,4 @@
 ## v0.0.1
 
 - Initial release
+- New `global.telemetry.metrics.remoteWriteURL` points the collector at a Prometheus outside this release. It can then be combined with `prometheus.enabled: false`, which previously failed to render. Empty by default, which keeps writing to the bundled Prometheus.
