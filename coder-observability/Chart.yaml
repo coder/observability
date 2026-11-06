@@ -23,6 +23,7 @@ dependencies:
   - name: prometheus-node-exporter
     condition: prometheus-node-exporter.enabled
     repository: https://prometheus-community.github.io/helm-charts
+    # Pinned exactly: 4.56.3+ changes the default flags. These no longer follow the prometheus chart, so bump by hand.
     version: '4.56.1'
   - name: loki
     condition: loki.enabled
