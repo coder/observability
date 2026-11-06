@@ -57,7 +57,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   name: grafana
   namespace: coder-observability
 ---
@@ -173,7 +172,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 data:
@@ -191,8 +189,6 @@ data:
     timeout = 900
     [feature_toggles]
     autoMigrateOldPanels = true
-    [grafana_net]
-    url = https://grafana.net
     [log]
     mode = console
     [paths]
@@ -202,6 +198,8 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     domain = ''
+    [unified_storage]
+    index_path = /var/lib/grafana-search/bleve
     [users]
     allow_sign_up = false
   datasources.yaml: |
@@ -298,7 +296,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     dashboard-provider: infra
 data: {}
 ---
@@ -10958,25 +10955,6 @@ data:
       "weekStart": ""
     }
 ---
-# Source: coder-observability/charts/grafana/templates/pvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/name: grafana
-    app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
-  finalizers:
-    - kubernetes.io/pvc-protection
-spec:
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: "10Gi"
----
 # Source: coder-observability/charts/alloy/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -11019,7 +10997,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
   name: grafana-clusterrole
@@ -11239,7 +11216,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 subjects:
@@ -11317,7 +11293,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 rules: []
@@ -11331,7 +11306,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 roleRef:
@@ -11407,14 +11381,13 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ports:
     - name: service
       port: 80
       protocol: TCP
-      targetPort: 3000
+      targetPort: grafana
   selector:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
@@ -12553,7 +12526,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -12566,16 +12538,19 @@ spec:
   template:
     metadata:
       labels:
+        helm.sh/chart: grafana-10.5.15
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
+        app.kubernetes.io/version: "12.3.1"
       annotations:
-        checksum/config: 9d69efdceffa38ecceebc5bec21712c49f95d7fb897c026e38b5fa3220049d38
-        checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
+        checksum/config: 9fcf9e3a205007d497065136be0f8b2cf7d278724ba61df44ff9c057811bb99d
+        checksum/dashboards-json-config: 2c049256a33197e4fa43d67fa020fc890b9785c2b3b5e958bed2e96ccc6c9e3f
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
       serviceAccountName: grafana
       automountServiceAccountToken: true
+      shareProcessNamespace: false
       securityContext:
         fsGroup: 472
         runAsGroup: 472
@@ -12589,6 +12564,9 @@ spec:
             capabilities:
               add:
                 - CHOWN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
             runAsNonRoot: false
             runAsUser: 0
             seccompProfile:
@@ -12602,7 +12580,7 @@ spec:
             - name: storage
               mountPath: "/var/lib/grafana"
         - name: download-dashboards
-          image: "docker.io/curlimages/curl:7.85.0"
+          image: "docker.io/curlimages/curl:8.9.1"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
           args: ["-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"]
@@ -12629,6 +12607,7 @@ spec:
             capabilities:
               drop:
                 - ALL
+            privileged: false
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
@@ -12665,6 +12644,8 @@ spec:
               readOnly: false
             - name: storage
               mountPath: "/var/lib/grafana"
+            - name: search
+              mountPath: "/var/lib/grafana-search"
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: "datasources.yaml"
@@ -12687,6 +12668,9 @@ spec:
             - name: gossip-udp
               containerPort: 9094
               protocol: UDP
+            - name: profiling
+              containerPort: 6060
+              protocol: TCP
           env:
             - name: POD_IP
               valueFrom:
@@ -12700,19 +12684,21 @@ spec:
               value: /var/lib/grafana/plugins
             - name: GF_PATHS_PROVISIONING
               value: /etc/grafana/provisioning
+            - name: GF_UNIFIED_STORAGE_INDEX_PATH
+              value: /var/lib/grafana-search/bleve
             - name: "GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION"
               value: "true"
           livenessProbe:
             failureThreshold: 10
             httpGet:
               path: /api/health
-              port: 3000
+              port: grafana
             initialDelaySeconds: 60
             timeoutSeconds: 30
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 3000
+              port: grafana
       volumes:
         - name: config
           configMap:
@@ -12720,35 +12706,47 @@ spec:
         - name: coder-dashboard-status
           configMap:
             name: coder-dashboard-status
+            optional: true
         - name: coder-dashboard-coderd
           configMap:
             name: coder-dashboard-coderd
+            optional: true
         - name: coder-dashboard-provisionerd
           configMap:
             name: coder-dashboard-provisionerd
+            optional: true
         - name: coder-dashboard-workspaces
           configMap:
             name: coder-dashboard-workspaces
+            optional: true
         - name: coder-dashboard-workspace-detail
           configMap:
             name: coder-dashboard-workspace-detail
+            optional: true
         - name: coder-dashboard-prebuilds
           configMap:
             name: coder-dashboard-prebuilds
+            optional: true
         - name: coder-dashboard-agent-boundaries
           configMap:
             name: coder-dashboard-agent-boundaries
+            optional: true
         - name: dashboards-infra
           configMap:
             name: grafana-dashboards-infra
         - name: storage
           persistentVolumeClaim:
             claimName: grafana
+        - name: search
+          emptyDir: {}
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: storage
       spec:
-        accessModes: [ReadWriteOnce]
+        accessModes:
+          - "ReadWriteOnce"
         storageClassName:
         resources:
           requests:

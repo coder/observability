@@ -2,7 +2,7 @@ apiVersion: v2
 name: coder-observability
 description: Gain insights into your Coder deployment
 type: application
-version: 0.9.1
+version: 0.9.2
 dependencies:
   - name: pyroscope
     condition: pyroscope.enabled
@@ -11,7 +11,7 @@ dependencies:
   - name: grafana
     condition: grafana.enabled
     repository: https://grafana.github.io/helm-charts
-    version: '~v7.3.7'
+    version: '~v10.5.15'
   - name: prometheus
     condition: prometheus.enabled
     repository: https://prometheus-community.github.io/helm-charts
