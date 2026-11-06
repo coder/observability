@@ -345,8 +345,6 @@ alloy:
 
 grafana:
   enabled: true
-  image:
-    tag: 10.4.19
   fullnameOverride: grafana
   useStatefulSet: true
   replicas: 1

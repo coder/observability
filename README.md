@@ -285,7 +285,7 @@ If you switch from classic to native histograms, dashboards may need to account 
 | Repository | Name | Version |
 |------------|------|---------|
 | https://grafana.github.io/helm-charts | alloy | ~1.13.1 |
-| https://grafana.github.io/helm-charts | grafana | ~v7.3.7 |
+| https://grafana.github.io/helm-charts | grafana | ~v10.5.15 |
 | https://grafana.github.io/helm-charts | loki | ~v6.7.3 |
 | https://grafana.github.io/helm-charts | pyroscope | ~v1.14.1 |
 | https://grafana.github.io/helm-charts | tempo | ~v1.23.0 |
@@ -505,7 +505,6 @@ values which are defined [here](https://github.com/grafana/helm-charts/tree/main
 | grafana.extraConfigmapMounts[6].optional | bool | `true` |  |
 | grafana.extraConfigmapMounts[6].readOnly | bool | `false` |  |
 | grafana.fullnameOverride | string | `"grafana"` |  |
-| grafana.image.tag | string | `"10.4.19"` |  |
 | grafana.persistence.enabled | bool | `true` |  |
 | grafana.persistence.size | string | `"10Gi"` |  |
 | grafana.replicas | int | `1` |  |
