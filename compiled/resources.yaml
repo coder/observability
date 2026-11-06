@@ -57,8 +57,21 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   name: grafana
+  namespace: coder-observability
+---
+# Source: coder-observability/charts/kube-state-metrics/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: kube-state-metrics
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/instance: coder-observability
+  name: kube-state-metrics
   namespace: coder-observability
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/serviceaccount.yaml
@@ -95,33 +108,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
 ---
-# Source: coder-observability/charts/prometheus/charts/alertmanager/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: alertmanager
-  labels:
-    app.kubernetes.io/name: alertmanager
-    app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
-  namespace: coder-observability
-automountServiceAccountToken: true
----
-# Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-automountServiceAccountToken: true
-metadata:
-  labels:
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: kube-state-metrics
-    app.kubernetes.io/name: kube-state-metrics
-    app.kubernetes.io/instance: coder-observability
-  name: kube-state-metrics
-  namespace: coder-observability
----
-# Source: coder-observability/charts/prometheus/charts/prometheus-node-exporter/templates/serviceaccount.yaml
+# Source: coder-observability/charts/prometheus-node-exporter/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -134,6 +121,18 @@ metadata:
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
 automountServiceAccountToken: false
+---
+# Source: coder-observability/charts/prometheus/charts/alertmanager/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alertmanager
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/instance: coder-observability
+    app.kubernetes.io/managed-by: Helm
+  namespace: coder-observability
+automountServiceAccountToken: true
 ---
 # Source: coder-observability/charts/prometheus/templates/serviceaccount.yaml
 apiVersion: v1
@@ -173,7 +172,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 data:
@@ -191,8 +189,6 @@ data:
     timeout = 900
     [feature_toggles]
     autoMigrateOldPanels = true
-    [grafana_net]
-    url = https://grafana.net
     [log]
     mode = console
     [paths]
@@ -202,6 +198,8 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     domain = ''
+    [unified_storage]
+    index_path = /var/lib/grafana-search/bleve
     [users]
     allow_sign_up = false
   datasources.yaml: |
@@ -298,7 +296,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
     dashboard-provider: infra
 data: {}
 ---
@@ -10958,25 +10955,6 @@ data:
       "weekStart": ""
     }
 ---
-# Source: coder-observability/charts/grafana/templates/pvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/name: grafana
-    app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
-  finalizers:
-    - kubernetes.io/pvc-protection
-spec:
-  accessModes:
-    - "ReadWriteOnce"
-  resources:
-    requests:
-      storage: "10Gi"
----
 # Source: coder-observability/charts/alloy/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -11019,27 +10997,12 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
   name: grafana-clusterrole
 rules: []
 ---
-# Source: coder-observability/charts/loki/templates/backend/clusterrole.yaml
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  labels:
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
-  name: loki-clusterrole
-rules:
-  - apiGroups: [""] # "" indicates the core API group
-    resources: ["configmaps", "secrets"]
-    verbs: ["get", "watch", "list"]
----
-# Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/role.yaml
+# Source: coder-observability/charts/kube-state-metrics/templates/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -11164,6 +11127,20 @@ rules:
       - volumeattachments
     verbs: ["list", "watch"]
 ---
+# Source: coder-observability/charts/loki/templates/backend/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: coder-observability
+    app.kubernetes.io/managed-by: Helm
+  name: loki-clusterrole
+rules:
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "watch", "list"]
+---
 # Source: coder-observability/charts/prometheus/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -11239,7 +11216,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 subjects:
@@ -11251,25 +11227,7 @@ roleRef:
   name: grafana-clusterrole
   apiGroup: rbac.authorization.k8s.io
 ---
-# Source: coder-observability/charts/loki/templates/backend/clusterrolebinding.yaml
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: loki-clusterrolebinding
-  labels:
-    app.kubernetes.io/name: loki
-    app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
-subjects:
-  - kind: ServiceAccount
-    name: loki
-    namespace: coder-observability
-roleRef:
-  kind: ClusterRole
-  name: loki-clusterrole
-  apiGroup: rbac.authorization.k8s.io
----
-# Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/clusterrolebinding.yaml
+# Source: coder-observability/charts/kube-state-metrics/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -11288,6 +11246,24 @@ subjects:
   - kind: ServiceAccount
     name: kube-state-metrics
     namespace: coder-observability
+---
+# Source: coder-observability/charts/loki/templates/backend/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: loki-clusterrolebinding
+  labels:
+    app.kubernetes.io/name: loki
+    app.kubernetes.io/instance: coder-observability
+    app.kubernetes.io/managed-by: Helm
+subjects:
+  - kind: ServiceAccount
+    name: loki
+    namespace: coder-observability
+roleRef:
+  kind: ClusterRole
+  name: loki-clusterrole
+  apiGroup: rbac.authorization.k8s.io
 ---
 # Source: coder-observability/charts/prometheus/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -11317,7 +11293,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 rules: []
@@ -11331,7 +11306,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 roleRef:
@@ -11407,16 +11381,40 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ports:
     - name: service
       port: 80
       protocol: TCP
-      targetPort: 3000
+      targetPort: grafana
   selector:
     app.kubernetes.io/name: grafana
+    app.kubernetes.io/instance: coder-observability
+---
+# Source: coder-observability/charts/kube-state-metrics/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-state-metrics
+  namespace: coder-observability
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: kube-state-metrics
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/instance: coder-observability
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  type: "ClusterIP"
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: coder-observability
 ---
 # Source: coder-observability/charts/loki/charts/minio/templates/console-service.yaml
@@ -11817,6 +11815,31 @@ spec:
     app.kubernetes.io/instance: coder-observability
     app.kubernetes.io/component: write
 ---
+# Source: coder-observability/charts/prometheus-node-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: coder-observability
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: prometheus-node-exporter
+    app.kubernetes.io/name: prometheus-node-exporter
+    app.kubernetes.io/instance: coder-observability
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9100
+      targetPort: 9100
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: prometheus-node-exporter
+    app.kubernetes.io/instance: coder-observability
+---
 # Source: coder-observability/charts/prometheus/charts/alertmanager/templates/services.yaml
 apiVersion: v1
 kind: Service
@@ -11857,56 +11880,6 @@ spec:
       name: http
   selector:
     app.kubernetes.io/name: alertmanager
-    app.kubernetes.io/instance: coder-observability
----
-# Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kube-state-metrics
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: kube-state-metrics
-    app.kubernetes.io/name: kube-state-metrics
-    app.kubernetes.io/instance: coder-observability
-  annotations:
-    prometheus.io/scrape: 'true'
-spec:
-  type: "ClusterIP"
-  ports:
-    - name: http
-      protocol: TCP
-      port: 8080
-      targetPort: http
-  selector:
-    app.kubernetes.io/name: kube-state-metrics
-    app.kubernetes.io/instance: coder-observability
----
-# Source: coder-observability/charts/prometheus/charts/prometheus-node-exporter/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: node-exporter
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: prometheus-node-exporter
-    app.kubernetes.io/name: prometheus-node-exporter
-    app.kubernetes.io/instance: coder-observability
-  annotations:
-    prometheus.io/scrape: "true"
-spec:
-  type: ClusterIP
-  ports:
-    - port: 9100
-      targetPort: 9100
-      protocol: TCP
-      name: metrics
-  selector:
-    app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: coder-observability
 ---
 # Source: coder-observability/charts/prometheus/templates/headless-svc.yaml
@@ -12147,7 +12120,7 @@ spec:
             timeoutSeconds: 1
       volumes:
 ---
-# Source: coder-observability/charts/prometheus/charts/prometheus-node-exporter/templates/daemonset.yaml
+# Source: coder-observability/charts/prometheus-node-exporter/templates/daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -12273,6 +12246,90 @@ spec:
         - name: root
           hostPath:
             path: /
+---
+# Source: coder-observability/charts/kube-state-metrics/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+  namespace: coder-observability
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: kube-state-metrics
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/instance: coder-observability
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/instance: coder-observability
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: kube-state-metrics-8.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: metrics
+        app.kubernetes.io/part-of: kube-state-metrics
+        app.kubernetes.io/name: kube-state-metrics
+        app.kubernetes.io/instance: coder-observability
+        app.kubernetes.io/version: "2.19.1"
+      annotations:
+        prometheus.io/scrape: "true"
+    spec:
+      automountServiceAccountToken: true
+      hostNetwork: false
+      serviceAccountName: kube-state-metrics
+      securityContext:
+        fsGroup: 65534
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: kube-state-metrics
+          args:
+            - --port=8080
+            - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8081
+              name: metrics
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /livez
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: metrics
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
 ---
 # Source: coder-observability/charts/loki/templates/gateway/deployment-gateway-nginx.yaml
 apiVersion: apps/v1
@@ -12460,90 +12517,6 @@ spec:
           configMap:
             name: loki-runtime
 ---
-# Source: coder-observability/charts/prometheus/charts/kube-state-metrics/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kube-state-metrics
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: kube-state-metrics
-    app.kubernetes.io/name: kube-state-metrics
-    app.kubernetes.io/instance: coder-observability
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kube-state-metrics
-      app.kubernetes.io/instance: coder-observability
-  replicas: 1
-  strategy:
-    type: RollingUpdate
-  revisionHistoryLimit: 10
-  template:
-    metadata:
-      labels:
-        helm.sh/chart: kube-state-metrics-8.0.0
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/component: metrics
-        app.kubernetes.io/part-of: kube-state-metrics
-        app.kubernetes.io/name: kube-state-metrics
-        app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "2.19.1"
-      annotations:
-        prometheus.io/scrape: "true"
-    spec:
-      automountServiceAccountToken: true
-      hostNetwork: false
-      serviceAccountName: kube-state-metrics
-      securityContext:
-        fsGroup: 65534
-        runAsGroup: 65534
-        runAsNonRoot: true
-        runAsUser: 65534
-        seccompProfile:
-          type: RuntimeDefault
-      dnsPolicy: ClusterFirst
-      containers:
-        - name: kube-state-metrics
-          args:
-            - --port=8080
-            - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
-              name: http
-            - containerPort: 8081
-              name: metrics
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /livez
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /readyz
-              port: metrics
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          resources: {}
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
----
 # Source: coder-observability/charts/grafana/templates/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
@@ -12553,7 +12526,6 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: coder-observability
-    app.kubernetes.io/managed-by: Helm
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -12566,16 +12538,19 @@ spec:
   template:
     metadata:
       labels:
+        helm.sh/chart: grafana-10.5.15
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
+        app.kubernetes.io/version: "12.3.1"
       annotations:
-        checksum/config: 9d69efdceffa38ecceebc5bec21712c49f95d7fb897c026e38b5fa3220049d38
-        checksum/dashboards-json-config: 010b57348b6dd1f09007330c03d22a0570022534712646511cad39a9e3cb4bb7
+        checksum/config: 9fcf9e3a205007d497065136be0f8b2cf7d278724ba61df44ff9c057811bb99d
+        checksum/dashboards-json-config: 2c049256a33197e4fa43d67fa020fc890b9785c2b3b5e958bed2e96ccc6c9e3f
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         kubectl.kubernetes.io/default-container: grafana
     spec:
       serviceAccountName: grafana
       automountServiceAccountToken: true
+      shareProcessNamespace: false
       securityContext:
         fsGroup: 472
         runAsGroup: 472
@@ -12589,6 +12564,9 @@ spec:
             capabilities:
               add:
                 - CHOWN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
             runAsNonRoot: false
             runAsUser: 0
             seccompProfile:
@@ -12602,7 +12580,7 @@ spec:
             - name: storage
               mountPath: "/var/lib/grafana"
         - name: download-dashboards
-          image: "docker.io/curlimages/curl:7.85.0"
+          image: "docker.io/curlimages/curl:8.9.1"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
           args: ["-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"]
@@ -12629,6 +12607,7 @@ spec:
             capabilities:
               drop:
                 - ALL
+            privileged: false
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
@@ -12665,6 +12644,8 @@ spec:
               readOnly: false
             - name: storage
               mountPath: "/var/lib/grafana"
+            - name: search
+              mountPath: "/var/lib/grafana-search"
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: "datasources.yaml"
@@ -12687,6 +12668,9 @@ spec:
             - name: gossip-udp
               containerPort: 9094
               protocol: UDP
+            - name: profiling
+              containerPort: 6060
+              protocol: TCP
           env:
             - name: POD_IP
               valueFrom:
@@ -12700,19 +12684,21 @@ spec:
               value: /var/lib/grafana/plugins
             - name: GF_PATHS_PROVISIONING
               value: /etc/grafana/provisioning
+            - name: GF_UNIFIED_STORAGE_INDEX_PATH
+              value: /var/lib/grafana-search/bleve
             - name: "GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION"
               value: "true"
           livenessProbe:
             failureThreshold: 10
             httpGet:
               path: /api/health
-              port: 3000
+              port: grafana
             initialDelaySeconds: 60
             timeoutSeconds: 30
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 3000
+              port: grafana
       volumes:
         - name: config
           configMap:
@@ -12720,35 +12706,47 @@ spec:
         - name: coder-dashboard-status
           configMap:
             name: coder-dashboard-status
+            optional: true
         - name: coder-dashboard-coderd
           configMap:
             name: coder-dashboard-coderd
+            optional: true
         - name: coder-dashboard-provisionerd
           configMap:
             name: coder-dashboard-provisionerd
+            optional: true
         - name: coder-dashboard-workspaces
           configMap:
             name: coder-dashboard-workspaces
+            optional: true
         - name: coder-dashboard-workspace-detail
           configMap:
             name: coder-dashboard-workspace-detail
+            optional: true
         - name: coder-dashboard-prebuilds
           configMap:
             name: coder-dashboard-prebuilds
+            optional: true
         - name: coder-dashboard-agent-boundaries
           configMap:
             name: coder-dashboard-agent-boundaries
+            optional: true
         - name: dashboards-infra
           configMap:
             name: grafana-dashboards-infra
         - name: storage
           persistentVolumeClaim:
             claimName: grafana
+        - name: search
+          emptyDir: {}
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: storage
       spec:
-        accessModes: [ReadWriteOnce]
+        accessModes:
+          - "ReadWriteOnce"
         storageClassName:
         resources:
           requests:

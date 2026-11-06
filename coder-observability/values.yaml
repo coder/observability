@@ -347,8 +347,6 @@ alloy:
 
 grafana:
   enabled: true
-  image:
-    tag: 10.4.19
   fullnameOverride: grafana
   useStatefulSet: true
   replicas: 1
@@ -623,20 +621,34 @@ prometheus:
       port: 80
     podAnnotations:
       prometheus.io/scrape: "true"
+  # kube-state-metrics and node-exporter are top-level dependencies below, so they can run without
+  # the Prometheus server (e.g. when the collector writes to a Prometheus elsewhere). The prometheus chart's
+  # own copies stay disabled.
   kube-state-metrics:
-    fullnameOverride: kube-state-metrics
-    enabled: true
-    podAnnotations:
-      prometheus.io/scrape: "true"
+    enabled: false
   prometheus-node-exporter:
-    fullnameOverride: node-exporter
-    enabled: true
-    podAnnotations:
-      prometheus.io/scrape: "true"
+    enabled: false
 
   # Disable push gateway
   prometheus-pushgateway:
     enabled: false
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+  enabled: true
+  podAnnotations:
+    prometheus.io/scrape: "true"
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+  enabled: true
+  podAnnotations:
+    prometheus.io/scrape: "true"
+  # Carried over from the prometheus chart's defaults, which no longer apply to this copy.
+  rbac:
+    pspEnabled: false
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
 
 pyroscope:
   enabled: false

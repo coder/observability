@@ -1,0 +1,15 @@
+{{- /*
+kube-state-metrics and prometheus-node-exporter are top-level subcharts. Overrides left under `prometheus.` would
+silently stop applying, so fail instead. `enabled`, `rbac` and `containerSecurityContext` are allowed because the
+prometheus chart's own defaults populate them.
+*/ -}}
+{{- range $name := list "kube-state-metrics" "prometheus-node-exporter" }}
+{{- if (index $.Values.prometheus $name).enabled }}
+{{- fail (printf "prometheus.%s.enabled cannot be true any more: %s is a top-level subchart now, so configure it under %s and leave the nested copy disabled" $name $name $name) }}
+{{- end }}
+{{- range $key, $_ := (index $.Values.prometheus $name) }}
+{{- if not (has $key (list "enabled" "rbac" "containerSecurityContext")) }}
+{{- fail (printf "prometheus.%s.%s is no longer used: kube-state-metrics and prometheus-node-exporter are top-level subcharts now; move it to %s.%s" $name $key $name $key) }}
+{{- end }}
+{{- end }}
+{{- end }}
