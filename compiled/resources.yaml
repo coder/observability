@@ -196,6 +196,8 @@ data:
     logs = /var/log/grafana
     plugins = /var/lib/grafana/plugins
     provisioning = /etc/grafana/provisioning
+    [plugins]
+    preinstall_auto_update = false
     [server]
     domain = ''
     [unified_storage]
@@ -285,7 +287,7 @@ data:
       orgId: 1
       type: file
       updateIntervalSeconds: 30
-  download_dashboards.sh: "#!/usr/bin/env sh\nset -euf\nmkdir -p /var/lib/grafana/dashboards/coder\nmkdir -p /var/lib/grafana/dashboards/infra\nmkdir -p /tmp/dashboards\n\ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/1860/revisions/36/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/node-exporter-full.json\"\n  \ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/9628/revisions/7/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/postgres-database.json\"\n"
+  download_dashboards.sh: "#!/usr/bin/env sh\nset -eufo pipefail\nmkdir -p /var/lib/grafana/dashboards/default\nmkdir -p /var/lib/grafana/dashboards/coder\nmkdir -p /var/lib/grafana/dashboards/infra\nmkdir -p /tmp/dashboards\n\ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/1860/revisions/36/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/node-exporter-full.json\"\n  \ncurl -skf \\\n--connect-timeout 60 \\\n--max-time 60 \\\n-H \"Accept: application/json\" \\\n-H \"Content-Type: application/json;charset=UTF-8\" \\\n  \"https://grafana.com/api/dashboards/9628/revisions/7/download\" \\\n  | sed '/-- .* --/! s/\"datasource\":.*,/\"datasource\": \"metrics\",/g' \\\n> \"/var/lib/grafana/dashboards/infra/postgres-database.json\"\n"
 ---
 # Source: coder-observability/charts/grafana/templates/dashboards-json-configmap.yaml
 apiVersion: v1
@@ -11284,39 +11286,6 @@ roleRef:
   kind: ClusterRole
   name: prometheus
 ---
-# Source: coder-observability/charts/grafana/templates/role.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: grafana
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/name: grafana
-    app.kubernetes.io/instance: coder-observability
-  annotations:
-    prometheus.io/scrape: "true"
-rules: []
----
-# Source: coder-observability/charts/grafana/templates/rolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: grafana
-  namespace: coder-observability
-  labels:
-    app.kubernetes.io/name: grafana
-    app.kubernetes.io/instance: coder-observability
-  annotations:
-    prometheus.io/scrape: "true"
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: grafana
-subjects:
-  - kind: ServiceAccount
-    name: grafana
-    namespace: coder-observability
----
 # Source: coder-observability/charts/alloy/templates/cluster_service.yaml
 apiVersion: v1
 kind: Service
@@ -12534,18 +12503,18 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
       app.kubernetes.io/instance: coder-observability
+  podManagementPolicy: OrderedReady
   serviceName: grafana-headless
   template:
     metadata:
       labels:
-        helm.sh/chart: grafana-10.5.15
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: coder-observability
-        app.kubernetes.io/version: "12.3.1"
+        app.kubernetes.io/version: "13.3.0"
       annotations:
-        checksum/config: 9fcf9e3a205007d497065136be0f8b2cf7d278724ba61df44ff9c057811bb99d
-        checksum/dashboards-json-config: 2c049256a33197e4fa43d67fa020fc890b9785c2b3b5e958bed2e96ccc6c9e3f
-        checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/config: 85d13e721806652189182898cb1a68d548dbc6dab5a6070acc3f6c9c7bd3f3cc
+        checksum/dashboards-json-config: 71d93fdcb1f73f62508aa767263c80a989fb919d78aa21c500843680d1595daf
+        checksum/sc-dashboard-provider-config: a3045f49693eb9906fad0f8f512b14be9077859c62bbed343c56ec0af16b52c7
         kubectl.kubernetes.io/default-container: grafana
     spec:
       serviceAccountName: grafana
@@ -12558,12 +12527,13 @@ spec:
         runAsUser: 472
       initContainers:
         - name: init-chown-data
-          image: "docker.io/library/busybox:1.31.1"
+          image: "docker.io/library/busybox:1.38.0"
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
               add:
                 - CHOWN
+                - DAC_OVERRIDE
               drop:
                 - ALL
             readOnlyRootFilesystem: false
@@ -12580,16 +12550,17 @@ spec:
             - name: storage
               mountPath: "/var/lib/grafana"
         - name: download-dashboards
-          image: "docker.io/curlimages/curl:8.9.1"
+          image: "docker.io/curlimages/curl:8.23.0"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh"]
-          args: ["-c", "mkdir -p /var/lib/grafana/dashboards/default && /bin/sh -x /etc/grafana/download_dashboards.sh"]
+          args: ["/etc/grafana/download_dashboards.sh"]
           env:
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
@@ -12608,9 +12579,12 @@ spec:
               drop:
                 - ALL
             privileged: false
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
           volumeMounts:
+            - name: tmp
+              mountPath: "/tmp"
             - name: config
               mountPath: "/etc/grafana/grafana.ini"
               subPath: grafana.ini
@@ -12700,6 +12674,8 @@ spec:
               path: /api/health
               port: grafana
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: config
           configMap:
             name: grafana

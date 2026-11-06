@@ -10,8 +10,8 @@ dependencies:
     version: '~v1.14.1'
   - name: grafana
     condition: grafana.enabled
-    repository: https://grafana.github.io/helm-charts
-    version: '~v10.5.15'
+    repository: https://grafana-community.github.io/helm-charts
+    version: '~v14.4.0'
   - name: prometheus
     condition: prometheus.enabled
     repository: https://prometheus-community.github.io/helm-charts
