@@ -86,6 +86,11 @@ global:
             delay: 10m
             thresholds:
               warn: 1
+          Panics:
+            enabled: true
+            period: 5m
+            thresholds:
+              critical: 0
       provisionerd:
         groups:
           Replicas:
