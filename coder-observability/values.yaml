@@ -117,6 +117,8 @@ global:
       native_histograms: false
       # global.telemetry.metrics.externalLabels -- labels added to every series the collector writes, e.g. `cluster: my-cluster`
       externalLabels: {}
+      # global.telemetry.metrics.remoteWriteURL -- Prometheus remote-write endpoint the collector sends to, e.g. `http://prometheus.example.com/api/v1/write`. Empty means the bundled Prometheus. Set it, and `prometheus.enabled: false`, to collect in this cluster but store elsewhere. Loki's ruler and Grafana's datasource still target the bundled Prometheus, so disable them too. The receiver needs `--web.enable-remote-write-receiver` (and `--enable-feature=native-histograms` if `native_histograms` is on), each cluster needs its own `externalLabels`, and there is no auth or TLS option.
+      remoteWriteURL: ""
     profiling:
       # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s
