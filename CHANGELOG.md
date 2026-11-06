@@ -11,6 +11,7 @@
 - New `alloy.kubeletTLS` configures TLS for the cAdvisor and kubelet scrapes. The defaults (`insecure_skip_verify: true`) match the previous behaviour; set `insecure_skip_verify: false` and `ca_file` to verify the kubelet certificate.
 - Alloy `ClusterRole` is narrowed to `pods`, `nodes` and `nodes/metrics`. It no longer grants read access to `secrets` and `configmaps`. If you add components through `alloy.extraBlocks` that need more access, override `alloy.rbac.rules` and `alloy.rbac.clusterRules`.
 - `node_uname_info` carries the Kubernetes node name in its `nodename` label instead of the OS hostname, so dashboards that match it against `kube_node_info`'s `node` work when nodes are named by instance ID.
+- BREAKING: `kube-state-metrics` and `prometheus-node-exporter` are now top-level subcharts instead of dependencies of the `prometheus` subchart, so they can run without the Prometheus server. Move any overrides from `prometheus.kube-state-metrics:` and `prometheus.prometheus-node-exporter:` to top-level `kube-state-metrics:` and `prometheus-node-exporter:`. With default values the rendered manifests are unchanged. The chart now fails to render if an old-style override is still set under `prometheus.`, instead of silently ignoring it. `prometheus-node-exporter` is pinned to 4.56.1 and no longer follows the `prometheus` chart's version; bump it by hand.
 
 ## v0.3.0
 
