@@ -11,6 +11,7 @@
 - New `alloy.kubeletTLS` configures TLS for the cAdvisor and kubelet scrapes. The defaults (`insecure_skip_verify: true`) match the previous behaviour; set `insecure_skip_verify: false` and `ca_file` to verify the kubelet certificate.
 - Alloy `ClusterRole` is narrowed to `pods`, `nodes` and `nodes/metrics`. It no longer grants read access to `secrets` and `configmaps`. If you add components through `alloy.extraBlocks` that need more access, override `alloy.rbac.rules` and `alloy.rbac.clusterRules`.
 - `node_uname_info` carries the Kubernetes node name in its `nodename` label instead of the OS hostname, so dashboards that match it against `kube_node_info`'s `node` work when nodes are named by instance ID.
+- New `global.telemetry.metrics.remoteWriteURL` points the collector at a Prometheus outside this release. It can then be combined with `prometheus.enabled: false`, which previously failed to render. Empty by default, which keeps writing to the bundled Prometheus. With the bundled Prometheus disabled, the Loki ruler's remote-write URL and Grafana's `metrics` datasource still point at it, so also disable Loki and Grafana (or override those URLs), and note that the release's own alert rules are not evaluated. The receiving Prometheus needs `--web.enable-remote-write-receiver` (and `--enable-feature=native-histograms` if `global.telemetry.metrics.native_histograms` is on), and each writing cluster needs a distinct `global.telemetry.metrics.externalLabels` (for example `cluster`), or series from different clusters collide. Only the URL is configurable: there is no authentication, TLS or header option, so restrict access at the network level.
 
 ## v0.3.0
 
@@ -40,4 +41,3 @@
 ## v0.0.1
 
 - Initial release
-- New `global.telemetry.metrics.remoteWriteURL` points the collector at a Prometheus outside this release. It can then be combined with `prometheus.enabled: false`, which previously failed to render. Empty by default, which keeps writing to the bundled Prometheus.

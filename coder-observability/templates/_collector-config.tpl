@@ -436,8 +436,11 @@ prometheus.remote_write "default" {
 {{ end }}
   endpoint {
     send_native_histograms = {{ .Values.global.telemetry.metrics.native_histograms | default false }}
-{{- if .Values.global.telemetry.metrics.remoteWriteURL }}
-    url = {{ .Values.global.telemetry.metrics.remoteWriteURL | quote }}
+{{- $remoteWriteURL := .Values.global.telemetry.metrics.remoteWriteURL | default "" | toString | trim }}
+{{- if $remoteWriteURL }}
+    url = {{ $remoteWriteURL | quote }}
+{{- else if not .Values.prometheus.enabled }}
+{{- fail "global.telemetry.metrics.remoteWriteURL is required when prometheus.enabled is false" }}
 {{- else }}
     url ="http://{{ include "prometheus.server.fullname" .Subcharts.prometheus }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 {{- end }}
