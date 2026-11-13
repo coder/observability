@@ -198,7 +198,7 @@ loki.process "pod_logs" {
 
   // parse Coder logs and extract level & logger for efficient filtering
   stage.match {
-    selector = "{component=~\"coderd|provisioner\"}"
+    selector = "{component=~\"coderd|provisioner|workspace\"}"
 
     stage.multiline {
       firstline     = {{ printf `^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})` | quote }}
@@ -206,7 +206,7 @@ loki.process "pod_logs" {
     }
 
     stage.regex {
-      expression = {{ printf `^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s\[(?P<level>\w+)\]\s\s(?P<logger>[^:]+):\s(?P<line>.+)` | quote }}
+      expression = {{ printf `(?s)^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s\[(?P<level>\w+)\]\s\s(?:(?P<logger>[\w./-]+):\s)?(?P<line>.+)` | quote }}
     }
 
     stage.timestamp {
@@ -220,6 +220,20 @@ loki.process "pod_logs" {
         level  = "",
         logger = "",
       }
+    }
+
+    // lines from the root logger have no name; do not keep an empty logger label for them
+    stage.match {
+      selector = "{component=~\".+\", logger=\"\"}"
+      stage.label_drop {
+        values = ["logger"]
+      }
+    }
+
+    // the timestamp, level and logger are now the entry's time and labels, so keep only the message in the line
+    // instead of repeating them
+    stage.output {
+      source = "line"
     }
   }
 

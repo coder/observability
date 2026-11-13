@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Coder logs are now parsed for every Coder component, including workspace pods, and the stored log line keeps only the message: the timestamp becomes the entry's time, and the level and logger are the `level` and `logger` labels, instead of being repeated in the text. Filter on those labels (`{component="coderd", level="error"}`) rather than on text such as `[error]`. Lines already in Loki keep their original text. Root-logger lines have no `logger` label.
 - Loki logs gain a `component` label (`coderd`, `provisioner`, `workspace`) derived from `global.coder.coderdSelector`, `provisionerdSelector` and `workspacesSelector`. Coder log parsing (`level`, `logger`, multi-line joins) now applies to the pods those selectors match instead of every pod named `coder*`; if your pods don't match the selectors, set them.
 - BREAKING: replaces the `grafana-agent` subchart with Grafana Alloy (`alloy` chart 1.13.1). Rename any `grafana-agent:` values overrides to `alloy:`.
 - Pod `job` label changes from `<ns>/grafana-agent/grafana-agent` to `<ns>/alloy/alloy`; update queries and alerts that match the old label.
