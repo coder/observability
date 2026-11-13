@@ -169,9 +169,36 @@ loki.process "pod_logs" {
     values = ["tmp_container_runtime"]
   }
 
+  // tag each line with the Coder component it came from, using the same selectors as the dashboards
+  // (global.coder.*Selector; Alloy's selector parser wants double quotes, not backticks).
+  {{- if .Values.global.coder.coderdSelector }}
+  stage.match {
+    selector = {{ include "coderd-selector" . | replace "`" "\"" | printf "{%s}" | quote }}
+    stage.static_labels {
+      values = { component = "coderd" }
+    }
+  }
+  {{- end }}
+  {{- if .Values.global.coder.provisionerdSelector }}
+  stage.match {
+    selector = {{ include "provisionerd-selector" . | replace "`" "\"" | printf "{%s}" | quote }}
+    stage.static_labels {
+      values = { component = "provisioner" }
+    }
+  }
+  {{- end }}
+  {{- if .Values.global.coder.workspacesSelector }}
+  stage.match {
+    selector = {{ include "workspaces-selector" . | replace "`" "\"" | printf "{%s}" | quote }}
+    stage.static_labels {
+      values = { component = "workspace" }
+    }
+  }
+  {{- end }}
+
   // parse Coder logs and extract level & logger for efficient filtering
   stage.match {
-    selector = "{pod=~\"coder.*\"}" // TODO: make configurable
+    selector = "{component=~\"coderd|provisioner\"}"
 
     stage.multiline {
       firstline     = {{ printf `^(?P<ts>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})` | quote }}
