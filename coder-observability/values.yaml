@@ -648,6 +648,51 @@ prometheus-node-exporter:
   containerSecurityContext:
     allowPrivilegeEscalation: false
 
+# cloudwatch-exporter -- yet-another-cloudwatch-exporter (YACE) brings AWS CloudWatch metrics into Prometheus, starting
+# with RDS (CPU, memory, storage, connections, latency, disk queue). Off by default.
+# AWS access: set `serviceAccount.annotations` to your IRSA role ARN, or associate the `cloudwatch-exporter` service account
+# with a role through EKS Pod Identity (no annotation needed). The role needs cloudwatch:GetMetricData, GetMetricStatistics,
+# ListMetrics and tag:GetResources (none support resource-level scoping).
+# Set `sts-region` and each job's `regions` in `config` to your region; overriding `config` replaces this whole block.
+cloudwatch-exporter:
+  enabled: false
+  fullnameOverride: cloudwatch-exporter
+  testConnection: false
+  serviceAccount:
+    create: true
+    name: cloudwatch-exporter
+    annotations: {}
+    # eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/cloudwatch-exporter
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "5000"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config: |-
+    apiVersion: v1alpha1
+    sts-region: us-east-1
+    discovery:
+      jobs:
+        - type: AWS/RDS
+          regions: [us-east-1]
+          period: 60
+          length: 300
+          metrics:
+            - {name: CPUUtilization, statistics: [Average]}
+            - {name: DatabaseConnections, statistics: [Average]}
+            - {name: FreeableMemory, statistics: [Average]}
+            - {name: FreeStorageSpace, statistics: [Average]}
+            - {name: ReadLatency, statistics: [Average]}
+            - {name: WriteLatency, statistics: [Average]}
+            - {name: DiskQueueDepth, statistics: [Average]}
+            - {name: ReplicaLag, statistics: [Average]}
+            - {name: BurstBalance, statistics: [Average]}
+
 pyroscope:
   enabled: false
   alloy:
