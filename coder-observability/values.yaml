@@ -648,8 +648,8 @@ prometheus-node-exporter:
   containerSecurityContext:
     allowPrivilegeEscalation: false
 
-# cloudwatch-exporter -- yet-another-cloudwatch-exporter (YACE) brings AWS CloudWatch metrics into Prometheus, starting
-# with RDS (CPU, memory, storage, connections, latency, disk queue). Off by default.
+# cloudwatch-exporter -- yet-another-cloudwatch-exporter (YACE) brings AWS CloudWatch metrics into Prometheus: RDS, load
+# balancers (ALB, NLB), NAT gateways and EBS volumes. Off by default.
 # AWS access: set `serviceAccount.annotations` to your IRSA role ARN, or associate the `cloudwatch-exporter` service account
 # with a role through EKS Pod Identity (no annotation needed). The role needs cloudwatch:GetMetricData, GetMetricStatistics,
 # ListMetrics and tag:GetResources (none support resource-level scoping).
@@ -692,6 +692,33 @@ cloudwatch-exporter:
             - {name: DiskQueueDepth, statistics: [Average]}
             - {name: ReplicaLag, statistics: [Average]}
             - {name: BurstBalance, statistics: [Average]}
+        - type: AWS/ApplicationELB
+          regions: [us-east-1]
+          period: 60
+          length: 300
+          metrics:
+            - {name: RequestCount, statistics: [Sum]}
+            - {name: HTTPCode_Target_5XX_Count, statistics: [Sum]}
+            - {name: TargetResponseTime, statistics: [p95]}
+        - type: AWS/NetworkELB
+          regions: [us-east-1]
+          period: 60
+          length: 300
+          metrics:
+            - {name: UnHealthyHostCount, statistics: [Average]}
+        - type: AWS/NATGateway
+          regions: [us-east-1]
+          period: 60
+          length: 300
+          metrics:
+            - {name: ErrorPortAllocation, statistics: [Sum]}
+            - {name: ConnectionAttemptCount, statistics: [Sum]}
+        - type: AWS/EBS
+          regions: [us-east-1]
+          period: 300
+          length: 900
+          metrics:
+            - {name: VolumeQueueLength, statistics: [Average]}
 
 pyroscope:
   enabled: false
