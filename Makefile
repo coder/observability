@@ -49,11 +49,14 @@ chart/version-sync:
 .PHONY: chart/version-sync
 
 # Usage: publish-patch, publish-minor, publish-major
-# Publishing is handled by GitHub Actions, triggered by tag creation.
+# Starts a release of the head of main: dispatches the publish-helm workflow, which waits for a
+# release manager other than you to approve it, then tags and publishes. See PUBLISH.md.
 publish-%:
-	version=$(shell ./scripts/version.sh --bump $*) && \
-	git tag --sign "$$version" -m "Release: $$version" && \
-	git push origin tag "$$version"
+	git fetch origin main --tags --force && \
+	version="$$(./scripts/version.sh --bump $*)" && \
+	commit="$$(git rev-parse origin/main)" && \
+	gh workflow run release.yaml --repo coder/observability --ref main -f version="$$version" -f commit="$$commit" && \
+	echo "Started the release of $$version at $$commit. A release manager approves it in the Actions tab."
 
 # Regenerate the README, including the install command version.
 # The release workflow runs this after a release and opens a pull request.

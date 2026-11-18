@@ -1,51 +1,191 @@
-# GitHub release workflow.
+# Releases the coder-observability Helm chart. See PUBLISH.md.
+#
+# Dispatch this workflow on main with a version and the commit on main to release
+# (`make publish-patch` and friends do that). The release waits in the release-approval
+# environment until a release manager other than the person who dispatched it approves. Only
+# then is the tag created, by the coder-release-publisher App: the "Release tags" ruleset lets
+# nobody else create, move or delete tags. The chart is then built from the tag and published
+# to helm.coder.com from the publish environment, which is the only place the
+# coder-observability service account can be used from.
 name: publish-helm
 on:
-  push:
-    tags:
-      - v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. v0.9.3, or v0.9.3-rc1 for a release candidate"
+        required: true
+        type: string
+      commit:
+        description: "Full SHA of the commit on main to release"
+        required: true
+        type: string
 
-permissions:
-  # Required to publish a release
-  contents: write
-  # Necessary to push docker images to ghcr.io.
-  packages: write
-  # Necessary for GCP authentication (https://github.com/google-github-actions/setup-gcloud#usage)
-  id-token: write
+permissions: {}
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
-  release:
-    name: Build and publish
+  # Only a commit that went through review on main may be released, and only from main's copy
+  # of this file: Google Cloud KMS signs the release App's JWT for that copy only.
+  validate:
+    name: Validate the release
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      # If the event that triggered the build was an annotated tag (which our
-      # tags are supposed to be), actions/checkout has a bug where the tag in
-      # question is only a lightweight tag and not a full annotated tag. This
-      # command seems to fix it.
-      # https://github.com/actions/checkout/issues/290
+      - name: Check the inputs
+        env:
+          VERSION: ${{ inputs.version }}
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*"; exit 1; }
+
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || fail "Dispatch this workflow on main, not $GITHUB_REF."
+          [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.?[0-9]+)?$ ]] || fail "version must look like v1.2.3 or v1.2.3-rc1, got '$VERSION'."
+          [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || fail "commit must be a full 40-character SHA, got '$COMMIT'."
+          git merge-base --is-ancestor "$COMMIT" "$GITHUB_SHA" || fail "$COMMIT is not on main."
+
+  # The release is tagged only after a reviewer of the release-approval environment approves
+  # this job. Only the coder-release-publisher App may create a tag. Its key is in Cloud KMS,
+  # and in this repository only this job (main's copy of this file, in release-approval) may
+  # sign with it. So the tag is created here, at a commit on main, and nobody can push one
+  # beforehand.
+  approve:
+    name: Approve and tag the release
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: release-approval
+    permissions:
+      contents: read
+      id-token: write # Cloud KMS signs the App's JWT
+    steps:
+      # For the tags and the history of main. Nothing from the tree runs in this job.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      # Here and not in the validate job, because the tags can change while the run waits for
+      # approval.
+      - name: Check the tag
+        id: check
+        env:
+          VERSION: ${{ inputs.version }}
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$*"; exit 1; }
+
+          [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.?[0-9]+)?$ ]] || fail "version must look like v1.2.3 or v1.2.3-rc1, got '$VERSION'."
+          [[ "$COMMIT" =~ ^[0-9a-f]{40}$ ]] || fail "commit must be a full 40-character SHA, got '$COMMIT'."
+          git merge-base --is-ancestor "$COMMIT" "$GITHUB_SHA" || fail "$COMMIT is not on main."
+
+          # A re-run finds the tag that the first attempt created.
+          if existing="$(git rev-parse --verify --quiet "refs/tags/$VERSION^{commit}")"; then
+            [[ "$existing" == "$COMMIT" ]] || fail "Tag $VERSION already exists at $existing, not at $COMMIT."
+            echo "Tag $VERSION already exists at $COMMIT."
+            echo "create=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Versions only go up, and a release never comes from before the last stable one.
+          latest="$(git tag --list 'v*' --sort=-version:refname | grep -E -m 1 '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)"
+          if [[ -n "$latest" ]]; then
+            base="${VERSION%%-*}"
+            [[ "$base" != "$latest" ]] || fail "$VERSION is not newer than $latest, the latest release."
+            printf '%s\n' "$latest" "$base" | sort -V -C || fail "$VERSION is not newer than $latest, the latest release."
+            git merge-base --is-ancestor "$latest" "$COMMIT" || fail "$COMMIT is older than the commit released as $latest."
+          fi
+
+          echo "create=true" >> "$GITHUB_OUTPUT"
+
+      # The App can also write to other repositories, so the token is asked for this one only.
+      - name: Generate release App token
+        id: app_token
+        if: ${{ steps.check.outputs.create == 'true' }}
+        uses: coder/github-app-token-action@00eaec58ee1bfea9c8b48655b7ab7470b07739e5 # main 2026-11-17
+        with:
+          client-id: ${{ secrets.CODER_RELEASE_PUBLISHER_APP_ID }}
+          kms-key: ${{ secrets.CODER_RELEASE_PUBLISHER_APP_KMS_KEY }}
+          workload-identity-provider: ${{ secrets.APP_KEYS_WORKLOAD_ID_PROVIDER }}
+          owner: coder
+          repositories: observability
+          permissions: |
+            contents: write
+            workflows: write
+
+      # An annotated tag, through the API: nothing is pushed from this job's checkout.
+      - name: Create the tag
+        if: ${{ steps.check.outputs.create == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          VERSION: ${{ inputs.version }}
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          tag_object="$(gh api "repos/$GITHUB_REPOSITORY/git/tags" \
+            -f tag="$VERSION" -f message="Release: $VERSION" -f object="$COMMIT" -f type=commit \
+            --jq .sha)"
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$VERSION" -f sha="$tag_object" >/dev/null
+          echo "Created tag $VERSION at $COMMIT."
+
+  # Builds the chart from the tag and publishes it to helm.coder.com. Google Cloud only lets
+  # jobs in the publish environment (main only) act as coder-observability.
+  publish:
+    name: Build and publish
+    needs: approve
+    runs-on: ubuntu-latest
+    environment: publish
+    permissions:
+      contents: read
+      id-token: write # authenticate to Google Cloud
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ inputs.version }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # actions/checkout can leave an annotated tag as a lightweight one
+      # (https://github.com/actions/checkout/issues/290); scripts/version.sh reads the tags.
       - name: Fetch git tags
         run: git fetch --tags --force
 
+      # scripts/version.sh picks the newest tag, which is the one the approve job created.
+      - name: Check the version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          actual="v$(./scripts/version.sh)"
+          if [[ "$actual" != "$VERSION" ]]; then
+            echo "::error::scripts/version.sh reports $actual, not $VERSION."
+            exit 1
+          fi
+
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: projects/898976630798/locations/global/workloadIdentityPools/coder-ci/providers/github-actions
           service_account: coder-observability@coder-customer-releases.iam.gserviceaccount.com
 
       - name: Setup GCloud SDK
-        uses: "google-github-actions/setup-gcloud@v2"
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
 
       - name: Install helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
         with:
           version: v3.17.1
 
@@ -55,23 +195,21 @@ jobs:
           sudo chmod +x /usr/bin/yq
 
       - name: Publish Helm Chart
-        if: ${{ !inputs.dry_run }}
-        run: |
-          ./scripts/publish.sh
+        run: ./scripts/publish.sh
 
   # The chart version in Chart.yaml and the README comes from the latest stable
   # tag. A tag cannot contain its own version, so open a pull request that
   # commits it. Without this, `make lint` fails on main after every release.
   sync-version:
     name: Sync chart version
-    needs: release
+    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           fetch-depth: 0
@@ -80,12 +218,12 @@ jobs:
         run: git fetch --tags --force
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
           go-version: 1.23
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
         with:
           version: v3.17.1
 
@@ -98,9 +236,9 @@ jobs:
         run: make readme
 
       # Does nothing when the files already match, for example after a
-      # prerelease tag.
+      # release candidate.
       - name: Open pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         with:
           base: main
           branch: chore/sync-chart-version
@@ -108,10 +246,10 @@ jobs:
           add-paths: |
             coder-observability/Chart.yaml
             README.md
-          commit-message: "chore: sync chart version and README with ${{ github.ref_name }}"
-          title: "chore: sync chart version and README with ${{ github.ref_name }}"
+          commit-message: "chore: sync chart version and README with ${{ inputs.version }}"
+          title: "chore: sync chart version and README with ${{ inputs.version }}"
           body: |
-            Automated by the `publish-helm` workflow after the `${{ github.ref_name }}` release.
+            Automated by the `publish-helm` workflow after the `${{ inputs.version }}` release.
 
             `make lint` sets `Chart.yaml` and the README install command from the latest stable tag. A tag cannot contain its own version, so this pull request commits it.
 
