@@ -37,6 +37,11 @@ dependencies:
     condition: alloy.enabled
     repository: https://grafana.github.io/helm-charts
     version: '~1.13.1'
+  - name: prometheus-yet-another-cloudwatch-exporter
+    alias: cloudwatch-exporter
+    condition: cloudwatch-exporter.enabled
+    repository: https://prometheus-community.github.io/helm-charts
+    version: '0.48.*'
 maintainers:
   - name: Coder Technologies, Inc.
     url: https://github.com/coder/observability/issues

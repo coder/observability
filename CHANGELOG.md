@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New optional `cloudwatch-exporter` subchart (yet-another-cloudwatch-exporter, off by default) brings CloudWatch metrics for RDS into Prometheus as `aws_rds_*`. Give its service account an IRSA role annotation, or associate the `cloudwatch-exporter` service account with an IAM role through EKS Pod Identity; the role needs `cloudwatch:GetMetricData`, `GetMetricStatistics`, `ListMetrics` and `tag:GetResources`.
 - BREAKING: replaces the `grafana-agent` subchart with Grafana Alloy (`alloy` chart 1.13.1). Rename any `grafana-agent:` values overrides to `alloy:`.
 - Pod `job` label changes from `<ns>/grafana-agent/grafana-agent` to `<ns>/alloy/alloy`; update queries and alerts that match the old label.
 - Alloy listens on port 12345 instead of 80.
