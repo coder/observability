@@ -117,8 +117,10 @@ global:
       native_histograms: false
       # global.telemetry.metrics.externalLabels -- labels added to every series the collector writes, e.g. `cluster: my-cluster`
       externalLabels: {}
-      # global.telemetry.metrics.remoteWriteURL -- Prometheus remote-write endpoint the collector sends to, e.g. `http://prometheus.example.com/api/v1/write`. Empty means the bundled Prometheus. Set it, and `prometheus.enabled: false`, to collect in this cluster but store elsewhere. Loki's ruler and Grafana's datasource still target the bundled Prometheus, so disable them too. The receiver needs `--web.enable-remote-write-receiver` (and `--enable-feature=native-histograms` if `native_histograms` is on), each cluster needs its own `externalLabels`, and there is no auth or TLS option.
+      # global.telemetry.metrics.remoteWriteURL -- Prometheus remote-write endpoint the collector sends to, e.g. `http://prometheus.example.com/api/v1/write`. Empty means the bundled Prometheus. Set it, and `prometheus.enabled: false`, to collect in this cluster but store elsewhere. Loki's ruler and Grafana's datasource still target the bundled Prometheus, so disable them too. The receiver needs `--web.enable-remote-write-receiver` (and `--enable-feature=native-histograms` if `native_histograms` is on), and each cluster needs its own `externalLabels`. For authentication, TLS or queue tuning, use `remoteWriteExtraConfig`.
       remoteWriteURL: ""
+      # global.telemetry.metrics.remoteWriteExtraConfig -- extra Alloy configuration placed inside the `endpoint` block of `prometheus.remote_write`, e.g. `basic_auth`, `bearer_token`, `tls_config`, `headers` or `queue_config` (see https://grafana.com/docs/alloy/latest/reference/components/prometheus/prometheus.remote_write/#endpoint-block). Rendered with `tpl`, so it can use Helm values; read secrets with `sys.env("NAME")` (supply the variable via the collector's environment) rather than putting them here. Do not set `url` here, use `remoteWriteURL`. The chart's own `write_relabel_config` rules and `externalLabels` stay in place.
+      remoteWriteExtraConfig: ""
     profiling:
       # global.telemetry.profiling.scrape_interval -- how often the collector will scrape pprof endpoints
       scrape_interval: 60s

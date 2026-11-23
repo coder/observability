@@ -444,6 +444,9 @@ prometheus.remote_write "default" {
 {{- else }}
     url ="http://{{ include "prometheus.server.fullname" .Subcharts.prometheus }}.{{ .Release.Namespace }}.{{ .Values.global.zone }}/api/v1/write"
 {{- end }}
+{{- with .Values.global.telemetry.metrics.remoteWriteExtraConfig }}
+{{ tpl . $ | indent 4 }}
+{{- end }}
 
     // drop instance label which unnecessarily adds new series when pods are restarted, since pod IPs are dynamically assigned
     // NOTE: "__address__" is mapped to "instance", so will contain <hostname>:<port>
