@@ -23,5 +23,8 @@ dependencies:
 - name: alloy
   repository: https://grafana.github.io/helm-charts
   version: 1.13.1
-digest: sha256:74fb46fc23472a8879c3138bfe31568c9ee116d8de9d3ffcd4c14fa60d89f9fb
-generated: "2026-11-06T18:34:41.684215818Z"
+- name: prometheus-yet-another-cloudwatch-exporter
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 0.50.0
+digest: sha256:fb6b47b36623756439f014fbea94bc4f73d651678bc46988d53e80e59907118b
+generated: "2026-11-24T10:26:39.401558-05:00"
