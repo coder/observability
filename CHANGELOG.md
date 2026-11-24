@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Loki logs gain a `component` label (`coderd`, `provisioner`, `workspace`) derived from `global.coder.coderdSelector`, `provisionerdSelector` and `workspacesSelector`. Coder log parsing (`level`, `logger`, multi-line joins) now applies to the pods those selectors match instead of every pod named `coder*`; if your pods don't match the selectors, set them.
 - BREAKING: replaces the `grafana-agent` subchart with Grafana Alloy (`alloy` chart 1.13.1). Rename any `grafana-agent:` values overrides to `alloy:`.
 - Pod `job` label changes from `<ns>/grafana-agent/grafana-agent` to `<ns>/alloy/alloy`; update queries and alerts that match the old label.
 - Alloy listens on port 12345 instead of 80.
