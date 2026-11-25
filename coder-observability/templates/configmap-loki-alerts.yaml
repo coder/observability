@@ -1,0 +1,15 @@
+{{- $coderdLogAlerts := include "coderd-loki-alerts" . -}}
+{{- if and .Values.global.alerts.enabled .Values.loki.enabled (trim $coderdLogAlerts) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coder-logs-alerts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    # the Loki rules sidecar watches for this label and loads the rules into the ruler
+    loki_rule: ""
+data:
+  coderd.yaml: |-
+    groups:
+    {{- $coderdLogAlerts }}
+{{- end }}

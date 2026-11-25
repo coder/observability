@@ -133,3 +133,19 @@ number of instances are present at all times. Workspace Prebuilds is currently a
 in this _reconciliation loop_, which should be reported to Coder.
 
 Examine your coderd logs for any errors or warnings relating to prebuilds.
+## CoderdPanic
+
+A Coder pod logged a panic or fatal runtime error, or recovered from a panic in
+an HTTP handler. Panics indicate a bug in Coder.
+
+Find the traceback in the affected pod's logs:
+
+```console
+kubectl -n coder logs <pod> | grep -B 1 -A 30 -E '^(panic|fatal error): |panic serving http request'
+```
+
+An unrecovered panic also restarts the pod, so check `--previous` logs if the
+current logs contain no traceback.
+
+Report the traceback to [coder/coder](https://github.com/coder/coder/issues) if
+an issue does not already exist for it.
